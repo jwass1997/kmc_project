@@ -22,6 +22,9 @@ Configuration::Configuration(const std::string& configPath) {
     std::ifstream donorFile(donorConfig);
     std::ifstream electrodeFile(electrodeConfig);
 
+    if (!acceptorFile.is_open()) {
+        std::cerr << "No such file: " << acceptorConfig << "\n";
+    }
 }
 
 std::filesystem::path Configuration::getConfigFilePath(const std::string& folder, const std::string& file) {

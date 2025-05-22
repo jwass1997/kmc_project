@@ -39,5 +39,5 @@ class Configuration {
         std::vector<int> siteOccupation;
     private:
 
-        std::filesyste::path getConfigFilePath(const std::string& folder, const std::string& file);
+        std::filesystem::path getConfigFilePath(const std::string& folder, const std::string& file);
 };

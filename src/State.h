@@ -19,7 +19,7 @@ class State {
 
         void initRandomState();
         
-        void initStateFromConfig(const std::string& configPath);
+        void initStateFromConfig(Configuration config);
 
         void initContainers();
 
@@ -53,7 +53,7 @@ class State {
 
         double minHopDistance = 3.0;
 
-        double maxHopDistance 60.0;
+        double maxHopDistance = 60.0;
 
         std::vector<double> acceptorCoordinates;
 
