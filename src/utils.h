@@ -30,8 +30,6 @@ inline constexpr double eps0 = 8.854187817620389e-12;
 
 inline constexpr double epsr = 10.0;
 
-inline constexpr double kbT = 1.0630997e-21;
-
 inline double fastExp(double x);
 
 int argParser(int argc, char* argv[]);

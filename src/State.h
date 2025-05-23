@@ -6,20 +6,20 @@
 
 #include "utils.h"
 
+class Configuration;
 class FiniteElementCircle;
 
 class State {
 
     public:
+
         State();
 
-        State(const std::string& configPath);
-
-        std::filesystem::path getConfigFilePath(const std::string& folderPath, const std::string& fileName);
+        State(Configuration& config);
 
         void initRandomState();
         
-        void initStateFromConfig(Configuration config);
+        void initStateFromConfig(Configuration& config);
 
         void initContainers();
 
@@ -27,33 +27,30 @@ class State {
 
         void initOccupiedSites();
 
-        int nAcceptors = 200;
+        int nAcceptors;
 
-        int nDonors = 3;
+        int nDonors;
 
-        int nElectrodes = 8;
+        int nElectrodes;
 
         int numOfSites;
 
-        double radius = 150.0;
+        double radius;
 
-        double nu0 = 1.0;
+        double nu0;
+        double a;
+        double T;
 
-        double a = 20.0;
+        double energyDisorder;
+        double R;
+        double A0;
 
-        double T = 77.0;
+        double electrodeWidth;
 
-        double energyDisorder = 0.05*e / kbT;
+        double minHopDistance;
+        double maxHopDistance;
 
-        double R = std::sqrt(M_PI*radius*radius / static_cast<double>(nAcceptors));
-
-        double A0 = (e*e) / (4.0*kbT*PI*eps0*epsr*1e-9*R);
-
-        double electrodeWidth = 60.0;
-
-        double minHopDistance = 3.0;
-
-        double maxHopDistance = 60.0;
+        bool noDimension = true;
 
         std::vector<double> acceptorCoordinates;
 

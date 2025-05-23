@@ -15,9 +15,9 @@ Configuration::Configuration() {
 Configuration::Configuration(const std::string& configPath) {
 
     auto config = getConfigFilePath(configPath, "config.txt");
-    auto acceptorConfig = getConfigFilePath(configPath, "acceptorConfig.txt");
-    auto donorConfig = getConfigFilePath(configPath, "donorConfig.txt");
-    auto electrodeConfig = getConfigFilePath(configPath, "electrodeConfig.txt");
+    auto acceptorConfig = getConfigFilePath(configPath, "acceptors.txt");
+    auto donorConfig = getConfigFilePath(configPath, "donors.txt");
+    auto electrodeConfig = getConfigFilePath(configPath, "electrodes.txt");
 
     std::ifstream configFile(config);
     std::ifstream acceptorFile(acceptorConfig);
@@ -61,7 +61,7 @@ Configuration::Configuration(const std::string& configPath) {
                     T = std::stod(value);
                 }
                 else if (key == "energyDisorder") {
-                    energyDisorder = std::stod(value) / kbT;
+                    energyDisorder = std::stod(value)*e / kb*T;
                 }
                 else if (key == "electrodeWidth") {
                     electrodeWidth = std::stod(value);
@@ -80,8 +80,9 @@ Configuration::Configuration(const std::string& configPath) {
         configFile.close();
     }
 
+    numOfSites = nAcceptors + nElectrodes;
     R = std::sqrt(M_PI*radius*radius / static_cast<double>(nAcceptors));
-    A0 = (e*e) / (4.0*kbT*PI*eps0*epsr*1e-9);
+    A0 = (e*e) / (4.0*kb*T*PI*eps0*epsr*1e-9);
 
     if (noDimension) {
         radius = radius / R;
@@ -105,6 +106,11 @@ Configuration::Configuration(const std::string& configPath) {
 
                 double coordX, coordY;
                 ss >> coordX >> coordY;
+                
+                if (noDimension) {
+                    coordX = coordX / R;
+                    coordY = coordY / R;
+                }
 
                 acceptorCoords.push_back(coordX);
                 acceptorCoords.push_back(coordY);
@@ -129,6 +135,11 @@ Configuration::Configuration(const std::string& configPath) {
                 double coordX, coordY;
                 ss >> coordX >> coordY;
 
+                if (noDimension) {
+                    coordX = coordX / R;
+                    coordY = coordY / R;
+                }
+
                 donorCoords.push_back(coordX);
                 donorCoords.push_back(coordY);
             }
@@ -148,16 +159,16 @@ Configuration::Configuration(const std::string& configPath) {
             }
             else {
                 std::stringstream ss(line);
-                std::string angularPosition;
-                std::string voltage;
+                std::string angleStr;
+                std::string vStr;
 
                 double angularPosition, voltage;
-                ss >> angularPosition >> voltage;
+                ss >> angleStr >> vStr;
 
                 Electrode* newElectrode = new Electrode;
 
-                newElectrode->angularPosition = std::stod(angularPosition);
-                newElectrode->voltage = std::stod(voltage);
+                newElectrode->angularPosition = std::stod(angleStr);
+                newElectrode->voltage = std::stod(vStr);
 
                 double phi = (2.0*M_PI*newElectrode->angularPosition) / 360.0;
                 double x = radius*std::cos(phi);
