@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cmath>
 
+#include "Random.h"
 #include "State.h"
 #include "FEMmethods.h"
 #include "Configuration.h"
@@ -80,4 +81,149 @@ void State::initStateFromConfig(Configuration& config) {
     distanceMatrix.resize(numOfSites*numOfSites, 0.0);
     inverseAcceptorDistances.resize(nAcceptors*nAcceptors, 0.0);
     occupationOfStates.resize(nAcceptors, 0);
+}
+
+void State::initContainers() {
+
+    std::vector<std::array<double,2>> allCoordinates(numOfSites);
+
+    for (int i = 0; i < nAcceptors; ++i) {
+        allCoordinates[i][0] = acceptorCoordinates[i*2];
+        allCoordinates[i][1] = acceptorCoordinates[i*2 + 1];
+    }
+
+    for (int i = 0; i < nElectrodes; ++i) {
+        allCoordinates[i+nAcceptors][0] = electrodeCoordinates[i*2];
+        allCoordinates[i+nAcceptors][1] = electrodeCoordinates[i*2 + 1];
+    }
+
+    numOfNeighbours.resize(numOfSites);
+    int totalNumOfEvents = 0;
+    for (int i = 0; i < numOfSites; ++i) {
+        distanceMatrix[i*numOfSites + i] = 0.0;
+        for (int j = i + 1; j < numOfSites; ++j) {
+            double Dx = allCoordinates[i][0] - allCoordinates[j][0];
+            double Dy = allCoordinates[i][1] - allCoordinates[j][1];
+            double distance = std::sqrt(Dx*Dx + Dy*Dy);
+            distanceMatrix[i*numOfSites + j] = distance;
+            distanceMatrix[j*numOfSites + i] = distance;
+            if ((distance > minHopDistance) && (distance < maxHopDistance)) {
+                totalNumOfEvents++;
+                numOfNeighbours[i]+=1;
+                numOfNeighbours[j]+=1;
+            }
+        }  
+    }
+
+    jaggedArrayLengths.resize(numOfSites+1);
+    jaggedArrayLengths[0] = 0;
+    for (int i = 0; i < numOfSites; ++i) {
+        jaggedArrayLengths[i+1] = jaggedArrayLengths[i] + numOfNeighbours[i];
+    }
+
+    std::vector<int> writePtr(numOfSites);
+    for (int i = 0; i < numOfSites; ++i) {
+        writePtr[i] = jaggedArrayLengths[i];
+    }
+
+    constantTransitionRates.resize(2*totalNumOfEvents);
+    dynamicalTransitionRates.resize(2*totalNumOfEvents);
+    neighbourIndices.resize(2*totalNumOfEvents);
+
+    for (int i = 0; i < numOfSites; ++i) {
+        for (int j = i+1; j < numOfSites; ++j) {
+            double distance =  distanceMatrix[i*numOfSites + j];
+            if (distance > minHopDistance && distance < maxHopDistance) {
+                int indexIJ = writePtr[i]++;
+                int indexJI = writePtr[j]++;
+                neighbourIndices[indexIJ] = j;
+                neighbourIndices[indexJI] = i;
+                constantTransitionRates[indexIJ] = nu0*fastExp(-2.0*distance / a);
+                constantTransitionRates[indexJI] = nu0*fastExp(-2.0*distance / a);
+            }
+        }
+    }
+
+    for (int i = 0; i < nAcceptors; ++i) {
+        inverseAcceptorDistances[i*nAcceptors + i] = 0.0;
+        for (int j = i+1; j < nAcceptors; ++j) {
+            double inverseDistance = 1.0 / distanceMatrix[i*numOfSites + j];
+            inverseAcceptorDistances[i*nAcceptors + j] = inverseDistance;
+            inverseAcceptorDistances[j*nAcceptors + i] = inverseDistance;
+        }
+    } 
+}
+
+void State::initSiteEnergies(FiniteElementeCircle& femSolver) {
+
+    std::vector<double> inverseDistances(nAcceptors, 0.0);
+    // Acc-Don interaction + random energy + potential energy (for acceptors only)
+    for(int i = 0; i < nAcceptors; ++i) {
+        double potentialEnergy = femSolver.getPotential(
+            acceptorCoordinates[i*2], 
+            acceptorCoordinates[i*2 + 1]
+        )*e / kb*T;
+        //std::cout << potentialEnergy << "\n";
+		double sumOfInverseDistances = 0.0;
+		for(int j = 0; j <  nDonors; j++) {
+			sumOfInverseDistances += 1.0 / calculateDistance(
+                acceptorCoordinates[i*2], 
+                donorCoordinates[j*2], 
+                acceptorCoordinates[i*2 + 1], 
+                donorCoordinates[j*2 + 1]
+            );
+		}
+
+		inverseDistances[i] = sumOfInverseDistances;
+		acceptorDonorInteraction[i] = A0*sumOfInverseDistances;
+
+		if(energyDisorder != 0.0) {
+			double randomEnergy = normalDist(0.0, energyDisorder);	
+			randomEnergies[i] = randomEnergy;		
+		}
+        stateEnergies[i] = potentialEnergy + acceptorDonorInteraction[i] + randomEnergies[i];
+	}
+    // Potential energy (for electrodes only)
+	for(int i = 0; i < nElectrodes; ++i) {
+		stateEnergies[i] = femSolver.getPotential(electrodeCoordinates[i*2], electrodeCoordinates[i*2 + 1])*e / kb*T;
+	}
+    // Acc-Acc interaction
+    for (int i = 0; i < nAcceptors; ++i) {
+        for (int j = 0; j < nAcceptors; ++j) {
+            if (i != j) {
+                acceptorInteraction[i] += (1 - occupationOfStates[j]) * inverseAcceptorDistances[i*nAcceptors + j];
+            }
+        }
+        stateEnergies[i] += - A0*acceptorInteraction[i];
+    }
+}
+
+void State::initOccupiedSites() {
+    if (nDonors >= nAcceptors) {
+        throw std::invalid_argument("initOccupiedStates: Number of acceptors can not be equal or smaller than number of donors!");
+    }
+
+    std::vector<int> randomVector(nAcceptors, 0);
+
+    for(int i = 0; i < nAcceptors; ++i) {
+        randomVector[i] = i;
+    }
+    std::shuffle(randomVector.begin(), randomVector.end(), rng);
+    for (int i = 0; i < nAcceptors - nDonors; ++i) {
+        occupationOfStates[randomVector[i]] = 1;
+    }
+}
+
+void State::initOccupiedSites() {
+    
+    int stateToOccupy = 0;
+    for (int i = 0; i < nDonors; ++i) {
+        stateToOccupy = randomInt(0, nAcceptors);
+        occupationOfStates[stateToOccupy] = 1;
+    }
+}
+
+void State::initOccupiedSitesFromConfig(Configuration& config) {
+
+
 }

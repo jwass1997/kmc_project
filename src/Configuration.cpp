@@ -43,7 +43,7 @@ Configuration::Configuration(const std::string& configPath) {
                     nAcceptors = std::stoi(value);
                 }
                 else if (key == "nDonors") {
-                    nDonors = std::stoi(value);
+                    nDonors = std::stoi(value);                   
                 }
                 else if (key == "nElectrodes") {
                     nElectrodes = std::stoi(value);

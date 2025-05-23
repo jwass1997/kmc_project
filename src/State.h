@@ -23,9 +23,11 @@ class State {
 
         void initContainers();
 
-        void initSiteEnergies();
+        void initSiteEnergies(FiniteElementeCircle& femSolver);
 
         void initOccupiedSites();
+
+        void initOccupiedSitesFromConfig(Configuration& config);
 
         int nAcceptors;
 
@@ -66,7 +68,7 @@ class State {
 
         std::vector<int> occupationOfStates;
 
-        /* std::vector<double> randomEnergies;
+        std::vector<double> randomEnergies;
 
         std::vector<double> acceptorDonorInteraction;
 
@@ -78,13 +80,9 @@ class State {
 
         std::vector<double> dynamicalTransitionRates;
 
-        std::vector<double> aggregatedTransitionRates; */
-
         std::vector<int> numOfNeighbours;
         
         std::vector<int> jaggedArrayLengths;
 
         std::vector<int> neighbourIndices;
-
-        std::vector<int> lastHopIndices;     
 };
