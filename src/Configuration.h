@@ -2,7 +2,10 @@
 
 #include <filesystem>
 
+#include "utils.h"
+
 class Configuration {
+
     public:
 
         Configuration();
@@ -30,6 +33,8 @@ class Configuration {
         double minHopDistance;
         double maxHopDistance;
 
+        bool noDimension = true;
+
         std::vector<double> acceptorCoords;
 
         std::vector<double> donorCoords;
@@ -37,7 +42,8 @@ class Configuration {
         std::vector<double> electrodeCoords;
 
         std::vector<int> siteOccupation;
-    private:
 
+    private:
+    
         std::filesystem::path getConfigFilePath(const std::string& folder, const std::string& file);
 };

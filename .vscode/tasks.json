@@ -1,0 +1,35 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "build",
+            "command": "g++",
+            "args": [
+                "-g",
+                "main.cpp",
+                "Configuration.cpp",
+                "KMCSimulator.cpp",
+                "State.cpp",
+                "utils.cpp", 
+                "FEMmethods.cpp",
+                "-o",
+                "main",
+                "-I/usr/local/include",
+                "-L/usr/local/lib",
+                "-fopenmp",
+                "-lmfem",
+                "-lm",
+                "-lcnpy",
+                "-lz",
+                "-lboost_program_options",
+                "-v"
+            ],
+            "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "detail": "Generated task for building Simulation.cpp"
+        }
+    ]
+}
