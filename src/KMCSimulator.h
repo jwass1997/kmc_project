@@ -5,24 +5,27 @@
 #include <iostream>
 
 class State;
+class KMCParameters;
 
 class KMCSimulator {
 
     public:
 
-        KMCSimulator(State& state);
+        KMCSimulator();
 
-        void initKMCSimulator(State& state);
+        KMCSimulator(State& state, KMCParameters& kmcParams);
 
+        int numOfSteps;
+
+        int equilibriumSteps;
+
+        void initKMCSimulator(State& state, KMCParameters& kmcParams);
+        
         void updateTransitionRates(State& state);
-
-        void updateSiteOccupation(State& state);
 
         void sampleEvent(State& state);
 
-        void simulate(State& state);
-
-        std::vector<double> currentSiteEnergies;     
+        void simulate(State& state, bool reset);
 
         std::vector<double> constantTransitionRates;
 

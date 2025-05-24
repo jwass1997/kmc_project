@@ -10,5 +10,11 @@ class KMCParameters {
         KMCParameters();
         KMCParameters(const std::string& paramsPath);
 
+        int numOfSteps;
+
+        int equilibriumSteps;
+
     private:
+
+        std::filesystem::path getConfigFilePath(const std::string& folder, const std::string& file);
 };

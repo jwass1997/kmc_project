@@ -1,6 +1,7 @@
 #include <vector>
 #include <cmath>
 
+#include "KMCParameters.h"
 #include "KMCSimulator.h"
 #include "Random.h"
 #include "State.h"
@@ -10,14 +11,17 @@ struct Results {
     
 };
 
-KMCSimulator::KMCSimulator(State& state) 
+KMCSimulator::KMCSimulator()
 {
-    initKMCSimulator(state);
+    std::cout << "KMCSimulator(): Empty Simulator should not be used" << "\n";
 }
 
-void KMCSimulator::initKMCSimulator(State& state) {
+KMCSimulator::KMCSimulator(State& state, KMCParameters& kmcParams) 
+{
+    initKMCSimulator(state, kmcParams);
+}
 
-    currentSiteEnergies = state.initialSiteEnergies;
+void KMCSimulator::initKMCSimulator(State& state, KMCParameters& kmcParams) {
 
     numOfNeighbors = state.numOfNeighbours;
     jaggedArrayLengths = state.jaggedArrayLengths;
@@ -53,7 +57,7 @@ void KMCSimulator::updateTransitionRates(State& state) {
             int partner = neighborIndices[k];
 			// Electrode - Acceptor
 			if (i >= state.nAcceptors && partner < state.nAcceptors) {
-				if(state.occupationOfStates[partner] == 1) {
+				if(state.currentOccupation[partner] == 1) {
 					dynamicalTransitionRates[k] = 0.0;
 				}
 				else {
@@ -68,7 +72,7 @@ void KMCSimulator::updateTransitionRates(State& state) {
 			}
 			// Acceptor - Electrode
 			else if (i < state.nAcceptors && partner >= state.nAcceptors) {
-				if (state.occupationOfStates[i] == 0) {
+				if (state.currentOccupation[i] == 0) {
 					dynamicalTransitionRates[k] = 0.0;
 				} 
 				else {
@@ -83,7 +87,7 @@ void KMCSimulator::updateTransitionRates(State& state) {
 			}
 			// Acceptor - Acceptor
 			else if (i < state.nAcceptors && partner < state.nAcceptors) {
-				if ((state.occupationOfStates[i] == 1) && (state.occupationOfStates[partner] == 0)) {
+				if ((state.currentOccupation[i] == 1) && (state.currentOccupation[partner] == 0)) {
 					double deltaE = state.siteEnergies[partner] - state.siteEnergies[i] - state.A0 / state.distanceMatrix[i*state.numOfSites + partner];
 					if (deltaE < 0.0) {
 						dynamicalTransitionRates[k] = state.nu0;
@@ -102,25 +106,17 @@ void KMCSimulator::updateTransitionRates(State& state) {
 	}
 }
 
-void KMCSimulator::updateSiteOccupation(State& state) {
+void KMCSimulator::simulate(State& state, bool reset) {
+    
+    if (reset) {
+        state.resetState();
+    }
 
-    if (lastHopIndices[0] < state.nAcceptors && lastHopIndices[1] < state.nAcceptors) {
-		state.occupationOfStates[lastHopIndices[0]] = 0;
-		state.occupationOfStates[lastHopIndices[1]] = 1;
-	}
-	if (lastHopIndices[0] < state.nAcceptors && lastHopIndices[1] >= state.nAcceptors) {
-		state.occupationOfStates[lastHopIndices[0]] = 0;
-	}
-	if (lastHopIndices[0] >= state.nAcceptors) {
-		if(lastHopIndices[1] < state.nAcceptors) {
-			state.occupationOfStates[lastHopIndices[1]] = 1;
-		}
-	}
-}
-
-void KMCSimulator::simulate(State& state) {
-
-
+    state.updateSiteEnergies(lastHopIndices);
+    updateTransitionRates(state);
+    sampleEvent(state);
+    state.updateSiteOccupation(lastHopIndices);
+    
 }
 
 void KMCSimulator::sampleEvent(State& state) {

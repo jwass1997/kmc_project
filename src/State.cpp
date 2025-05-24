@@ -25,11 +25,13 @@ State::State()
     electrodeCoordinates.resize(2*nElectrodes, 0.0);
     distanceMatrix.resize(numOfSites*numOfSites, 0.0);
     inverseAcceptorDistances.resize(nAcceptors*nAcceptors, 0.0);
-    occupationOfStates.resize(nAcceptors, 0);
+    currentOccupation.resize(nAcceptors, 0);
+    initialOccupation.resize(nAcceptors, 0);
     randomEnergies.resize(nAcceptors, 0.0);
     acceptorDonorInteraction.resize(nAcceptors, 0.0);
     acceptorInteraction.resize(nAcceptors*nAcceptors, 0.0);
     initialSiteEnergies.resize(nAcceptors+nElectrodes, 0.0);
+    initialPotential.resize(nAcceptors+nElectrodes, 0.0);
     currentPotential.resize(nAcceptors+nElectrodes, 0.0);
     siteEnergies.resize(nAcceptors+nElectrodes, 0.0);
 
@@ -86,11 +88,13 @@ void State::initStateFromConfig(Configuration& config) {
     electrodeCoordinates.resize(2*nElectrodes, 0.0);
     distanceMatrix.resize(numOfSites*numOfSites, 0.0);
     inverseAcceptorDistances.resize(nAcceptors*nAcceptors, 0.0);
-    occupationOfStates.resize(nAcceptors, 0);
+    currentOccupation.resize(nAcceptors, 0);
+    initialOccupation.resize(nAcceptors, 0);
     randomEnergies.resize(nAcceptors, 0.0);
     acceptorDonorInteraction.resize(nAcceptors, 0.0);
     acceptorInteraction.resize(nAcceptors*nAcceptors, 0.0);
     initialSiteEnergies.resize(nAcceptors+nElectrodes, 0.0);
+    initialPotential.resize(nAcceptors+nElectrodes, 0.0);
     currentPotential.resize(nAcceptors+nElectrodes, 0.0);
     siteEnergies.resize(nAcceptors+nElectrodes, 0.0);    
 }
@@ -192,18 +196,20 @@ void State::initSiteEnergies(FiniteElementeCircle& femSolver) {
 
         initialSiteEnergies[i] = potentialEnergy + acceptorDonorInteraction[i] + randomEnergies[i];
         currentPotential[i] += potentialEnergy;
+        initialPotential[i] += potentialEnergy;
 	}
     // Potential energy (for electrodes only)
 	for(int i = 0; i < nElectrodes; ++i) {
         double potentialEnergy = femSolver.getPotential(electrodeCoordinates[i*2], electrodeCoordinates[i*2 + 1])*e / kb*T;
 		initialSiteEnergies[i + nAcceptors] += potentialEnergy;
         currentPotential[i + nAcceptors] += potentialEnergy;
+        initialPotential[i + nAcceptors] += potentialEnergy;
 	}
     // Acc-Acc interaction
     for (int i = 0; i < nAcceptors; ++i) {
         for (int j = 0; j < nAcceptors; ++j) {
             if (i != j) {
-                acceptorInteraction[i] += (1 - occupationOfStates[j]) * inverseAcceptorDistances[i*nAcceptors + j];
+                acceptorInteraction[i] += (1 - currentOccupation[j]) * inverseAcceptorDistances[i*nAcceptors + j];
             }
         }
         initialSiteEnergies[i] += - A0*acceptorInteraction[i];
@@ -213,7 +219,7 @@ void State::initSiteEnergies(FiniteElementeCircle& femSolver) {
 void State::initOccupiedSites() {
 
     if (nDonors >= nAcceptors) {
-        throw std::invalid_argument("initOccupiedStates: Number of acceptors can not be equal or smaller than number of donors!");
+        throw std::invalid_argument("initOccupiedStates(): Number of acceptors can not be equal or smaller than number of donors!");
     }
 
     std::vector<int> randomVector(nAcceptors, 0);
@@ -223,17 +229,10 @@ void State::initOccupiedSites() {
     }
     std::shuffle(randomVector.begin(), randomVector.end(), rng);
     for (int i = 0; i < nAcceptors - nDonors; ++i) {
-        occupationOfStates[randomVector[i]] = 1;
+        currentOccupation[randomVector[i]] = 1;
     }
-}
 
-void State::initOccupiedSites() {
-    
-    int stateToOccupy = 0;
-    for (int i = 0; i < nDonors; ++i) {
-        stateToOccupy = randomInt(0, nAcceptors);
-        occupationOfStates[stateToOccupy] = 1;
-    }
+    initialOccupation = currentOccupation;
 }
 
 void State::initOccupiedSitesFromConfig(Configuration& config) {
@@ -241,7 +240,7 @@ void State::initOccupiedSitesFromConfig(Configuration& config) {
 
 }
 
-void State::updateSiteEnergies() {
+void State::updateSiteEnergies(std::vector<int> lastHopIndices) {
 
     if (lastHopIndices[0] < nAcceptors && lastHopIndices[1] < nAcceptors) {
         for (int i = 0; i < nAcceptors; ++i) {
@@ -271,4 +270,29 @@ void State::updateSiteEnergies() {
     for (int i = 0; i < nAcceptors; ++i) {
         siteEnergies[i] = currentPotential[i] + acceptorDonorInteraction[i] + randomEnergies[i] - A0*acceptorInteraction[i];
     }
+}
+
+void State::updateSiteOccupation(std::vector<int> lastHopIndices) {
+
+    if (lastHopIndices[0] < nAcceptors && lastHopIndices[1] < nAcceptors) {
+		currentOccupation[lastHopIndices[0]] = 0;
+		currentOccupation[lastHopIndices[1]] = 1;
+	}
+	if (lastHopIndices[0] < nAcceptors && lastHopIndices[1] >= nAcceptors) {
+		currentOccupation[lastHopIndices[0]] = 0;
+	}
+	if (lastHopIndices[0] >= nAcceptors) {
+		if(lastHopIndices[1] < nAcceptors) {
+			currentOccupation[lastHopIndices[1]] = 1;
+		}
+	}
+}
+
+void State::resetState() {
+
+    stateTime = 0.0;
+
+    siteEnergies = initialSiteEnergies;
+    currentPotential = initialPotential;
+    currentOccupation = initialOccupation;
 }

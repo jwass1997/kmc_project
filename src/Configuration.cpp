@@ -8,8 +8,9 @@
 
 #include "Configuration.h"
 
-Configuration::Configuration() {
-
+Configuration::Configuration() 
+{
+    std::cout << "Configuration(): No configuration loaded" << "\n";
 }
 
 Configuration::Configuration(const std::string& configPath) {
@@ -29,7 +30,7 @@ Configuration::Configuration(const std::string& configPath) {
     }
     else {
         std::string line;
-        while(getline(configFile, line)) {
+        while (getline(configFile, line)) {
             if (line.empty() || line[0]=='#') {
                 continue;
             }

@@ -7,7 +7,7 @@
 #include "utils.h"
 
 class Configuration;
-class FiniteElementCircle;
+class FiniteElementeCircle;
 
 class State {
 
@@ -29,11 +29,13 @@ class State {
 
         void initOccupiedSitesFromConfig(Configuration& config);
 
-        void updateSiteEnergies();
+        void updateSiteEnergies(std::vector<int> lastHopIndices);
 
-        void updateSiteOccupation();
-        
-        void updateTransitionRates();
+        void updateSiteOccupation(std::vector<int> lastHopIndices);
+
+        void increaseStateTime();
+
+        void resetState();
 
         int nAcceptors;
 
@@ -60,6 +62,8 @@ class State {
 
         bool noDimension = true;
 
+        double stateTime;
+
         std::vector<double> acceptorCoordinates;
 
         std::vector<double> donorCoordinates;
@@ -72,7 +76,9 @@ class State {
 
         std::vector<Electrode* > electrodeData;
 
-        std::vector<int> occupationOfStates;
+        std::vector<int> initialOccupation;
+
+        std::vector<int> currentOccupation;
 
         std::vector<double> randomEnergies;
 
@@ -80,7 +86,9 @@ class State {
 
         std::vector<double> acceptorInteraction;
 
-        std::vector<double> initialSiteEnergies;      
+        std::vector<double> initialSiteEnergies;  
+        
+        std::vector<double> initialPotential;
         
         std::vector<double> currentPotential;
 
