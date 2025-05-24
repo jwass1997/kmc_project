@@ -12,13 +12,35 @@ class KMCSimulator {
 
         KMCSimulator(State& state);
 
-    private:
+        void initKMCSimulator(State& state);
 
-        std::vector<int> lastHopIndices;
+        void updateTransitionRates(State& state);
+
+        void updateSiteOccupation(State& state);
+
+        void sampleEvent(State& state);
+
+        void simulate(State& state);
+
+        std::vector<double> currentSiteEnergies;     
 
         std::vector<double> constantTransitionRates;
 
         std::vector<double> dynamicalTransitionRates;
 
-        
+        std::vector<double> aggregatedTransitionRates;
+
+        int totalSumOfRates;
+
+        int cumulativeSumOfRates;
+
+        std::vector<int> numOfNeighbors;
+
+        std::vector<int> jaggedArrayLengths;
+
+        std::vector<int> neighborIndices;
+
+        int totalNumOfEvents;
+
+        std::vector<int> lastHopIndices;
 };

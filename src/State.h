@@ -29,6 +29,12 @@ class State {
 
         void initOccupiedSitesFromConfig(Configuration& config);
 
+        void updateSiteEnergies();
+
+        void updateSiteOccupation();
+        
+        void updateTransitionRates();
+
         int nAcceptors;
 
         int nDonors;
@@ -74,15 +80,17 @@ class State {
 
         std::vector<double> acceptorInteraction;
 
-        std::vector<double> stateEnergies;        
+        std::vector<double> initialSiteEnergies;      
+        
+        std::vector<double> currentPotential;
 
-        std::vector<double> constantTransitionRates;
-
-        std::vector<double> dynamicalTransitionRates;
+        std::vector<double> siteEnergies;
 
         std::vector<int> numOfNeighbours;
         
         std::vector<int> jaggedArrayLengths;
 
         std::vector<int> neighbourIndices;
+
+        int totalNumOfEvents;
 };

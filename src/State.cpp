@@ -26,6 +26,12 @@ State::State()
     distanceMatrix.resize(numOfSites*numOfSites, 0.0);
     inverseAcceptorDistances.resize(nAcceptors*nAcceptors, 0.0);
     occupationOfStates.resize(nAcceptors, 0);
+    randomEnergies.resize(nAcceptors, 0.0);
+    acceptorDonorInteraction.resize(nAcceptors, 0.0);
+    acceptorInteraction.resize(nAcceptors*nAcceptors, 0.0);
+    initialSiteEnergies.resize(nAcceptors+nElectrodes, 0.0);
+    currentPotential.resize(nAcceptors+nElectrodes, 0.0);
+    siteEnergies.resize(nAcceptors+nElectrodes, 0.0);
 
     initRandomState();
 }
@@ -81,6 +87,12 @@ void State::initStateFromConfig(Configuration& config) {
     distanceMatrix.resize(numOfSites*numOfSites, 0.0);
     inverseAcceptorDistances.resize(nAcceptors*nAcceptors, 0.0);
     occupationOfStates.resize(nAcceptors, 0);
+    randomEnergies.resize(nAcceptors, 0.0);
+    acceptorDonorInteraction.resize(nAcceptors, 0.0);
+    acceptorInteraction.resize(nAcceptors*nAcceptors, 0.0);
+    initialSiteEnergies.resize(nAcceptors+nElectrodes, 0.0);
+    currentPotential.resize(nAcceptors+nElectrodes, 0.0);
+    siteEnergies.resize(nAcceptors+nElectrodes, 0.0);    
 }
 
 void State::initContainers() {
@@ -98,7 +110,7 @@ void State::initContainers() {
     }
 
     numOfNeighbours.resize(numOfSites);
-    int totalNumOfEvents = 0;
+    totalNumOfEvents = 0;
     for (int i = 0; i < numOfSites; ++i) {
         distanceMatrix[i*numOfSites + i] = 0.0;
         for (int j = i + 1; j < numOfSites; ++j) {
@@ -126,8 +138,6 @@ void State::initContainers() {
         writePtr[i] = jaggedArrayLengths[i];
     }
 
-    constantTransitionRates.resize(2*totalNumOfEvents);
-    dynamicalTransitionRates.resize(2*totalNumOfEvents);
     neighbourIndices.resize(2*totalNumOfEvents);
 
     for (int i = 0; i < numOfSites; ++i) {
@@ -138,8 +148,6 @@ void State::initContainers() {
                 int indexJI = writePtr[j]++;
                 neighbourIndices[indexIJ] = j;
                 neighbourIndices[indexJI] = i;
-                constantTransitionRates[indexIJ] = nu0*fastExp(-2.0*distance / a);
-                constantTransitionRates[indexJI] = nu0*fastExp(-2.0*distance / a);
             }
         }
     }
@@ -181,11 +189,15 @@ void State::initSiteEnergies(FiniteElementeCircle& femSolver) {
 			double randomEnergy = normalDist(0.0, energyDisorder);	
 			randomEnergies[i] = randomEnergy;		
 		}
-        stateEnergies[i] = potentialEnergy + acceptorDonorInteraction[i] + randomEnergies[i];
+
+        initialSiteEnergies[i] = potentialEnergy + acceptorDonorInteraction[i] + randomEnergies[i];
+        currentPotential[i] += potentialEnergy;
 	}
     // Potential energy (for electrodes only)
 	for(int i = 0; i < nElectrodes; ++i) {
-		stateEnergies[i] = femSolver.getPotential(electrodeCoordinates[i*2], electrodeCoordinates[i*2 + 1])*e / kb*T;
+        double potentialEnergy = femSolver.getPotential(electrodeCoordinates[i*2], electrodeCoordinates[i*2 + 1])*e / kb*T;
+		initialSiteEnergies[i + nAcceptors] += potentialEnergy;
+        currentPotential[i + nAcceptors] += potentialEnergy;
 	}
     // Acc-Acc interaction
     for (int i = 0; i < nAcceptors; ++i) {
@@ -194,11 +206,12 @@ void State::initSiteEnergies(FiniteElementeCircle& femSolver) {
                 acceptorInteraction[i] += (1 - occupationOfStates[j]) * inverseAcceptorDistances[i*nAcceptors + j];
             }
         }
-        stateEnergies[i] += - A0*acceptorInteraction[i];
+        initialSiteEnergies[i] += - A0*acceptorInteraction[i];
     }
 }
 
 void State::initOccupiedSites() {
+
     if (nDonors >= nAcceptors) {
         throw std::invalid_argument("initOccupiedStates: Number of acceptors can not be equal or smaller than number of donors!");
     }
@@ -226,4 +239,36 @@ void State::initOccupiedSites() {
 void State::initOccupiedSitesFromConfig(Configuration& config) {
 
 
+}
+
+void State::updateSiteEnergies() {
+
+    if (lastHopIndices[0] < nAcceptors && lastHopIndices[1] < nAcceptors) {
+        for (int i = 0; i < nAcceptors; ++i) {
+            if (i != lastHopIndices[1]) {
+                acceptorInteraction[i] -= 1.0*inverseAcceptorDistances[i*nAcceptors + lastHopIndices[1]];
+            }
+            if (i != lastHopIndices[0]) {
+                acceptorInteraction[i] += 1.0*inverseAcceptorDistances[i*nAcceptors + lastHopIndices[0]];
+            }
+        }
+    }
+    if (lastHopIndices[0] < nAcceptors && lastHopIndices[1] >= nAcceptors) {
+        for (int i = 0; i < nAcceptors; ++i) {
+            if (i != lastHopIndices[0]) {
+                acceptorInteraction[i] += 1.0*inverseAcceptorDistances[i*nAcceptors + lastHopIndices[0]];
+            }
+        }
+    }
+    if (lastHopIndices[0] >= nAcceptors && lastHopIndices[1] < nAcceptors) {
+        for (int i = 0; i < nAcceptors; ++i) {
+            if (i != lastHopIndices[1]) {
+                acceptorInteraction[i] -= 1.0*inverseAcceptorDistances[i*nAcceptors + lastHopIndices[1]];
+            }
+        }
+    }
+
+    for (int i = 0; i < nAcceptors; ++i) {
+        siteEnergies[i] = currentPotential[i] + acceptorDonorInteraction[i] + randomEnergies[i] - A0*acceptorInteraction[i];
+    }
 }
