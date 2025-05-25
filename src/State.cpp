@@ -34,13 +34,42 @@ State::State()
     initialPotential.resize(nAcceptors+nElectrodes, 0.0);
     currentPotential.resize(nAcceptors+nElectrodes, 0.0);
     siteEnergies.resize(nAcceptors+nElectrodes, 0.0);
+    eventCounter.resize(numOfSites*numOfSites, 0);
 
     initRandomState();
 }
 
-State::State(Configuration& config) {
-
-    initStateFromConfig(config);
+State::State(Configuration& config)
+    : acceptorCoordinates(config.acceptorCoords)
+    , donorCoordinates(config.donorCoords)
+    , electrodeCoordinates(config.electrodeCoords)
+    , nAcceptors(config.nAcceptors)
+    , nDonors(config.nDonors)
+    , nElectrodes(config.nElectrodes)
+    , numOfSites(config.numOfSites)
+    , radius(config.radius)
+    , nu0(config.nu0)
+    , a(config.a)
+    , T(config.T)
+    , energyDisorder(config.energyDisorder)
+    , R(config.R)
+    , A0(config.A0)
+    , electrodeWidth(config.electrodeWidth)
+    , minHopDistance(config.minHopDistance)
+    , maxHopDistance(config.maxHopDistance)
+{
+    distanceMatrix.resize(numOfSites*numOfSites, 0.0);
+    inverseAcceptorDistances.resize(nAcceptors*nAcceptors, 0.0);
+    currentOccupation.resize(nAcceptors, 0);
+    initialOccupation.resize(nAcceptors, 0);
+    randomEnergies.resize(nAcceptors, 0.0);
+    acceptorDonorInteraction.resize(nAcceptors, 0.0);
+    acceptorInteraction.resize(nAcceptors*nAcceptors, 0.0);
+    initialSiteEnergies.resize(nAcceptors+nElectrodes, 0.0);
+    initialPotential.resize(nAcceptors+nElectrodes, 0.0);
+    currentPotential.resize(nAcceptors+nElectrodes, 0.0);
+    siteEnergies.resize(nAcceptors+nElectrodes, 0.0);   
+    eventCounter.resize(numOfSites*numOfSites, 0); 
 }
 
 void State::initRandomState() {
@@ -86,6 +115,7 @@ void State::initStateFromConfig(Configuration& config) {
     acceptorCoordinates.resize(2*nAcceptors, 0.0);
     donorCoordinates.resize(2*nDonors, 0.0);
     electrodeCoordinates.resize(2*nElectrodes, 0.0);
+    
     distanceMatrix.resize(numOfSites*numOfSites, 0.0);
     inverseAcceptorDistances.resize(nAcceptors*nAcceptors, 0.0);
     currentOccupation.resize(nAcceptors, 0);
@@ -96,7 +126,8 @@ void State::initStateFromConfig(Configuration& config) {
     initialSiteEnergies.resize(nAcceptors+nElectrodes, 0.0);
     initialPotential.resize(nAcceptors+nElectrodes, 0.0);
     currentPotential.resize(nAcceptors+nElectrodes, 0.0);
-    siteEnergies.resize(nAcceptors+nElectrodes, 0.0);    
+    siteEnergies.resize(nAcceptors+nElectrodes, 0.0);   
+    eventCounter.resize(numOfSites*numOfSites, 0); 
 }
 
 void State::initContainers() {
@@ -286,6 +317,14 @@ void State::updateSiteOccupation(std::vector<int> lastHopIndices) {
 			currentOccupation[lastHopIndices[1]] = 1;
 		}
 	}
+}
+
+void State::increaseStateTime(double rate) {
+
+    double _r = randomDouble01() + 1e-12;
+    double _dt = -(std::log(_r) / rate);
+
+    stateTime += _dt;
 }
 
 void State::resetState() {

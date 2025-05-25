@@ -25,7 +25,9 @@ class KMCSimulator {
 
         void sampleEvent(State& state);
 
-        void simulate(State& state, bool reset);
+        void mcStep(State& state, bool writeData);
+
+        void simulate(State& state, int steps, bool reset, bool writeData);
 
         std::vector<double> constantTransitionRates;
 

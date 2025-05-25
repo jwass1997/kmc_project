@@ -106,17 +106,28 @@ void KMCSimulator::updateTransitionRates(State& state) {
 	}
 }
 
-void KMCSimulator::simulate(State& state, bool reset) {
-    
-    if (reset) {
-        state.resetState();
-    }
+void KMCSimulator::mcStep(State& state, bool writeData) {
 
     state.updateSiteEnergies(lastHopIndices);
     updateTransitionRates(state);
     sampleEvent(state);
     state.updateSiteOccupation(lastHopIndices);
-    
+    state.increaseStateTime(totalSumOfRates);
+
+    if (writeData) {
+        state.eventCounter[lastHopIndices[0]*state.numOfSites + lastHopIndices[1]] += 1;
+    }
+}
+
+void KMCSimulator::simulate(State& state, int steps, bool reset, bool writeData) {
+
+    if (reset) {
+        state.resetState();
+    }
+
+    for (int i = 0; i < numOfSteps; ++i) {
+        mcStep(state, writeData);
+    }
 }
 
 void KMCSimulator::sampleEvent(State& state) {

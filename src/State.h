@@ -33,7 +33,7 @@ class State {
 
         void updateSiteOccupation(std::vector<int> lastHopIndices);
 
-        void increaseStateTime();
+        void increaseStateTime(double rate);
 
         void resetState();
 
@@ -101,4 +101,6 @@ class State {
         std::vector<int> neighbourIndices;
 
         int totalNumOfEvents;
+
+        std::vector<int> eventCounter;
 };
