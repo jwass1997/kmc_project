@@ -33,9 +33,15 @@ class State {
 
         void updateSiteOccupation(std::vector<int> lastHopIndices);
 
+        void updateBoundaries(std::vector<double> boundaryValues, FiniteElementeCircle& fem);
+
         void increaseStateTime(double rate);
 
         void resetState();
+
+        void updatePotential(FiniteElementeCircle& fem);
+
+        void resetPotential(FiniteElementeCircle& fem);
 
         int nAcceptors;
 

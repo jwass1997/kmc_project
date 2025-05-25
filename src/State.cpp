@@ -345,6 +345,28 @@ void State::updateSiteOccupation(std::vector<int> lastHopIndices) {
 	}
 }
 
+void State::updateBoundaries(std::vector<double> boundaryValues, FiniteElementeCircle& fem) {
+
+    if (boundaryValues.size() > nElectrodes) {
+        throw std::invalid_argument("updateBoundaries(std::vector<double> boundaryValues, FiniteElementeCircle& fem): Too many boundary values");
+    }
+
+    for (int i = 0; i < numOfSites; ++i) {
+        siteEnergies[i] -= currentPotential[i];
+    }
+
+    for (int bdrVal = 0; bdrVal < boundaryValues.size(); ++bdrVal) {
+        fem.updateElectrodeVoltage(bdrVal, boundaryValues[bdrVal]);
+    }
+
+    fem.run();
+    
+    for (int i = 0; i < nAcceptors; ++i) {
+        currentPotential[i] = fem.getPotential(acceptorCoordinates[i*2], acceptorCoordinates[i*2 + 1]);
+        siteEnergies[i] += currentPotential[i];
+    }
+}
+
 void State::increaseStateTime(double rate) {
 
     double _r = randomDouble01() + 1e-12;

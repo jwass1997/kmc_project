@@ -83,7 +83,7 @@ int main() {
 
     Configuration config(configsPath);
     FiniteElementeCircle fem(config.radius, 1e5);
-
+    std::cout << config.radius << "\n";
     for (int i = 0; i < config.nElectrodes; ++i) {
         fem.setElectrode(
             0.0,
@@ -94,7 +94,7 @@ int main() {
     fem.initRun();
     fem.run();
 
-    State state(config, fem);    
+    State state(config, fem); 
 
     KMCParameters kmcParams(configsPath);
     KMCSimulator sim(state, kmcParams);
