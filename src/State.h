@@ -15,7 +15,7 @@ class State {
 
         State();
 
-        State(Configuration& config);
+        State(Configuration& config, FiniteElementeCircle& fem);
 
         void initRandomState();
         
@@ -51,6 +51,8 @@ class State {
         double a;
         double T;
 
+        double kbT;
+
         double energyDisorder;
         double R;
         double A0;
@@ -74,7 +76,7 @@ class State {
 
         std::vector<double> inverseAcceptorDistances;
 
-        std::vector<Electrode* > electrodeData;
+        std::vector<Electrode> electrodeData;
 
         std::vector<int> initialOccupation;
 

@@ -125,7 +125,7 @@ void KMCSimulator::simulate(State& state, int steps, bool reset, bool writeData)
         state.resetState();
     }
 
-    for (int i = 0; i < numOfSteps; ++i) {
+    for (int i = 0; i < steps; ++i) {
         mcStep(state, writeData);
     }
 }

@@ -20,13 +20,9 @@ void recordDevice(
         throw std::invalid_argument("No save folder specified !");
     }
 
-    Configuration config("");
-    State state(config);
-
+    Configuration config(deviceConfigs);
     FiniteElementeCircle fem(config.radius, 1e5);
-
-    state.initSiteEnergies(fem);
-    state.initOccupiedSites();
+    State state(config, fem);
 
     KMCParameters kmcParams("");
     KMCSimulator simulator(state, kmcParams);
@@ -83,5 +79,23 @@ int main() {
     std::string configsPath = "configs";
     std::string dataPath = "data";
 
-    recordDevice("1", 1e4, 1e6, configsPath, dataPath);
+    //recordDevice("1", 1e4, 1e6, configsPath, dataPath);
+
+    Configuration config(configsPath);
+    FiniteElementeCircle fem(config.radius, 1e5);
+
+    for (int i = 0; i < config.nElectrodes; ++i) {
+        fem.setElectrode(
+            0.0,
+            config.electrodeData[i].angularPosition/360.0 * 2.0*M_PI - 0.5*config.electrodeWidth / config.radius,
+            config.electrodeData[i].angularPosition/360.0 * 2.0*M_PI + 0.5*config.electrodeWidth / config.radius
+        );
+    }
+    fem.initRun();
+    fem.run();
+
+    State state(config, fem);    
+
+    KMCParameters kmcParams(configsPath);
+    KMCSimulator sim(state, kmcParams);
 }

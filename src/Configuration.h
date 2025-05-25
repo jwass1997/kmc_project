@@ -24,6 +24,8 @@ class Configuration {
         double a;
         double T;
 
+        double kbT;
+
         double energyDisorder;
         double R;
         double A0;
@@ -44,6 +46,8 @@ class Configuration {
         std::vector<double> electrodeCoords;
 
         std::vector<int> siteOccupation;
+
+        std::vector<Electrode> electrodeData; 
 
     private:
     

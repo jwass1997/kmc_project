@@ -19,7 +19,10 @@ Configuration::Configuration(const std::string& configPath) {
     auto acceptorConfig = getConfigFilePath(configPath, "acceptors.txt");
     auto donorConfig = getConfigFilePath(configPath, "donors.txt");
     auto electrodeConfig = getConfigFilePath(configPath, "electrodes.txt");
-
+    /* std::cout
+    << "  CWD:    " << std::filesystem::current_path() << "\n"
+    << "  Target: " << std::filesystem::absolute(config) << "\n"
+    << "  Exists: " << std::boolalpha << std::filesystem::exists(config) << "\n"; */
     std::ifstream configFile(config);
     std::ifstream acceptorFile(acceptorConfig);
     std::ifstream donorFile(donorConfig);
@@ -62,7 +65,7 @@ Configuration::Configuration(const std::string& configPath) {
                     T = std::stod(value);
                 }
                 else if (key == "energyDisorder") {
-                    energyDisorder = std::stod(value)*e / kb*T;
+                    energyDisorder = std::stod(value)*e / (kb*T);
                 }
                 else if (key == "electrodeWidth") {
                     electrodeWidth = std::stod(value);
@@ -83,6 +86,7 @@ Configuration::Configuration(const std::string& configPath) {
 
     numOfSites = nAcceptors + nElectrodes;
     R = std::sqrt(M_PI*radius*radius / static_cast<double>(nAcceptors));
+    kbT = kb*T;
     A0 = (e*e) / (4.0*kb*T*PI*eps0*epsr*1e-9);
 
     if (noDimension) {
@@ -91,7 +95,7 @@ Configuration::Configuration(const std::string& configPath) {
         A0 = A0 / R;
         electrodeWidth = electrodeWidth / R;
     }
-
+    
     if (!acceptorFile.is_open()) {
         std::cerr << "No such file: " << acceptorConfig << "\n";
     }
@@ -124,7 +128,7 @@ Configuration::Configuration(const std::string& configPath) {
         std::cerr << "No such file: " << donorConfig << "\n";
     }
     else {
-        std::string line;
+            std::string line;
 
         while (getline(donorFile, line)) {
             if (line.empty() || line[0] == '#') {
@@ -166,16 +170,18 @@ Configuration::Configuration(const std::string& configPath) {
                 double angularPosition, voltage;
                 ss >> angleStr >> vStr;
 
-                Electrode* newElectrode = new Electrode;
+                Electrode newElectrode{};
 
-                newElectrode->angularPosition = std::stod(angleStr);
-                newElectrode->voltage = std::stod(vStr);
+                newElectrode.angularPosition = std::stod(angleStr);
+                newElectrode.voltage = std::stod(vStr);
 
-                double phi = (2.0*M_PI*newElectrode->angularPosition) / 360.0;
+                double phi = (2.0*M_PI*newElectrode.angularPosition) / 360.0;
                 double x = radius*std::cos(phi);
                 double y = radius*std::sin(phi);
                 electrodeCoords.push_back(x);
-                electrodeCoords.push_back(y);                
+                electrodeCoords.push_back(y);      
+                
+                electrodeData.push_back(newElectrode);
             }
         }
         electrodeFile.close();

@@ -15,7 +15,8 @@ State::State()
     , nu0(1.0)
     , a(20.0)
     , T(77.0)
-    , energyDisorder(0.05*e / kb*T)
+    , kbT(kb*T)
+    , energyDisorder(0.05*e / kbT)
     , minHopDistance(3.0)
     , maxHopDistance(60.0)
     , noDimension(true)
@@ -39,7 +40,7 @@ State::State()
     initRandomState();
 }
 
-State::State(Configuration& config)
+State::State(Configuration& config, FiniteElementeCircle& fem)
     : acceptorCoordinates(config.acceptorCoords)
     , donorCoordinates(config.donorCoords)
     , electrodeCoordinates(config.electrodeCoords)
@@ -51,12 +52,14 @@ State::State(Configuration& config)
     , nu0(config.nu0)
     , a(config.a)
     , T(config.T)
+    , kbT(kb*T)
     , energyDisorder(config.energyDisorder)
     , R(config.R)
     , A0(config.A0)
     , electrodeWidth(config.electrodeWidth)
     , minHopDistance(config.minHopDistance)
     , maxHopDistance(config.maxHopDistance)
+    , electrodeData(config.electrodeData)
 {
     distanceMatrix.resize(numOfSites*numOfSites, 0.0);
     inverseAcceptorDistances.resize(nAcceptors*nAcceptors, 0.0);
@@ -70,6 +73,10 @@ State::State(Configuration& config)
     currentPotential.resize(nAcceptors+nElectrodes, 0.0);
     siteEnergies.resize(nAcceptors+nElectrodes, 0.0);   
     eventCounter.resize(numOfSites*numOfSites, 0); 
+
+    initContainers();
+    initSiteEnergies(fem);
+    initOccupiedSites();
 }
 
 void State::initRandomState() {
@@ -93,6 +100,25 @@ void State::initRandomState() {
         donorCoordinates[i*2] = randomR*std::cos(randomPhi);
         donorCoordinates[i*2 + 1] = randomR*std::sin(randomPhi);
     }  
+
+    electrodeData.resize(8);
+
+    std::vector<double> defaultPositions = {
+        0.0,
+        45.,
+        90.,
+        135.,
+        180.,
+        225.,
+        270.,
+        315.,
+        360.
+    };
+
+    for (int i = 0; i < electrodeData.size(); ++i) {
+        electrodeData[i].angularPosition = defaultPositions[i];
+        electrodeData[i].voltage = -1.5 + 3.0*randomDouble01();
+    }
 }
 
 void State::initStateFromConfig(Configuration& config) {
@@ -205,7 +231,7 @@ void State::initSiteEnergies(FiniteElementeCircle& femSolver) {
         double potentialEnergy = femSolver.getPotential(
             acceptorCoordinates[i*2], 
             acceptorCoordinates[i*2 + 1]
-        )*e / kb*T;
+        )*e / kbT;
         //std::cout << potentialEnergy << "\n";
 		double sumOfInverseDistances = 0.0;
 		for(int j = 0; j <  nDonors; j++) {
@@ -231,7 +257,7 @@ void State::initSiteEnergies(FiniteElementeCircle& femSolver) {
 	}
     // Potential energy (for electrodes only)
 	for(int i = 0; i < nElectrodes; ++i) {
-        double potentialEnergy = femSolver.getPotential(electrodeCoordinates[i*2], electrodeCoordinates[i*2 + 1])*e / kb*T;
+        double potentialEnergy = femSolver.getPotential(electrodeCoordinates[i*2], electrodeCoordinates[i*2 + 1])*e / kbT;
 		initialSiteEnergies[i + nAcceptors] += potentialEnergy;
         currentPotential[i + nAcceptors] += potentialEnergy;
         initialPotential[i + nAcceptors] += potentialEnergy;
