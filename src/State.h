@@ -16,18 +16,16 @@ class State {
         State();
 
         State(Configuration& config, FiniteElementeCircle& fem);
-
-        void initRandomState();
         
         void initStateFromConfig(Configuration& config);
 
         void initContainers();
 
+        void initPotential(FiniteElementeCircle& femSolver);
+
         void initSiteEnergies(FiniteElementeCircle& femSolver);
 
         void initOccupiedSites();
-
-        void initOccupiedSitesFromConfig(Configuration& config);
 
         void updateSiteEnergies(std::vector<int> lastHopIndices);
 

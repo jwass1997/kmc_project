@@ -8,7 +8,7 @@
 
 KMCParameters::KMCParameters()
 {
-    std::cout << "No KMC parameters loaded" << "\n";
+    std::cout << "KMCParameters(): Empty constructor should not be used" << "\n";
 }
 
 KMCParameters::KMCParameters(const std::string& paramsPath)

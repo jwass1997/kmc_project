@@ -3,7 +3,6 @@
 #include <filesystem>
 
 #include "Configuration.h"
-#include "KMCParameters.h"
 #include "State.h"
 #include "KMCSimulator.h"
 #include "FEMmethods.h"
@@ -22,10 +21,9 @@ void recordDevice(
 
     Configuration config(deviceConfigs);
     FiniteElementeCircle fem(config.radius, 1e5);
-    State state(config, fem);
 
-    KMCParameters kmcParams("");
-    KMCSimulator simulator(state, kmcParams);
+    State state(config, fem);
+    KMCSimulator simulator(state);
 
     int nAcceptors = state.nAcceptors;
     int nElectrodes = state.nElectrodes;
@@ -79,9 +77,9 @@ int main() {
     std::string configsPath = "configs";
     std::string dataPath = "data";
 
-    //recordDevice("1", 1e4, 1e6, configsPath, dataPath);
+    recordDevice("1", 1e4, 1e5, configsPath, dataPath);
 
-    Configuration config(configsPath);
+    /* Configuration config(configsPath);
     FiniteElementeCircle fem(config.radius, 1e5);
     std::cout << config.radius << "\n";
     for (int i = 0; i < config.nElectrodes; ++i) {
@@ -97,5 +95,5 @@ int main() {
     State state(config, fem); 
 
     KMCParameters kmcParams(configsPath);
-    KMCSimulator sim(state, kmcParams);
+    KMCSimulator sim(state, kmcParams); */
 }

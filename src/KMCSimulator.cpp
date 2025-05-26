@@ -13,15 +13,40 @@ struct Results {
 
 KMCSimulator::KMCSimulator()
 {
-    std::cout << "KMCSimulator(): Empty Simulator should not be used" << "\n";
+    std::cout << "KMCSimulator(): Empty constructor should not be used" << "\n";
 }
 
-KMCSimulator::KMCSimulator(State& state, KMCParameters& kmcParams) 
+KMCSimulator::KMCSimulator(State& state)
 {
-    initKMCSimulator(state, kmcParams);
+    numOfNeighbors = state.numOfNeighbours;
+    jaggedArrayLengths = state.jaggedArrayLengths;
+    neighborIndices = state.neighbourIndices;
+    totalNumOfEvents = state.totalNumOfEvents;
+    lastHopIndices.resize(2, 0);
+
+    constantTransitionRates.resize(2*totalNumOfEvents, 0.0);
+    dynamicalTransitionRates.resize(2*totalNumOfEvents, 0.0);
+    aggregatedTransitionRates.resize(2*totalNumOfEvents, 0.0);
+
+    std::vector<int> writePtr(state.numOfSites);
+    for (int i = 0; i < state.numOfSites; ++i) {
+        writePtr[i] = jaggedArrayLengths[i];
+    }
+
+    for (int i = 0; i < state.numOfSites; ++i) {
+        for (int j = i+1; j < state.numOfSites; ++j) {
+        double distance =  state.distanceMatrix[i*state.numOfSites + j];
+            if (distance > state.minHopDistance && distance < state.maxHopDistance) {
+                int indexIJ = writePtr[i]++;
+                int indexJI = writePtr[j]++;
+                constantTransitionRates[indexIJ] = state.nu0*fastExp(-2.0*distance / state.a);
+                constantTransitionRates[indexJI] = state.nu0*fastExp(-2.0*distance / state.a);
+            }
+        }
+    }
 }
 
-void KMCSimulator::initKMCSimulator(State& state, KMCParameters& kmcParams) {
+void KMCSimulator::initKMCSimulator(State& state) {
 
     numOfNeighbors = state.numOfNeighbours;
     jaggedArrayLengths = state.jaggedArrayLengths;
@@ -31,6 +56,7 @@ void KMCSimulator::initKMCSimulator(State& state, KMCParameters& kmcParams) {
 
     constantTransitionRates.resize(2*totalNumOfEvents, 0.0);
     dynamicalTransitionRates.resize(2*totalNumOfEvents, 0.0);
+    aggregatedTransitionRates.resize(2*totalNumOfEvents, 0.0);
 
     std::vector<int> writePtr(state.numOfSites);
     for (int i = 0; i < state.numOfSites; ++i) {
@@ -51,6 +77,8 @@ void KMCSimulator::initKMCSimulator(State& state, KMCParameters& kmcParams) {
 }
 
 void KMCSimulator::updateTransitionRates(State& state) {
+
+    totalSumOfRates = 0.0;
 
     for (int i = 0; i < state.numOfSites; ++i) {
 		for (int k = jaggedArrayLengths[i]; k < jaggedArrayLengths[i+1]; ++k) {

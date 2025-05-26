@@ -13,13 +13,13 @@ class KMCSimulator {
 
         KMCSimulator();
 
-        KMCSimulator(State& state, KMCParameters& kmcParams);
+        KMCSimulator(State& state);
 
         int numOfSteps;
 
         int equilibriumSteps;
 
-        void initKMCSimulator(State& state, KMCParameters& kmcParams);
+        void initKMCSimulator(State& state);
         
         void updateTransitionRates(State& state);
 
