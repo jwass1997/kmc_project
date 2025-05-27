@@ -196,40 +196,52 @@ void singleStateBatch(
 
     const int seed_0 = 1234567890;
 
-    #pragma omp parallel {
+    Configuration cfg(configs);
+    int femResolution = 1e5;
+
+    std::vector<double> inputs(batchSize*cfg.nElectrodes, 0.0);
+    std::vector<size_t> inputShape = {static_cast<size_t>(batchSize), static_cast<size_t>(cfg.nElectrodes)};
+
+    std::vector<double> outputs(batchSize, 0.0);
+    std::vector<size_t> outputShape = {static_cast<size_t>(batchSize)};
+
+    #pragma omp parallel for
+    for (int _batch = 0; _batch < batchSize; ++_batch) {
 
         int threadID = omp_get_thread_num();
         setRandomSeed(seed_0 + threadID);
 
-        #pragma omp for
-        for (int _batch = 0; _batch < batchSize; ++_batch) {
+        FiniteElementeCircle fem(cfg.radius, femResolution);
+        State state(cfg, fem);
+        KMCSimulator kmc(state);
 
-            Configuration cfg(configs);
-            int femResolution = 1e5;
-            FiniteElementeCircle fem(cfg.radius, femResolution);
-            State state(cfg, fem);
+        std::vector<double> newBoundaries(cfg.nElectrodes, 0.0);
+        newBoundaries[(electrodeIdx+1) % cfg.nElectrodes] = minVoltage + (maxVoltage - minVoltage)*randomDouble01();
+        /* for (int i = 0; i < state.nElectrodes; ++i) {
+            newBoundaries[i] = minVoltage + (maxVoltage - minVoltage)*randomDouble01();
+        } */
 
-            std::vector<double> inputs(batchSize*state.nElectrodes, 0.0);
-            std::vector<size_t> inputShape = {static_cast<size_t>(batchSize), static_cast<size_t>(state.nElectrodes)};
+        state.updateBoundaries(newBoundaries, fem);
 
-            std::vector<double> outputs(batchSize, 0.0);
-            std::vector<size_t> outputShape = {static_cast<size_t>(batchSize)};
+        double averagedCurrent = calculateCurrent(
+            state,
+            kmc,
+            electrodeIdx,
+            equilibriumSteps,
+            simulationSteps,
+            numOfIntervals
+        );
 
-            KMCSimulator kmc(state);
-
-            std::vector<double> newBoundaries(state.nElectrodes, 0.0);
-            for (int i = 0; i < state.nElectrodes; ++i) {
-                newBoundaries[i] = minVoltage + (maxVoltage - minVoltage)*randomDouble01();
-            }
-
-            double averagedCurrent = calculateCurrent(
-                state,
-                kmc,
-                electrodeIdx,
-                equilibriumSteps,
-                simulationSteps,
-                numOfIntervals
-            );
+        for (int i = 0; i < cfg.nElectrodes; ++i) {
+            inputs[_batch*cfg.nElectrodes + i] = newBoundaries[i];
         }
+
+        outputs[_batch] = averagedCurrent;
+
+        std::cout << "Finished batch#" << _batch << "\n";
     }
+
+    cnpy::npz_save(fileName, "ID", &batchName, {1}, "w");
+    cnpy::npz_save(fileName, "inputs", inputs.data(), inputShape, "a");
+    cnpy::npz_save(fileName, "outputs", outputs.data(), outputShape, "a");
 }

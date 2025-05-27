@@ -104,6 +104,26 @@ void KMCSimulator::updateTransitionRates(State& state) {
 	}
 }
 
+void KMCSimulator::sampleEvent(State& state) {
+    
+    double _r = totalSumOfRates*randomDouble01();
+    cumulativeSumOfRates = 0.0;
+    for (int i = 0; i < state.numOfSites; ++i) {
+        int L = jaggedArrayLengths[i];
+        int R = jaggedArrayLengths[i+1];
+        for (int k = L; k < R; ++k) {
+            double rate = aggregatedTransitionRates[k];
+            cumulativeSumOfRates+=rate;
+            if (cumulativeSumOfRates >= _r) {
+                int j = neighborIndices[k];
+                lastHopIndices[0] = i;
+                lastHopIndices[1] = j;
+                return;
+            }
+        }
+    }
+}
+
 void KMCSimulator::mcStep(State& state, bool writeData) {
 
     state.updateSiteEnergies(lastHopIndices);
@@ -128,22 +148,7 @@ void KMCSimulator::simulate(State& state, int steps, bool reset, bool writeData)
     }
 }
 
-void KMCSimulator::sampleEvent(State& state) {
+void KMCSimulator::resetSimulator() {
+
     
-    double _r = totalSumOfRates*randomDouble01();
-    cumulativeSumOfRates = 0.0;
-    for (int i = 0; i < state.numOfSites; ++i) {
-        int L = jaggedArrayLengths[i];
-        int R = jaggedArrayLengths[i+1];
-        for (int k = L; k < R; ++k) {
-            double rate = aggregatedTransitionRates[k];
-            cumulativeSumOfRates+=rate;
-            if (cumulativeSumOfRates >= _r) {
-                int j = neighborIndices[k];
-                lastHopIndices[0] = i;
-                lastHopIndices[1] = j;
-                return;
-            }
-        }
-    }
 }

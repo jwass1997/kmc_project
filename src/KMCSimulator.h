@@ -25,6 +25,8 @@ class KMCSimulator {
 
         void simulate(State& state, int steps, bool reset, bool writeData);
 
+        void resetSimulator();
+
         std::vector<double> constantTransitionRates;
 
         std::vector<double> dynamicalTransitionRates;
