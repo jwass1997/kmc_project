@@ -16,6 +16,17 @@ int main() {
 
     std::string configsPath = "configs";
     std::string dataPath = "data";
-
-    recordDevice("1", 1e4, 1e5, configsPath, dataPath);
+    singleStateBatch(
+        100,
+        0,
+        -1.5,
+        1.5,
+        1e4, 
+        1e6, 
+        100, 
+        configsPath,
+        dataPath,
+        "testing"
+    );
+    //recordDevice("1", 1e4, 1e5, configsPath, dataPath);
 }

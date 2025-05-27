@@ -4,6 +4,7 @@
 #include <boost/program_options.hpp>
 
 #include "utils.h"
+#include "Random.h"
 #include "State.h"
 #include "FEMmethods.h"
 #include "Configuration.h"
@@ -13,7 +14,8 @@ double calculateDistance(
     double coordinateX1, 
     double coordinateX2, 
     double coordinateY1, 
-    double coordinateY2) {
+    double coordinateY2
+) {
 
     double Dx = coordinateX2 - coordinateX1;
     double Dy = coordinateY2 - coordinateY1;
@@ -24,7 +26,8 @@ double calculateDistance(
 
 std::vector<double> calculateSlopes(
     std::vector<double> fX,
-    std::vector<double> X) {
+    std::vector<double> X
+) {
         
     if (fX.size() != X.size()) {
         std::cerr << "Slope can not be calculated if sizes do not match" << "\n";
@@ -42,12 +45,6 @@ std::vector<double> calculateSlopes(
 }
 
 void createDirectoryFromStringPath(const std::string& path, const std::string& folderName) {
-
-    /**
-     * 
-     * Checks if directory already exists and creates it if not. The current path is used per default.
-     * 
-     */
 
     if (folderName.empty()) {
         std::cerr << "Must specify a folder name " << "\n";
@@ -75,7 +72,8 @@ void recordDevice(
     int equilibriumSteps, 
     int numOfSteps, 
     const std::string& deviceConfigs, 
-    const std::string& saveFolderPath) {
+    const std::string& saveFolderPath
+) {
 
     if(saveFolderPath.empty()) {
         throw std::invalid_argument("No save folder specified !");
@@ -133,4 +131,105 @@ void recordDevice(
     cnpy::npz_save(deviceName, "electrode_coordinates", flattenedElectrodeCoordinates.data(), shapeFlattenedElectrodeCoordinates, "a");
     cnpy::npz_save(deviceName, "event_counts", flattenedEventCounts.data(), shapeFlattenedEventCounts, "a");
     cnpy::npz_save(deviceName, "device_time", &total_time, {1}, "a");
+}
+
+double calculateCurrent(
+    State& state,
+    KMCSimulator& kmc,
+    int electrodeIdx,
+    int equilibriumSteps,
+    int simulationSteps,
+    int numOfIntervals
+) {
+
+    double averagedCurrent = 0.0;
+    double totalTime = 0.0;
+    int netEvents = 0;
+    int intervalSteps = simulationSteps / numOfIntervals;
+    int intervalCount = 0;
+
+    kmc.simulate(state, equilibriumSteps, true, false);
+
+    while (intervalCount < numOfIntervals) {
+
+        double startClock = state.stateTime;
+        kmc.simulate(state, intervalSteps, false, true);
+        double endClock = state.stateTime;
+
+        double elapsedTime = endClock - startClock;
+        int inEvents = 0;
+        int outEvents = 0;
+        for (int i = 0; i < state.numOfSites; ++i) {
+            outEvents += state.eventCounter[(electrodeIdx+state.nAcceptors)*state.numOfSites + i];
+            inEvents += state.eventCounter[state.numOfSites*i + (electrodeIdx+state.nAcceptors)];
+        }
+        totalTime += elapsedTime;
+        netEvents += (inEvents-outEvents);
+
+        state.resetEventCounter();
+
+        intervalCount++;
+    }
+
+    averagedCurrent = static_cast<double>(netEvents) / totalTime;
+
+    return averagedCurrent;
+}
+
+void singleStateBatch(
+    int batchSize,
+    int electrodeIdx,
+    double minVoltage,
+    double maxVoltage,
+    int equilibriumSteps,
+    int simulationSteps,
+    int numOfIntervals,
+    const std::string& configs,
+    const std::string& save,
+    const std::string& batchName
+) {
+    if (save.empty()) {
+        throw std::invalid_argument("singleStatebatch: No such folder");
+    }
+
+    std::string fileName = save + "/batch_" + batchName + ".npz";
+
+    const int seed_0 = 1234567890;
+
+    #pragma omp parallel {
+
+        int threadID = omp_get_thread_num();
+        setRandomSeed(seed_0 + threadID);
+
+        #pragma omp for
+        for (int _batch = 0; _batch < batchSize; ++_batch) {
+
+            Configuration cfg(configs);
+            int femResolution = 1e5;
+            FiniteElementeCircle fem(cfg.radius, femResolution);
+            State state(cfg, fem);
+
+            std::vector<double> inputs(batchSize*state.nElectrodes, 0.0);
+            std::vector<size_t> inputShape = {static_cast<size_t>(batchSize), static_cast<size_t>(state.nElectrodes)};
+
+            std::vector<double> outputs(batchSize, 0.0);
+            std::vector<size_t> outputShape = {static_cast<size_t>(batchSize)};
+
+            KMCSimulator kmc(state);
+
+            std::vector<double> newBoundaries(state.nElectrodes, 0.0);
+            for (int i = 0; i < state.nElectrodes; ++i) {
+                newBoundaries[i] = minVoltage + (maxVoltage - minVoltage)*randomDouble01();
+            }
+
+            double averagedCurrent = calculateCurrent(
+                state,
+                kmc,
+                electrodeIdx,
+                equilibriumSteps,
+                simulationSteps,
+                numOfIntervals
+            );
+        }
+    }
 }

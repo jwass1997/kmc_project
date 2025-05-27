@@ -10,8 +10,8 @@
 
 #include "cnpy.h"
 
-class SystemGraph;
-class Simulator;
+class KMCSimulator;
+class State;
 
 struct Electrode {
     double angularPosition;
@@ -29,14 +29,6 @@ inline constexpr double eps0 = 8.854187817620389e-12;
 inline constexpr double epsr = 10.0;
 
 inline double fastExp(double x);
-
-int argParser(int argc, char* argv[]);
-
-double calculateDistance(double coordinateX1, double coordinateX2, double coordinateY1, double coordinateY2);
-
-void createDirectoryFromStringPath(const std::string& path, const std::string& directoryName);
-
-void recordDevice(const std::string& ID, int equilibriumSteps, int numOfSteps, const std::string& defaultConfigs, const std::string& saveFolderPath);
 
 inline double fastExp(double x) {
     /**
@@ -57,3 +49,39 @@ inline double fastExp(double x) {
     memcpy(&x, &n, 8);
     return x;
 };
+
+double calculateDistance(double coordinateX1, double coordinateX2, double coordinateY1, double coordinateY2);
+
+void createDirectoryFromStringPath(const std::string& path, const std::string& directoryName);
+
+void recordDevice(
+    const std::string& ID, 
+    int equilibriumSteps, 
+    int numOfSteps, 
+    const std::string& defaultConfigs, 
+    const std::string& saveFolderPath
+);
+
+double calculateCurrent(
+    State& state,
+    KMCSimulator& kmc,
+    int electrodeIdx,
+    int equilibriumSteps,
+    int simulationSteps,
+    int numOfIntervals
+);
+
+void singleStateBatch(
+    int batchSize,
+    int electrodeIdx,
+    double minVoltage,
+    double maxVoltage,
+    int equilibriumSteps,
+    int simulationSteps,
+    int numOfIntervals,
+    const std::string& configs,
+    const std::string& save,
+    const std::string& batchName
+);
+
+int argParser(int argc, char* argv[]);

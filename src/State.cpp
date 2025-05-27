@@ -49,6 +49,8 @@ State::State(Configuration& config, FiniteElementeCircle& fem)
     initOccupiedSites();
     initPotential(fem);    
     initSiteEnergies(fem);
+
+    stateTime = 0.0;
 }
 
 void State::initContainers() {
@@ -289,6 +291,11 @@ void State::increaseStateTime(double rate) {
     stateTime += _dt;
 }
 
+void State::resetEventCounter() {
+
+    std::fill(eventCounter.begin(), eventCounter.end(), 0);
+}
+
 void State::resetState() {
 
     stateTime = 0.0;
@@ -296,4 +303,5 @@ void State::resetState() {
     siteEnergies = initialSiteEnergies;
     currentPotential = initialPotential;
     currentOccupation = initialOccupation;
+    std::fill(eventCounter.begin(), eventCounter.end(), 0);
 }

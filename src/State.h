@@ -35,6 +35,8 @@ class State {
 
         void increaseStateTime(double rate);
 
+        void resetEventCounter();
+
         void resetState();
 
         void updatePotential(FiniteElementeCircle& fem);
@@ -65,8 +67,6 @@ class State {
 
         double minHopDistance;
         double maxHopDistance;
-
-        bool noDimension = true;
 
         double stateTime;
 

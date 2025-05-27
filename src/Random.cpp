@@ -4,9 +4,9 @@
 
 #include "Random.h"
 
-static std::mt19937 rng_mt;
-static std::minstd_rand rng_minstd;
-static std::ranlux24 rng_ranlux24;
+static thread_local std::mt19937 rng_mt;
+static thread_local std::minstd_rand rng_minstd;
+static thread_local std::ranlux24 rng_ranlux24;
 
 static RNG_TYPE rng_type = MT;
 
