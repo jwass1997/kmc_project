@@ -41,16 +41,18 @@ void setRandomSeed(int seed) {
 
 double randomDouble01() {
 
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
+
     switch(rng_type) 
     {
         case MT:
-            return std::generate_canonical<double, 32>(rng_mt);
+            return dist(rng_mt);
 
         case MINSTD:
-            return std::generate_canonical<double, 32>(rng_minstd);
+            return dist(rng_minstd);
         
         case RANLUX24:
-            return std::generate_canonical<double, 32>(rng_ranlux24);
+            return dist(rng_ranlux24);
         
         default:
             throw std::runtime_error("randomDouble01: Invalid RNG");

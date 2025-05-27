@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <ctime>
 #include <filesystem>
 
 #include "Configuration.h"
@@ -7,6 +8,7 @@
 #include "KMCSimulator.h"
 #include "FEMmethods.h"
 #include "utils.h"
+#include "Random.h"
 
 void recordDevice(
     const std::string& ID, 
@@ -74,10 +76,13 @@ void recordDevice(
 }
 
 int main() {
+
+    setRandomSeed(42);
+
     std::string configsPath = "configs";
     std::string dataPath = "data";
 
-    recordDevice("1", 1e4, 1e5, configsPath, dataPath);
+    recordDevice("1", 1e4, 1e6, configsPath, dataPath);
 
     /* Configuration config(configsPath);
     FiniteElementeCircle fem(config.radius, 1e5);

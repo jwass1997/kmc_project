@@ -35,9 +35,9 @@ class KMCSimulator {
 
         std::vector<double> aggregatedTransitionRates;
 
-        int totalSumOfRates;
+        double totalSumOfRates;
 
-        int cumulativeSumOfRates;
+        double cumulativeSumOfRates;
 
         std::vector<int> numOfNeighbors;
 
