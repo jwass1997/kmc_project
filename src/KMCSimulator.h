@@ -15,10 +15,6 @@ class KMCSimulator {
 
         KMCSimulator(State& state);
 
-        int numOfSteps;
-
-        int equilibriumSteps;
-
         void initKMCSimulator(State& state);
         
         void updateTransitionRates(State& state);

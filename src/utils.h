@@ -18,8 +18,6 @@ struct Electrode {
     double voltage;
 };
 
-extern std::mt19937 rng;
-
 inline constexpr double kb = 1.380649e-23;
 
 inline constexpr double e = 1.602176634e-19;
@@ -33,10 +31,6 @@ inline constexpr double epsr = 10.0;
 inline double fastExp(double x);
 
 int argParser(int argc, char* argv[]);
-
-double sampleFromUniformDistribution(double min, double max);
-
-double sampleFromNormalDistribution(double mean, double standardDeviation);
 
 double calculateDistance(double coordinateX1, double coordinateX2, double coordinateY1, double coordinateY2);
 
@@ -63,50 +57,3 @@ inline double fastExp(double x) {
     memcpy(&x, &n, 8);
     return x;
 };
-
-inline std::vector<double> sampleVoltageSetting(
-    int numOfElectrodes,
-    double minVoltage,
-    double maxVoltage) {
-
-        std::vector<double> voltageSetting(numOfElectrodes, 0.0);
-
-        for (auto& voltage : voltageSetting) {
-            voltage = sampleFromUniformDistribution(minVoltage, maxVoltage);
-        }
-        
-        return voltageSetting;
-};
-
-double IVPoint(
-    std::vector<double> voltageSetting,
-    int numOfDevices,
-    int scanElectrodeIndex,
-    int equilibriumSteps,
-    int simulationSteps,
-    int numOfIntervals,
-    const std::string& defaultConfig
-);
-
-double currentFromVoltageCombination(
-    Simulator& simulator,
-    std::vector<double> voltageSetting,
-    int scanElectrodeIndex,
-    int equilibriumSteps,
-    int simulationSteps,
-    int numOfIntervals,
-    const std::string& defaultConfig
-);
-
-void createBatchOfSingleSystem(
-    int batchSize, 
-    int outputElectrodeIndex,
-    double minVoltage,
-    double maxVoltage,
-    int equilibriumSteps, 
-    int simulationSteps, 
-    int numOfIntervals,
-    const std::string& defaultConfigs, 
-    const std::string& saveFolder, 
-    const std::string& batchID
-);

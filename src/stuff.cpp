@@ -468,3 +468,68 @@ void State::initRandomState() {
         electrodeData[i].voltage = -1.5 + 3.0*randomDouble01();
     }
 }
+
+void KMCSimulator::initKMCSimulator(State& state) {
+
+    numOfNeighbors = state.numOfNeighbours;
+    jaggedArrayLengths = state.jaggedArrayLengths;
+    neighborIndices = state.neighbourIndices;
+    totalNumOfEvents = state.totalNumOfEvents;
+    lastHopIndices.resize(2, 0);
+
+    constantTransitionRates.resize(2*totalNumOfEvents, 0.0);
+    dynamicalTransitionRates.resize(2*totalNumOfEvents, 0.0);
+    aggregatedTransitionRates.resize(2*totalNumOfEvents, 0.0);
+
+    std::vector<int> writePtr(state.numOfSites);
+    for (int i = 0; i < state.numOfSites; ++i) {
+        writePtr[i] = jaggedArrayLengths[i];
+    }
+
+    for (int i = 0; i < state.numOfSites; ++i) {
+        for (int j = i+1; j < state.numOfSites; ++j) {
+        double distance =  state.distanceMatrix[i*state.numOfSites + j];
+            if (distance > state.minHopDistance && distance < state.maxHopDistance) {
+                int indexIJ = writePtr[i]++;
+                int indexJI = writePtr[j]++;
+                constantTransitionRates[indexIJ] = state.nu0*fastExp(-2.0*distance / state.a);
+                constantTransitionRates[indexJI] = state.nu0*fastExp(-2.0*distance / state.a);
+            }
+        }
+    }
+}
+
+void State::initStateFromConfig(Configuration& config) {
+
+    nAcceptors = config.nAcceptors;
+    nDonors = config.nDonors;
+    nElectrodes = config.nElectrodes;
+    numOfSites = config.numOfSites;
+    radius = config.radius;
+    nu0 = config.nu0;
+    a = config.a;
+    T = config.T;
+    energyDisorder = config.energyDisorder;
+    R = config.R;
+    A0 = config.A0;
+    electrodeWidth = config.electrodeWidth;
+    minHopDistance = config.minHopDistance;
+    maxHopDistance = config.maxHopDistance;
+
+    acceptorCoordinates.resize(2*nAcceptors, 0.0);
+    donorCoordinates.resize(2*nDonors, 0.0);
+    electrodeCoordinates.resize(2*nElectrodes, 0.0);
+    
+    distanceMatrix.resize(numOfSites*numOfSites, 0.0);
+    inverseAcceptorDistances.resize(nAcceptors*nAcceptors, 0.0);
+    currentOccupation.resize(nAcceptors, 0);
+    initialOccupation.resize(nAcceptors, 0);
+    randomEnergies.resize(nAcceptors, 0.0);
+    acceptorDonorInteraction.resize(nAcceptors, 0.0);
+    acceptorInteraction.resize(nAcceptors*nAcceptors, 0.0);
+    initialSiteEnergies.resize(nAcceptors+nElectrodes, 0.0);
+    initialPotential.resize(nAcceptors+nElectrodes, 0.0);
+    currentPotential.resize(nAcceptors+nElectrodes, 0.0);
+    siteEnergies.resize(nAcceptors+nElectrodes, 0.0);   
+    eventCounter.resize(numOfSites*numOfSites, 0); 
+}

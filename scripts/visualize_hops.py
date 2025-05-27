@@ -77,7 +77,7 @@ def visualizeCurrent(hopping_counts, acceptor_pos, donor_pos, total_time):
             if current_value > 0:
                 ax.plot([acceptor_pos[i, 0], acceptor_pos[j, 0]],
                         [acceptor_pos[i, 1], acceptor_pos[j, 1]],
-                        color="black", lw=2,
+                        color="black", lw=1.5,
                         alpha=np.sqrt(current_value / max_current))
 
     ax.legend(loc="upper right")

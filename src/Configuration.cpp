@@ -94,6 +94,8 @@ Configuration::Configuration(const std::string& configPath) {
         a = a / R;
         A0 = A0 / R;
         electrodeWidth = electrodeWidth / R;
+        minHopDistance = minHopDistance / R;
+        maxHopDistance = maxHopDistance / R;
     }
     
     if (!acceptorFile.is_open()) {

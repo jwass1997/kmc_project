@@ -46,44 +46,9 @@ State::State(Configuration& config, FiniteElementeCircle& fem)
     eventCounter.resize(numOfSites*numOfSites, 0); 
 
     initContainers();
-    initPotential(fem);
-    initSiteEnergies(fem);
     initOccupiedSites();
-}
-
-void State::initStateFromConfig(Configuration& config) {
-
-    nAcceptors = config.nAcceptors;
-    nDonors = config.nDonors;
-    nElectrodes = config.nElectrodes;
-    numOfSites = config.numOfSites;
-    radius = config.radius;
-    nu0 = config.nu0;
-    a = config.a;
-    T = config.T;
-    energyDisorder = config.energyDisorder;
-    R = config.R;
-    A0 = config.A0;
-    electrodeWidth = config.electrodeWidth;
-    minHopDistance = config.minHopDistance;
-    maxHopDistance = config.maxHopDistance;
-
-    acceptorCoordinates.resize(2*nAcceptors, 0.0);
-    donorCoordinates.resize(2*nDonors, 0.0);
-    electrodeCoordinates.resize(2*nElectrodes, 0.0);
-    
-    distanceMatrix.resize(numOfSites*numOfSites, 0.0);
-    inverseAcceptorDistances.resize(nAcceptors*nAcceptors, 0.0);
-    currentOccupation.resize(nAcceptors, 0);
-    initialOccupation.resize(nAcceptors, 0);
-    randomEnergies.resize(nAcceptors, 0.0);
-    acceptorDonorInteraction.resize(nAcceptors, 0.0);
-    acceptorInteraction.resize(nAcceptors*nAcceptors, 0.0);
-    initialSiteEnergies.resize(nAcceptors+nElectrodes, 0.0);
-    initialPotential.resize(nAcceptors+nElectrodes, 0.0);
-    currentPotential.resize(nAcceptors+nElectrodes, 0.0);
-    siteEnergies.resize(nAcceptors+nElectrodes, 0.0);   
-    eventCounter.resize(numOfSites*numOfSites, 0); 
+    initPotential(fem);    
+    initSiteEnergies(fem);
 }
 
 void State::initContainers() {
@@ -233,7 +198,7 @@ void State::initOccupiedSites() {
     for(int i = 0; i < nAcceptors; ++i) {
         randomVector[i] = i;
     }
-    std::shuffle(randomVector.begin(), randomVector.end(), rng);
+    //std::shuffle(randomVector.begin(), randomVector.end(), rng_mt);
     for (int i = 0; i < nAcceptors - nDonors; ++i) {
         currentOccupation[randomVector[i]] = 1;
     }
@@ -308,6 +273,11 @@ void State::updateBoundaries(std::vector<double> boundaryValues, FiniteElementeC
     for (int i = 0; i < nAcceptors; ++i) {
         currentPotential[i] = femSolver.getPotential(acceptorCoordinates[i*2], acceptorCoordinates[i*2 + 1]);
         siteEnergies[i] += currentPotential[i];
+    }
+    for (int i = 0; i < nElectrodes; ++i) {
+        int idx = nAcceptors + i;
+        currentPotential[idx] = femSolver.getPotential(electrodeCoordinates[i*2], electrodeCoordinates[i*2 + 1]);
+        siteEnergies[idx] += currentPotential[i]; 
     }
 }
 

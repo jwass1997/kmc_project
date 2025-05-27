@@ -65,16 +65,18 @@ int randomInt(int low, int high) {
         throw std::invalid_argument("randomInt: high is smaller than low");
     }
 
+    std::uniform_int_distribution<int> dist(low, high);
+
     switch(rng_type)
     {
         case MT:
-            return std::uniform_int_distribution<int>(low, high)(rng_mt);
+            return dist(rng_mt);
         
         case MINSTD:
-            return std::uniform_int_distribution<int>(low, high)(rng_minstd);
+            return dist(rng_minstd);
         
         case RANLUX24:
-            return std::uniform_int_distribution<int>(low, high)(rng_ranlux24);
+            return dist(rng_ranlux24);
         
         default:
             throw std::runtime_error("randomInt: Invalid RNG");
@@ -83,16 +85,18 @@ int randomInt(int low, int high) {
 
 double normalDist(double mean, double stdDev) {
 
+    std::normal_distribution<double> dist(mean, stdDev);
+
     switch(rng_type)
     {
         case MT:
-            return std::normal_distribution(mean, stdDev)(rng_mt);
+            return dist(rng_mt);
         
         case MINSTD:
-            return std::normal_distribution(mean, stdDev)(rng_minstd);
+            return dist(rng_minstd);
         
         case RANLUX24:
-            return std::normal_distribution(mean, stdDev)(rng_ranlux24);
+            return dist(rng_ranlux24);
         
         default:
             throw std::runtime_error("normalDist: Invalid RNG");
