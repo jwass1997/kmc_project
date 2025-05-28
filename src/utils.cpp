@@ -148,10 +148,10 @@ double calculateCurrent(
     int intervalSteps = simulationSteps / numOfIntervals;
     int intervalCount = 0;
 
-    kmc.simulate(state, equilibriumSteps, true, false);
+    kmc.simulate(state, equilibriumSteps, false, false);
 
     while (intervalCount < numOfIntervals) {
-
+        //std::cout << "Thread #" << omp_get_thread_num() << " at count" << intervalCount << "\n";
         double startClock = state.stateTime;
         kmc.simulate(state, intervalSteps, false, true);
         double endClock = state.stateTime;
@@ -194,7 +194,7 @@ void singleStateBatch(
 
     std::string fileName = save + "/batch_" + batchName + ".npz";
 
-    const int seed_0 = 1234567890;
+    const int seed0 = 1234567890;
 
     Configuration cfg(configs);
     int femResolution = 1e5;
@@ -205,11 +205,12 @@ void singleStateBatch(
     std::vector<double> outputs(batchSize, 0.0);
     std::vector<size_t> outputShape = {static_cast<size_t>(batchSize)};
 
-    #pragma omp parallel for
-    for (int _batch = 0; _batch < batchSize; ++_batch) {
-
+    #pragma omp parallel
+    {
         int threadID = omp_get_thread_num();
-        setRandomSeed(seed_0 + threadID);
+        setRandomSeed(seed0 + threadID);
+        #pragma omp for
+        for (int _batch = 0; _batch < batchSize; ++_batch) {
 
         FiniteElementeCircle fem(cfg.radius, femResolution);
         State state(cfg, fem);
@@ -239,8 +240,9 @@ void singleStateBatch(
         outputs[_batch] = averagedCurrent;
 
         std::cout << "Finished batch#" << _batch << "\n";
+        }
     }
-
+    
     cnpy::npz_save(fileName, "ID", &batchName, {1}, "w");
     cnpy::npz_save(fileName, "inputs", inputs.data(), inputShape, "a");
     cnpy::npz_save(fileName, "outputs", outputs.data(), outputShape, "a");

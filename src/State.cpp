@@ -273,13 +273,13 @@ void State::updateBoundaries(std::vector<double> boundaryValues, FiniteElementeC
     femSolver.run();
     
     for (int i = 0; i < nAcceptors; ++i) {
-        currentPotential[i] = femSolver.getPotential(acceptorCoordinates[i*2], acceptorCoordinates[i*2 + 1]);
+        currentPotential[i] = femSolver.getPotential(acceptorCoordinates[i*2], acceptorCoordinates[i*2 + 1])*e / kbT;
         siteEnergies[i] += currentPotential[i];
     }
     for (int i = 0; i < nElectrodes; ++i) {
         int idx = nAcceptors + i;
-        currentPotential[idx] = femSolver.getPotential(electrodeCoordinates[i*2], electrodeCoordinates[i*2 + 1]);
-        siteEnergies[idx] += currentPotential[i]; 
+        currentPotential[idx] = femSolver.getPotential(electrodeCoordinates[i*2], electrodeCoordinates[i*2 + 1])*e / kbT;
+        siteEnergies[idx] += currentPotential[idx]; 
     }
 }
 

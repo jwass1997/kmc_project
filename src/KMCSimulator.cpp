@@ -28,6 +28,9 @@ KMCSimulator::KMCSimulator(State& state)
     dynamicalTransitionRates.resize(2*totalNumOfEvents, 0.0);
     aggregatedTransitionRates.resize(2*totalNumOfEvents, 0.0);
 
+    totalSumOfRates = 0.0;
+    cumulativeSumOfRates = 0.0;
+
     std::vector<int> writePtr(state.numOfSites);
     for (int i = 0; i < state.numOfSites; ++i) {
         writePtr[i] = jaggedArrayLengths[i];

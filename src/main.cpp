@@ -12,8 +12,6 @@
 
 int main() {
 
-    setRandomSeed(42);
-
     std::string configsPath = "configs";
     std::string dataPath = "data";
     singleStateBatch(
@@ -22,7 +20,7 @@ int main() {
         -1.5,
         1.5,
         1e4, 
-        1e6, 
+        1e5, 
         100, 
         configsPath,
         dataPath,
