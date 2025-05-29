@@ -1,5 +1,6 @@
 #include <random>
 #include <algorithm>
+#include <chrono>
 #include <omp.h>
 #include <boost/program_options.hpp>
 
@@ -67,7 +68,7 @@ void createDirectoryFromStringPath(const std::string& path, const std::string& f
     }
 }
 
-void recordDevice(
+void singleRun(
     const std::string& ID, 
     int equilibriumSteps, 
     int numOfSteps, 
@@ -208,7 +209,10 @@ void singleStateBatch(
     #pragma omp parallel
     {
         int threadID = omp_get_thread_num();
-        setRandomSeed(seed0 + threadID);
+        auto now = std::chrono::high_resolution_clock::now();
+        auto now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
+        setRandomSeed(seed0 + static_cast<long int>(now_ns) + threadID);
+        
         #pragma omp for
         for (int _batch = 0; _batch < batchSize; ++_batch) {
 
@@ -246,4 +250,104 @@ void singleStateBatch(
     cnpy::npz_save(fileName, "ID", &batchName, {1}, "w");
     cnpy::npz_save(fileName, "inputs", inputs.data(), inputShape, "a");
     cnpy::npz_save(fileName, "outputs", outputs.data(), outputShape, "a");
+}
+
+int argParser(int argc, char* argv[]) {
+
+    boost::program_options::options_description globalOptions(" ");
+
+    globalOptions.add_options()
+        ("help, h", "help message")
+        ("command", boost::program_options::value<std::string>(), "command to run")
+    ;
+
+    boost::program_options::positional_options_description position;
+    position.add("command", 1);
+
+    auto parseCommand = boost::program_options::command_line_parser(argc, argv).options(globalOptions).positional(position).allow_unregistered().run();
+
+    boost::program_options::variables_map commandVM;
+    boost::program_options::store(parseCommand, commandVM);
+
+    if (commandVM.count("help") || !commandVM.count("command")) {
+        std::cout << globalOptions << "\n"
+                  << "Allowed commands:\n"
+                  << " singleRun --configs <string> --save_path <string> --equilibriumSteps <int> --simulationSteps <int> --deviceName <string>\n"
+                  << " batchRun --configs <string> --save_path <string> --batchSize <int> --equilibriumSteps <int> --simulationSteps <int> --batchName <string>\n";
+        return 0;
+    }
+
+    std::string firstCommand = commandVM["command"].as<std::string>();
+    std::vector<std::string> remainingCommand = boost::program_options::collect_unrecognized(
+        parseCommand.options,
+        boost::program_options::include_positional
+    );
+
+    remainingCommand.erase(remainingCommand.begin());
+
+    if (firstCommand == "singleRun") {
+
+        boost::program_options::options_description options("Single run options");
+        options.add_options()
+            ("configs", boost::program_options::value<std::string>()->default_value("../configs"))
+            ("save_path", boost::program_options::value<std::string>()->default_value("../data"))
+            ("equilibriumSteps", boost::program_options::value<int>()->default_value(1e4))
+            ("simulationSteps", boost::program_options::value<int>()->required())
+            ("deviceName", boost::program_options::value<std::string>()->required())
+        ;
+
+        boost::program_options::variables_map vm;
+        boost::program_options::store(
+            boost::program_options::command_line_parser(
+                remainingCommand).options(options).run(),
+                vm);
+        boost::program_options::notify(vm);
+
+        singleRun(
+            vm["deviceName"].as<std::string>(),
+            vm["equilibriumSteps"].as<int>(),
+            vm["simulationSteps"].as<int>(),
+            vm["configs"].as<std::string>(),
+            vm["save_path"].as<std::string>()
+        );
+
+        return 1;
+    }
+
+    if (firstCommand == "batchRun") {
+
+        boost::program_options::options_description options("Batch run options");
+        options.add_options()
+            ("configs", boost::program_options::value<std::string>()->default_value("../configs"))
+            ("save_path", boost::program_options::value<std::string>()->default_value("../data"))
+            ("batchSize", boost::program_options::value<int>()->required())
+            ("equilibriumSteps", boost::program_options::value<int>()->default_value(1e4))
+            ("simulationSteps", boost::program_options::value<int>()->required())
+            ("batchName", boost::program_options::value<std::string>()->required())
+        ;
+
+        boost::program_options::variables_map vm;
+        boost::program_options::store(
+            boost::program_options::command_line_parser(
+                remainingCommand).options(options).run(),
+                vm);
+        boost::program_options::notify(vm);
+
+        singleStateBatch(
+            vm["batchSize"].as<int>(),
+            0,
+            -1.5,
+            1.5,
+            vm["equilibriumSteps"].as<int>(),
+            vm["simulationSteps"].as<int>(),
+            100,
+            vm["configs"].as<std::string>(),
+            vm["save_path"].as<std::string>(),
+            vm["batchName"].as<std::string>()
+        );
+
+        return 1;
+    }
+
+    return 1;
 }
