@@ -46,15 +46,15 @@ CMAKE_BUILD_TYPE:STRING=
 CMAKE_COLOR_MAKEFILE:BOOL=ON
 
 //CXX compiler
-CMAKE_CXX_COMPILER:FILEPATH=/opt/bwhpc/common/compiler/gnu/14.1.0/bin/g++
+CMAKE_CXX_COMPILER:FILEPATH=/opt/bwhpc/common/compiler/gnu/11.3.0/bin/g++
 
 //A wrapper around 'ar' adding the appropriate '--plugin' option
 // for the GCC compiler
-CMAKE_CXX_COMPILER_AR:FILEPATH=/opt/bwhpc/common/compiler/gnu/14.1.0/bin/gcc-ar
+CMAKE_CXX_COMPILER_AR:FILEPATH=/opt/bwhpc/common/compiler/gnu/11.3.0/bin/gcc-ar
 
 //A wrapper around 'ranlib' adding the appropriate '--plugin' option
 // for the GCC compiler
-CMAKE_CXX_COMPILER_RANLIB:FILEPATH=/opt/bwhpc/common/compiler/gnu/14.1.0/bin/gcc-ranlib
+CMAKE_CXX_COMPILER_RANLIB:FILEPATH=/opt/bwhpc/common/compiler/gnu/11.3.0/bin/gcc-ranlib
 
 //Flags used by the CXX compiler during all build types.
 CMAKE_CXX_FLAGS:STRING=
@@ -235,7 +235,7 @@ OpenMP_CXX_FLAGS:STRING=-fopenmp
 OpenMP_CXX_LIB_NAMES:STRING=gomp;pthread
 
 //Path to the gomp library for OpenMP
-OpenMP_gomp_LIBRARY:FILEPATH=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64/libgomp.so
+OpenMP_gomp_LIBRARY:FILEPATH=/gpfs/bwfor/software/common/compiler/gnu/11.3.0/lib64/libgomp.so
 
 //Path to the pthread library for OpenMP
 OpenMP_pthread_LIBRARY:FILEPATH=/lib64/libpthread.so
@@ -411,7 +411,7 @@ FIND_PACKAGE_MESSAGE_DETAILS_Boost:INTERNAL=[/opt/bwhpc/common/lib/boost/1.80.0/
 //Details about finding OpenMP
 FIND_PACKAGE_MESSAGE_DETAILS_OpenMP:INTERNAL=[TRUE][c ][v4.5()]
 //Details about finding OpenMP_CXX
-FIND_PACKAGE_MESSAGE_DETAILS_OpenMP_CXX:INTERNAL=[-fopenmp][/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64/libgomp.so][/lib64/libpthread.so][v4.5()]
+FIND_PACKAGE_MESSAGE_DETAILS_OpenMP_CXX:INTERNAL=[-fopenmp][/gpfs/bwfor/software/common/compiler/gnu/11.3.0/lib64/libgomp.so][/lib64/libpthread.so][v4.5()]
 //Details about finding ZLIB
 FIND_PACKAGE_MESSAGE_DETAILS_ZLIB:INTERNAL=[/usr/lib64/libz.so][/usr/include][c ][v1.2.11()]
 //Result of TRY_COMPILE

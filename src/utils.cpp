@@ -216,34 +216,34 @@ void singleStateBatch(
         #pragma omp for
         for (int _batch = 0; _batch < batchSize; ++_batch) {
 
-        FiniteElementeCircle fem(cfg.radius, femResolution);
-        State state(cfg, fem);
-        KMCSimulator kmc(state);
+            FiniteElementeCircle fem(cfg.radius, femResolution);
+            State state(cfg, fem);
+            KMCSimulator kmc(state);
 
-        std::vector<double> newBoundaries(cfg.nElectrodes, 0.0);
-        newBoundaries[(electrodeIdx+1) % cfg.nElectrodes] = minVoltage + (maxVoltage - minVoltage)*randomDouble01();
-        /* for (int i = 0; i < state.nElectrodes; ++i) {
-            newBoundaries[i] = minVoltage + (maxVoltage - minVoltage)*randomDouble01();
-        } */
+            std::vector<double> newBoundaries(cfg.nElectrodes, 0.0);
+            newBoundaries[(electrodeIdx+1) % cfg.nElectrodes] = minVoltage + (maxVoltage - minVoltage)*randomDouble01();
+            /* for (int i = 0; i < state.nElectrodes; ++i) {
+                newBoundaries[i] = minVoltage + (maxVoltage - minVoltage)*randomDouble01();
+            } */
 
-        state.updateBoundaries(newBoundaries, fem);
+            state.updateBoundaries(newBoundaries, fem);
 
-        double averagedCurrent = calculateCurrent(
-            state,
-            kmc,
-            electrodeIdx,
-            equilibriumSteps,
-            simulationSteps,
-            numOfIntervals
-        );
+            double averagedCurrent = calculateCurrent(
+                state,
+                kmc,
+                electrodeIdx,
+                equilibriumSteps,
+                simulationSteps,
+                numOfIntervals
+            );
 
-        for (int i = 0; i < cfg.nElectrodes; ++i) {
-            inputs[_batch*cfg.nElectrodes + i] = newBoundaries[i];
-        }
+            for (int i = 0; i < cfg.nElectrodes; ++i) {
+                inputs[_batch*cfg.nElectrodes + i] = newBoundaries[i];
+            }
 
-        outputs[_batch] = averagedCurrent;
+            outputs[_batch] = averagedCurrent;
 
-        std::cout << "Finished batch#" << _batch << "\n";
+            std::cout << "Finished batch#" << _batch << "\n";
         }
     }
     
