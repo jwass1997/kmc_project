@@ -17,7 +17,7 @@ class State {
 
         State(Configuration& config, FiniteElementeCircle& fem);
         
-        void initStateFromConfig(Configuration& config);
+        void initRandomState();
 
         void initContainers();
 

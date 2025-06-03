@@ -86,8 +86,8 @@ def visualizeCurrent(hopping_counts, acceptor_pos, donor_pos, total_time):
 
 if __name__ == "__main__":
     # Change the device name as needed.
-    device = "device_1"
-    filename = "data/" + device + ".npz"
+    device = "device_111"
+    filename = "../data/" + device + ".npz"
     data = np.load(filename)
 
     # Load saved arrays
@@ -110,3 +110,4 @@ if __name__ == "__main__":
 
     # Optionally, to save the figure uncomment the line below and place it before plt.show() in visualizeCurrent
     plt.savefig(device + "_circular.png", dpi=300)
+    #plt.show()

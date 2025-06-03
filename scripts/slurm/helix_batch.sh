@@ -11,4 +11,4 @@ cd $SLURM_SUBMIT_DIR
 echo "$SLURM_SUBMIT_DIR"
 cd build 
 
-./kmc_project batchRun --batchSize=1000 --equilibriumSteps=10000 --simulationSteps=10000000 --batchName=9
+./kmc_project batchRun --batchSize=100 --equilibriumSteps=10000 --simulationSteps=1000000 --batchName=222

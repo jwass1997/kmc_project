@@ -6,7 +6,13 @@
 #include "FEMmethods.h"
 #include "Configuration.h"
 
-State::State() {
+State::State() 
+    : nAcceptors(200)
+    , nDonors(3)
+    , nElectrodes(8)
+    , numOfSites(nAcceptors+nElectrodes)
+    , radius(1)
+{
 
     std::cout << "State(): Empty constructor should not be used" << "\n";
 }
@@ -51,6 +57,10 @@ State::State(Configuration& config, FiniteElementeCircle& fem)
     initSiteEnergies(fem);
 
     stateTime = 0.0;
+}
+
+void State::initRandomState() {
+    
 }
 
 void State::initContainers() {

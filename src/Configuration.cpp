@@ -5,15 +5,17 @@
 #include <sstream>
 #include <algorithm>
 #include <filesystem>
+#include <chrono>
 
 #include "Configuration.h"
+#include "Random.h"
 
 Configuration::Configuration() 
 {
     std::cout << "Configuration(): No configuration loaded" << "\n";
 }
 
-Configuration::Configuration(const std::string& configPath) {
+Configuration::Configuration(const std::string& configPath, bool randomCoordinates) {
 
     auto config = getConfigFilePath(configPath, "config.txt");
     auto acceptorConfig = getConfigFilePath(configPath, "acceptors.txt");
@@ -97,66 +99,12 @@ Configuration::Configuration(const std::string& configPath) {
         minHopDistance = minHopDistance / R;
         maxHopDistance = maxHopDistance / R;
     }
-    
-    if (!acceptorFile.is_open()) {
-        std::cerr << "No such file: " << acceptorConfig << "\n";
-    }
-    else {
-        std::string line;
 
-        while (getline(acceptorFile, line)) {
-            if (line.empty() || line[0] == '#') {
-                continue;
-            }
-            else {
-                std::stringstream ss(line);
-
-                double coordX, coordY;
-                ss >> coordX >> coordY;
-                
-                if (noDimension) {
-                    coordX = coordX / R;
-                    coordY = coordY / R;
-                }
-
-                acceptorCoords.push_back(coordX);
-                acceptorCoords.push_back(coordY);
-            }
-        }
-        acceptorFile.close();
-    }
-
-    if (!donorFile.is_open()) {
-        std::cerr << "No such file: " << donorConfig << "\n";
-    }
-    else {
-            std::string line;
-
-        while (getline(donorFile, line)) {
-            if (line.empty() || line[0] == '#') {
-                continue;
-            }
-            else {
-                std::stringstream ss(line);
-
-                double coordX, coordY;
-                ss >> coordX >> coordY;
-
-                if (noDimension) {
-                    coordX = coordX / R;
-                    coordY = coordY / R;
-                }
-
-                donorCoords.push_back(coordX);
-                donorCoords.push_back(coordY);
-            }
-        }
-        donorFile.close();
-    }
-
+    // Electrodes
     if (!electrodeFile.is_open()) {
-        std::cerr << "No such file: " << electrodeConfig<< "\n";
+            std::cerr << "No such file: " << electrodeConfig<< "\n";
     }
+    
     else {
         std::string line;
         
@@ -187,7 +135,85 @@ Configuration::Configuration(const std::string& configPath) {
             }
         }
         electrodeFile.close();
-    }    
+    }
+    // Coordinates
+    if (!randomCoordinates) {
+        if (!acceptorFile.is_open()) {
+            std::cerr << "No such file: " << acceptorConfig << "\n";
+        }
+        else {
+            std::string line;
+
+            while (getline(acceptorFile, line)) {
+                if (line.empty() || line[0] == '#') {
+                    continue;
+                }
+                else {
+                    std::stringstream ss(line);
+
+                    double coordX, coordY;
+                    ss >> coordX >> coordY;
+                    
+                    if (noDimension) {
+                        coordX = coordX / R;
+                        coordY = coordY / R;
+                    }
+
+                    acceptorCoords.push_back(coordX);
+                    acceptorCoords.push_back(coordY);
+                }
+            }
+            acceptorFile.close();
+        }
+
+        if (!donorFile.is_open()) {
+            std::cerr << "No such file: " << donorConfig << "\n";
+        }
+        else {
+                std::string line;
+
+            while (getline(donorFile, line)) {
+                if (line.empty() || line[0] == '#') {
+                    continue;
+                }
+                else {
+                    std::stringstream ss(line);
+
+                    double coordX, coordY;
+                    ss >> coordX >> coordY;
+
+                    if (noDimension) {
+                        coordX = coordX / R;
+                        coordY = coordY / R;
+                    }
+
+                    donorCoords.push_back(coordX);
+                    donorCoords.push_back(coordY);
+                }
+            }
+            donorFile.close();
+        }  
+    }  
+    
+    else {
+        auto now = std::chrono::high_resolution_clock::now();
+        auto now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
+        setRandomSeed(static_cast<long int>(now_ns));
+
+        for (int i = 0; i < nAcceptors; ++i) {
+            double randomPhi = 2.0*M_PI*randomDouble01();
+            double randomR = radius*std::sqrt(randomDouble01());
+            acceptorCoords.push_back(randomR*std::cos(randomPhi));
+            acceptorCoords.push_back(randomR*std::sin(randomPhi));
+        }
+
+        for (int i = 0; i < nDonors; ++i) {
+            double randomPhi = 2.0*M_PI*randomDouble01();
+            double randomR = radius*std::sqrt(randomDouble01());
+            donorCoords.push_back(randomR*std::cos(randomPhi));
+            donorCoords.push_back(randomR*std::sin(randomPhi));
+        }
+    }
 }
 
 std::filesystem::path Configuration::getConfigFilePath(const std::string& folder, const std::string& file) {

@@ -10,7 +10,7 @@ class Configuration {
 
         Configuration();
 
-        Configuration(const std::string& configPath);
+        Configuration(const std::string& configPath, bool randomCoordinates);
 
         int nAcceptors;
         int nDonors;

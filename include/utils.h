@@ -71,6 +71,14 @@ double calculateCurrent(
     int numOfIntervals
 );
 
+void createDatapoint(
+    const std::string& name,
+    int equilibriumSteps,
+    int simulationSteps,
+    int numOfIntervals,
+    const std::string& saveFolderPath
+);
+
 void singleStateBatch(
     int batchSize,
     int electrodeIdx,
