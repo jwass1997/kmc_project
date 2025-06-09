@@ -9,4 +9,4 @@ cd $SLURM_SUBMIT_DIR
 echo "$SLURM_SUBMIT_DIR"
 cd build 
 
-./kmc_project singleRun --equilibriumSteps=100000 --simulationSteps=1000000 --deviceName=111
+./kmc_project singleRun --equilibriumSteps=10000 --simulationSteps=1000000 --deviceName=201

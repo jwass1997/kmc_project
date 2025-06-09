@@ -89,7 +89,7 @@ endif()
 
 set(CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES "/gpfs/bwfor/software/common/compiler/gnu/11.3.0/include/c++/11.3.0;/gpfs/bwfor/software/common/compiler/gnu/11.3.0/include/c++/11.3.0/x86_64-pc-linux-gnu;/gpfs/bwfor/software/common/compiler/gnu/11.3.0/include/c++/11.3.0/backward;/gpfs/bwfor/software/common/compiler/gnu/11.3.0/lib64/gcc/x86_64-pc-linux-gnu/11.3.0/include;/gpfs/bwfor/software/common/compiler/gnu/11.3.0/lib64/gcc/x86_64-pc-linux-gnu/11.3.0/include-fixed;/usr/local/include;/gpfs/bwfor/software/common/compiler/gnu/11.3.0/include;/usr/include")
 set(CMAKE_CXX_IMPLICIT_LINK_LIBRARIES "stdc++;m;gcc_s;gcc;c;gcc_s;gcc")
-set(CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES "/gpfs/bwfor/software/common/compiler/gnu/11.3.0/lib64/gcc/x86_64-pc-linux-gnu/11.3.0;/gpfs/bwfor/software/common/compiler/gnu/11.3.0/lib64/gcc;/gpfs/bwfor/software/common/compiler/gnu/11.3.0/lib64;/lib64;/usr/lib64")
+set(CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES "/gpfs/bwfor/software/common/compiler/gnu/11.3.0/lib64/gcc/x86_64-pc-linux-gnu/11.3.0;/gpfs/bwfor/software/common/compiler/gnu/11.3.0/lib64/gcc;/gpfs/bwfor/software/common/compiler/gnu/11.3.0/lib64;/lib64;/usr/lib64;/opt/bwhpc/common/devel/miniforge/24.9.2-0/lib")
 set(CMAKE_CXX_IMPLICIT_LINK_FRAMEWORK_DIRECTORIES "")
 set(CMAKE_CXX_COMPILER_CLANG_RESOURCE_DIR "")
 

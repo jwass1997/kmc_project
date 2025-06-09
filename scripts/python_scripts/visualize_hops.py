@@ -86,7 +86,7 @@ def visualizeCurrent(hopping_counts, acceptor_pos, donor_pos, total_time):
 
 if __name__ == "__main__":
     # Change the device name as needed.
-    device = "device_111"
+    device = "device_201"
     filename = "../data/" + device + ".npz"
     data = np.load(filename)
 

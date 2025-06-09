@@ -5,7 +5,7 @@ radius 150.0
 nu0 1.0
 a 20.0
 T 77.0
-energyDisorder 0.05
+energyDisorder 0.0
 electrodeWidth 60.0
 minHopDistance 3.0
 maxHopDistance 60.0

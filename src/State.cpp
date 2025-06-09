@@ -7,14 +7,9 @@
 #include "Configuration.h"
 
 State::State() 
-    : nAcceptors(200)
-    , nDonors(3)
-    , nElectrodes(8)
-    , numOfSites(nAcceptors+nElectrodes)
-    , radius(1)
 {
 
-    std::cout << "State(): Empty constructor should not be used" << "\n";
+    std::cout << "State(): Empty constructor should not be called!" << "\n";
 }
 
 State::State(Configuration& config, FiniteElementeCircle& fem)
@@ -173,6 +168,7 @@ void State::initSiteEnergies(FiniteElementeCircle& femSolver) {
 		acceptorDonorInteraction[i] = A0*sumOfInverseDistances;
 
 		if(energyDisorder != 0.0) {
+            std::cout << "Disorder enbabled:" << energyDisorder << "\n";
 			double randomEnergy = normalDist(0.0, energyDisorder);	
 			randomEnergies[i] = randomEnergy;		
 		}
@@ -210,7 +206,8 @@ void State::initOccupiedSites() {
     for(int i = 0; i < nAcceptors; ++i) {
         randomVector[i] = i;
     }
-    //std::shuffle(randomVector.begin(), randomVector.end(), rng_mt);
+    std::shuffle(randomVector.begin(), randomVector.end(), rng_mt);
+    std::fill(currentOccupation.begin(), currentOccupation.end(), 0);
     for (int i = 0; i < nAcceptors - nDonors; ++i) {
         currentOccupation[randomVector[i]] = 1;
     }

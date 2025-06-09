@@ -13,7 +13,7 @@ struct Results {
 
 KMCSimulator::KMCSimulator()
 {
-    std::cout << "KMCSimulator(): Empty constructor should not be used" << "\n";
+    std::cout << "KMCSimulator(): Empty constructor should not be called" << "\n";
 }
 
 KMCSimulator::KMCSimulator(State& state)

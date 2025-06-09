@@ -12,7 +12,7 @@
 
 Configuration::Configuration() 
 {
-    std::cout << "Configuration(): No configuration loaded" << "\n";
+    std::cout << "Configuration(): Empty constructor should not be called!" << "\n";
 }
 
 Configuration::Configuration(const std::string& configPath, bool randomCoordinates) {
