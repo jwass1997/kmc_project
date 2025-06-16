@@ -80,7 +80,12 @@ void singleRun(
         throw std::invalid_argument("No save folder specified !");
     }
 
-    Configuration config(deviceConfigs, true);
+    int seed0 = 1234567890;
+    auto now = std::chrono::high_resolution_clock::now();
+    auto now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
+    setRandomSeed(seed0 + static_cast<long int>(now_ns));
+
+    Configuration config(deviceConfigs, false);
     FiniteElementeCircle fem(config.radius, 1e5);
 
     State state(config, fem);
@@ -149,6 +154,7 @@ double calculateCurrent(
     int intervalSteps = simulationSteps / numOfIntervals;
     int intervalCount = 0;
 
+    state.resetEventCounter();
     kmc.simulate(state, equilibriumSteps, false, false);
 
     while (intervalCount < numOfIntervals) {
@@ -187,8 +193,9 @@ void createDatapoint(
 
 }
 
-void singleStateBatch(
+void batchOfIVCurves(
     int batchSize,
+    int numOfPoints,
     int electrodeIdx,
     double minVoltage,
     double maxVoltage,
@@ -197,70 +204,72 @@ void singleStateBatch(
     int numOfIntervals,
     const std::string& configs,
     const std::string& save,
-    const std::string& batchName
+    int batchID
 ) {
     if (save.empty()) {
         throw std::invalid_argument("singleStatebatch: No such folder");
     }
 
-    std::string fileName = save + "/batch_" + batchName + ".npz";
+    std::string fileName = save + "/batch_" + std::to_string(batchID) + ".npz";
 
     const int seed0 = 1234567890;
 
-    Configuration cfg(configs, true);
     int femResolution = 1e5;
+    int numOfElectrodes = 8;
 
-    std::vector<double> inputs(batchSize*cfg.nElectrodes, 0.0);
-    std::vector<size_t> inputShape = {static_cast<size_t>(batchSize), static_cast<size_t>(cfg.nElectrodes)};
+    std::vector<double> inputs(batchSize*numOfElectrodes, 0.0);
+    std::vector<size_t> inputShape = {static_cast<size_t>(batchSize), static_cast<size_t>(numOfElectrodes)};
 
-    std::vector<double> outputs(batchSize, 0.0);
-    std::vector<size_t> outputShape = {static_cast<size_t>(batchSize)};
-
-    std::vector<double> voltages(batchSize, 0.0);   
+    std::vector<double> outputs(batchSize*numOfPoints, 0.0);
+    std::vector<size_t> outputShape = {static_cast<size_t>(batchSize), static_cast<size_t>(numOfPoints)}; 
 
     double range = maxVoltage - minVoltage;
-    double vStep = range / (batchSize - 1);
+    double vStep = range / (numOfPoints - 1);
 
     #pragma omp parallel
-    {
+    {   
+
         int threadID = omp_get_thread_num();
         auto now = std::chrono::high_resolution_clock::now();
         auto now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
         setRandomSeed(seed0 + static_cast<long int>(now_ns) + threadID);
+
+        Configuration cfg(configs, false);
         
         #pragma omp for
         for (int _batch = 0; _batch < batchSize; ++_batch) {
 
+            
             FiniteElementeCircle fem(cfg.radius, femResolution);
             State state(cfg, fem);
             KMCSimulator kmc(state);
 
-            std::vector<double> newBoundaries(cfg.nElectrodes, 0.0);
-            newBoundaries[(electrodeIdx+1) % cfg.nElectrodes] = minVoltage + _batch*vStep;//minVoltage + (maxVoltage - minVoltage)*randomDouble01();
-
-            state.updateBoundaries(newBoundaries, fem);
-
-            double averagedCurrent = calculateCurrent(
-                state,
-                kmc,
-                electrodeIdx,
-                equilibriumSteps,
-                simulationSteps,
-                numOfIntervals
-            );
-
-            for (int i = 0; i < cfg.nElectrodes; ++i) {
-                inputs[_batch*cfg.nElectrodes + i] = newBoundaries[i];
+            std::vector<double> newBoundaries(numOfElectrodes, 0.0);
+            for (int i = 0; i < numOfElectrodes; ++i) {
+                inputs[_batch*numOfElectrodes + i] = minVoltage + (maxVoltage - minVoltage)*randomDouble01();//newBoundaries[i];    
             }
 
-            outputs[_batch] = averagedCurrent;
+            for (int _v = 0; _v < numOfPoints; _v++) {
 
-            //std::cout << "Finished batch#" << _batch << "\n";
-            //std::cout << minVoltage + _batch*vStep << "\n";
+                newBoundaries[(electrodeIdx+1) % numOfElectrodes] = minVoltage + _v*vStep;//minVoltage + (maxVoltage - minVoltage)*randomDouble01();
+                state.updateBoundaries(newBoundaries, fem);
+
+                double averagedCurrent = calculateCurrent(
+                    state,
+                    kmc,
+                    electrodeIdx,
+                    equilibriumSteps,
+                    simulationSteps,
+                    numOfIntervals
+                );
+
+                outputs[_batch*numOfPoints + _v] = averagedCurrent;
+                //std::cout << minVoltage + _batch*vStep << "\n";
+            }
         }
     }
     
-    cnpy::npz_save(fileName, "ID", &batchName, {1}, "w");
+    cnpy::npz_save(fileName, "ID", &batchID, {1}, "w");
     cnpy::npz_save(fileName, "inputs", inputs.data(), inputShape, "a");
     cnpy::npz_save(fileName, "outputs", outputs.data(), outputShape, "a");
 }
@@ -334,9 +343,10 @@ int argParser(int argc, char* argv[]) {
             ("configs", boost::program_options::value<std::string>()->default_value("../configs"))
             ("save_path", boost::program_options::value<std::string>()->default_value("../data"))
             ("batchSize", boost::program_options::value<int>()->required())
+            ("numOfPoints", boost::program_options::value<int>()->default_value(100))
             ("equilibriumSteps", boost::program_options::value<int>()->default_value(1e4))
             ("simulationSteps", boost::program_options::value<int>()->required())
-            ("batchName", boost::program_options::value<std::string>()->required())
+            ("batchID", boost::program_options::value<int>()->required())
         ;
 
         boost::program_options::variables_map vm;
@@ -346,8 +356,9 @@ int argParser(int argc, char* argv[]) {
                 vm);
         boost::program_options::notify(vm);
 
-        singleStateBatch(
+        batchOfIVCurves(
             vm["batchSize"].as<int>(),
+            vm["numOfPoints"].as<int>(),
             0,
             -1.5,
             1.5,
@@ -356,7 +367,7 @@ int argParser(int argc, char* argv[]) {
             100,
             vm["configs"].as<std::string>(),
             vm["save_path"].as<std::string>(),
-            vm["batchName"].as<std::string>()
+            vm["batchID"].as<int>()
         );
 
         return 1;

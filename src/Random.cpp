@@ -4,11 +4,11 @@
 
 #include "Random.h"
 
-static thread_local std::mt19937 rng_mt;
-static thread_local std::minstd_rand rng_minstd;
-static thread_local std::ranlux24 rng_ranlux24;
+thread_local std::mt19937 rng_mt;
+thread_local std::minstd_rand rng_minstd;
+thread_local std::ranlux24 rng_ranlux24;
 
-static thread_local RNG_TYPE rng_type = MT;
+thread_local RNG_TYPE rng_type = MT;
 
 bool setRngType(const RNG_TYPE rng_type_) {
 

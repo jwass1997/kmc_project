@@ -18,7 +18,7 @@ Configuration::Configuration()
 Configuration::Configuration(const std::string& configPath, bool randomCoordinates) {
 
     auto config = getConfigFilePath(configPath, "config.txt");
-    auto acceptorConfig = getConfigFilePath(configPath, "acceptors.txt");
+    auto acceptorConfig = getConfigFilePath(configPath, "acceptor_normal.txt");
     auto donorConfig = getConfigFilePath(configPath, "donors.txt");
     auto electrodeConfig = getConfigFilePath(configPath, "electrodes.txt");
     /* std::cout

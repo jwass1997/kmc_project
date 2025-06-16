@@ -64,10 +64,10 @@ void KMCSimulator::updateTransitionRates(State& state) {
 				else {
 					double deltaE = state.siteEnergies[partner] - state.siteEnergies[i];
 					if (deltaE < 0.0) {
-						dynamicalTransitionRates[k] = state.nu0;
+						dynamicalTransitionRates[k] = 1.0;
 					} 
 					else {
-						dynamicalTransitionRates[k] = state.nu0*fastExp(-deltaE);
+						dynamicalTransitionRates[k] = fastExp(-deltaE);
 					} 
 				}
 			}
@@ -79,10 +79,10 @@ void KMCSimulator::updateTransitionRates(State& state) {
 				else {
 					double deltaE = state.siteEnergies[partner] - state.siteEnergies[i];
 					if (deltaE < 0.0) {
-						dynamicalTransitionRates[k] = state.nu0;
+						dynamicalTransitionRates[k] = 1.0;
 					}
 					else {
-						dynamicalTransitionRates[k] = state.nu0*fastExp(-deltaE);
+						dynamicalTransitionRates[k] = fastExp(-deltaE);
 					}
 				}
 			}
@@ -91,10 +91,10 @@ void KMCSimulator::updateTransitionRates(State& state) {
 				if ((state.currentOccupation[i] == 1) && (state.currentOccupation[partner] == 0)) {
 					double deltaE = state.siteEnergies[partner] - state.siteEnergies[i] - state.A0 / state.distanceMatrix[i*state.numOfSites + partner];
 					if (deltaE < 0.0) {
-						dynamicalTransitionRates[k] = state.nu0;
+						dynamicalTransitionRates[k] = 1.0;
 					}
 					else {
-						dynamicalTransitionRates[k] = state.nu0*fastExp(-deltaE);
+						dynamicalTransitionRates[k] = fastExp(-deltaE);
 					} 
 				}
 				else {
@@ -129,10 +129,10 @@ void KMCSimulator::sampleEvent(State& state) {
 
 void KMCSimulator::mcStep(State& state, bool writeData) {
 
-    state.updateSiteEnergies(lastHopIndices);
     updateTransitionRates(state);
     sampleEvent(state);
     state.updateSiteOccupation(lastHopIndices);
+    state.updateSiteEnergies(lastHopIndices);
     state.increaseStateTime(totalSumOfRates);
 
     if (writeData) {

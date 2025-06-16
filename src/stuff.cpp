@@ -533,3 +533,44 @@ void State::initStateFromConfig(Configuration& config) {
     siteEnergies.resize(nAcceptors+nElectrodes, 0.0);   
     eventCounter.resize(numOfSites*numOfSites, 0); 
 }
+
+// PARALLEL LOOP EXAMPLE
+
+#pragma omp parallel
+    {
+        int threadID = omp_get_thread_num();
+        auto now = std::chrono::high_resolution_clock::now();
+        auto now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
+        setRandomSeed(seed0 + static_cast<long int>(now_ns) + threadID);
+        
+        #pragma omp for
+        for (int _batch = 0; _batch < batchSize; ++_batch) {
+
+            FiniteElementeCircle fem(cfg.radius, femResolution);
+            State state(cfg, fem);
+            KMCSimulator kmc(state);
+
+            std::vector<double> newBoundaries(cfg.nElectrodes, 0.0);
+            newBoundaries[(electrodeIdx+1) % cfg.nElectrodes] = minVoltage + _batch*vStep;//minVoltage + (maxVoltage - minVoltage)*randomDouble01();
+
+            state.updateBoundaries(newBoundaries, fem);
+
+            double averagedCurrent = calculateCurrent(
+                state,
+                kmc,
+                electrodeIdx,
+                equilibriumSteps,
+                simulationSteps,
+                numOfIntervals
+            );
+
+            for (int i = 0; i < cfg.nElectrodes; ++i) {
+                inputs[_batch*cfg.nElectrodes + i] = newBoundaries[i];
+            }
+
+            outputs[_batch] = averagedCurrent;
+
+            //std::cout << "Finished batch#" << _batch << "\n";
+            //std::cout << minVoltage + _batch*vStep << "\n";
+        }
+    }

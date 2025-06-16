@@ -56,7 +56,7 @@ def visualizeCurrent(hopping_counts, acceptor_pos, donor_pos, total_time):
         spine.set_linewidth(2)
 
     # Draw circular boundary representing the device outline
-    device_boundary = patches.Circle((0, 0), radius=max_radius, fill=False, edgecolor="gray", lw=2)
+    device_boundary = patches.Circle((0, 0), radius=max_radius+0.15, fill=False, edgecolor="gray", zorder=4, lw=4)
     ax.add_patch(device_boundary)
 
     # Scatter plot of donor, acceptor, and electrode positions
@@ -67,7 +67,7 @@ def visualizeCurrent(hopping_counts, acceptor_pos, donor_pos, total_time):
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.1)
     cbar = fig.colorbar(sm, cax=cax)
-    cbar.set_label("Net Current (|hops| per unit time)")
+    #cbar.set_label("")
 
     # Draw lines between each pair of acceptors with opacity based on current magnitude
     n_acceptors = acceptor_pos.shape[0]
@@ -81,12 +81,12 @@ def visualizeCurrent(hopping_counts, acceptor_pos, donor_pos, total_time):
                         alpha=np.sqrt(current_value / max_current))
 
     ax.legend(loc="upper right")
-    ax.set_title("Net Hops Current in Circular Device")
+    #ax.set_title("Net Hops Current in Circular Device")
     plt.show()
 
 if __name__ == "__main__":
     # Change the device name as needed.
-    device = "device_201"
+    device = "device_102"
     filename = "../data/" + device + ".npz"
     data = np.load(filename)
 

@@ -79,8 +79,9 @@ void createDatapoint(
     const std::string& saveFolderPath
 );
 
-void singleStateBatch(
+void batchOfIVCurves(
     int batchSize,
+    int numOfPoints,
     int electrodeIdx,
     double minVoltage,
     double maxVoltage,
@@ -89,7 +90,7 @@ void singleStateBatch(
     int numOfIntervals,
     const std::string& configs,
     const std::string& save,
-    const std::string& batchName
+    int batchID
 );
 
 int argParser(int argc, char* argv[]);

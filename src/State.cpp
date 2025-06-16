@@ -168,8 +168,8 @@ void State::initSiteEnergies(FiniteElementeCircle& femSolver) {
 		acceptorDonorInteraction[i] = A0*sumOfInverseDistances;
 
 		if(energyDisorder != 0.0) {
-            std::cout << "Disorder enbabled:" << energyDisorder << "\n";
 			double randomEnergy = normalDist(0.0, energyDisorder);	
+            //std::cout << "Random contribution:" << randomEnergy << "\n";
 			randomEnergies[i] = randomEnergy;		
 		}
 
