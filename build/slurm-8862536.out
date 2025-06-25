@@ -1,3 +1,0 @@
-/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/build
-/var/spool/slurm/job8862536/slurm_script: line 12: cd: build: No such file or directory
-slurmstepd: error: *** JOB 8862536 ON m01n16 CANCELLED AT 2025-06-14T18:14:14 ***
