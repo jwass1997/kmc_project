@@ -109,5 +109,5 @@ if __name__ == "__main__":
     visualizeCurrent(hopping_counts, acceptor_pos, donor_pos, total_time)
 
     # Optionally, to save the figure uncomment the line below and place it before plt.show() in visualizeCurrent
-    plt.savefig(device + "_circular.png", dpi=300)
+    plt.savefig("../data/" + device + "_circular.png", dpi=300)
     #plt.show()

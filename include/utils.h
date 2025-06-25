@@ -71,12 +71,19 @@ double calculateCurrent(
     int numOfIntervals
 );
 
-void createDatapoint(
+void oneDimensionalCurve(
     const std::string& name,
+    std::vector<double> voltages,
+    int inputIdx,
+    int outputIdx,
+    double vMin,
+    double vMax,
+    int numOfPoints,
     int equilibriumSteps,
     int simulationSteps,
-    int numOfIntervals,
-    const std::string& saveFolderPath
+    const std::string& configs,
+    const std::string& saveFolderPath,
+    int seed
 );
 
 void batchOfIVCurves(

@@ -183,14 +183,62 @@ double calculateCurrent(
     return averagedCurrent;
 }
 
-void createDatapoint(
+void oneDimensionalCurve(
     const std::string& name,
+    std::vector<double> voltages,
+    int inputIdx,
+    int outputIdx,
+    double vMin,
+    double vMax,
+    int numOfPoints,
     int equilibriumSteps,
     int simulationSteps,
-    int numOfIntervals,
-    const std::string& saveFolderPath
+    const std::string& configs,
+    const std::string& saveFolderPath,
+    int seed
 ) {
 
+    if (saveFolderPath.empty()) {
+        throw std::invalid_argument("createDatapoint(): No such folder");
+    }
+
+    std::string fileName = saveFolderPath + "/data_point_" + name + ".npz";
+    
+    double range = vMax - vMin;
+    double vStep = range / static_cast<double>(numOfPoints - 1);
+
+    std::vector<double> outputCurrents(numOfPoints, 0.0);
+    std::vector<size_t> outputShape{static_cast<size_t>(numOfPoints)};
+    std::vector<double> newBoundaries(8, 0.0);
+
+    setRandomSeed(seed);
+
+    int femRes = 1e5;
+    Configuration cfg(configs, false);
+    FiniteElementeCircle fem(cfg.radius, femRes);
+    State state(cfg, fem);
+    KMCSimulator kmc(state);
+
+    newBoundaries[outputIdx] = 0.0;
+    for (int _v = 0; _v < numOfPoints; ++_v) {
+
+        newBoundaries[inputIdx] = vMin + _v*vStep;
+        state.updateBoundaries(newBoundaries, fem);
+        
+        double averageCurrent = calculateCurrent(
+            state,
+            kmc,
+            inputIdx,
+            equilibriumSteps,
+            simulationSteps,
+            100
+        );
+
+        outputCurrents[_v] = averageCurrent;
+    }
+
+    cnpy::npz_save(fileName, "ID", &name, {1}, "w");
+    cnpy::npz_save(fileName, "outputCurrent", outputCurrents.data(), outputShape, "a");
 }
 
 void batchOfIVCurves(
@@ -368,6 +416,62 @@ int argParser(int argc, char* argv[]) {
             vm["configs"].as<std::string>(),
             vm["save_path"].as<std::string>(),
             vm["batchID"].as<int>()
+        );
+
+        return 1;
+    }
+
+    if (firstCommand == "findControlVoltages") {
+        std::cout << "entering parser" << "\n";
+        boost::program_options::options_description options("Find control voltages options");
+        options.add_options()
+            ("name", boost::program_options::value<std::string>()->required())
+            ("c_v", boost::program_options::value<std::vector<std::string>>()->composing(), "electrode index=value")
+            ("input_idx", boost::program_options::value<int>()->required())
+            ("output_idx", boost::program_options::value<int>()->required())
+            ("vMin", boost::program_options::value<double>()->default_value(-1.5))
+            ("vMax", boost::program_options::value<double>()->default_value(1.5))
+            ("numOfPoints", boost::program_options::value<int>()->default_value(100))
+            ("equilibriumSteps", boost::program_options::value<int>()->default_value(1e4))
+            ("simulationSteps", boost::program_options::value<int>()->required())
+            ("configs", boost::program_options::value<std::string>()->default_value("../configs"))
+            ("saveFolderPath", boost::program_options::value<std::string>()->required())
+            ("seed", boost::program_options::value<int>()->default_value(64))
+        ;
+        
+        boost::program_options::variables_map vm;
+        boost::program_options::store(
+            boost::program_options::command_line_parser(
+                remainingCommand).options(options).run(),
+                vm);
+        boost::program_options::notify(vm);
+        
+        std::vector<double> voltages(8, 0.0);
+        if (vm.count("c_v")) {
+            for (auto &s : vm["c_v"].as<std::vector<std::string>>()) {
+                auto eq = s.find('=');
+                int idx = std::stoi(s.substr(0, eq));
+                double v = std::stod(s.substr(eq+1));
+                voltages[idx] = v;
+            }
+        }
+
+        voltages[vm["input_idx"].as<int>()] = 0.0;
+        voltages[vm["output_idx"].as<int>()] = 0.0;  
+        
+        oneDimensionalCurve(
+            vm["name"].as<std::string>(),
+            voltages,
+            vm["input_idx"].as<int>(),
+            vm["output_idx"].as<int>(),
+            vm["vMin"].as<double>(),
+            vm["vMax"].as<double>(),
+            vm["numOfPoints"].as<int>(),
+            vm["equilibriumSteps"].as<int>(),
+            vm["simulationSteps"].as<int>(),
+            vm["configs"].as<std::string>(),
+            vm["saveFolderPath"].as<std::string>(),
+            vm["seed"].as<int>()
         );
 
         return 1;
