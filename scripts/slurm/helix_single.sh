@@ -5,8 +5,9 @@
 #SBATCH --time=00:30:00
 #SBATCH --mem=16gb
 
-cd $SLURM_SUBMIT_DIR
-echo "$SLURM_SUBMIT_DIR"
-cd build 
+echo "$@"
 
-./kmc_project singleRun --equilibriumSteps=10000 --simulationSteps=1000000 --deviceName=102
+module load compiler/gnu/14.1
+module load/boost/1.80.0
+
+"$@"

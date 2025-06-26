@@ -184,7 +184,7 @@ double calculateCurrent(
 }
 
 void oneDimensionalCurve(
-    const std::string& name,
+    const std::string& fileName,
     std::vector<double> voltages,
     int inputIdx,
     int outputIdx,
@@ -202,7 +202,7 @@ void oneDimensionalCurve(
         throw std::invalid_argument("createDatapoint(): No such folder");
     }
 
-    std::string fileName = saveFolderPath + "/data_point_" + name + ".npz";
+    std::string filePath = saveFolderPath + "/data_point_" + fileName + ".npz";
     
     double range = vMax - vMin;
     double vStep = range / static_cast<double>(numOfPoints - 1);
@@ -237,8 +237,8 @@ void oneDimensionalCurve(
         outputCurrents[_v] = averageCurrent;
     }
 
-    cnpy::npz_save(fileName, "ID", &name, {1}, "w");
-    cnpy::npz_save(fileName, "outputCurrent", outputCurrents.data(), outputShape, "a");
+    cnpy::npz_save(filePath, "ID", &fileName, {1}, "w");
+    cnpy::npz_save(filePath, "outputCurrent", outputCurrents.data(), outputShape, "a");
 }
 
 void batchOfIVCurves(
@@ -359,8 +359,8 @@ int argParser(int argc, char* argv[]) {
 
         boost::program_options::options_description options("Single run options");
         options.add_options()
-            ("configs", boost::program_options::value<std::string>()->default_value("../configs"))
-            ("save_path", boost::program_options::value<std::string>()->default_value("../data"))
+            ("configs", boost::program_options::value<std::string>()->required())
+            ("save_path", boost::program_options::value<std::string>()->required())
             ("equilibriumSteps", boost::program_options::value<int>()->default_value(1e4))
             ("simulationSteps", boost::program_options::value<int>()->required())
             ("deviceName", boost::program_options::value<std::string>()->required())
@@ -388,15 +388,15 @@ int argParser(int argc, char* argv[]) {
 
         boost::program_options::options_description options("Batch run options");
         options.add_options()
-            ("configs", boost::program_options::value<std::string>()->default_value("../configs"))
-            ("save_path", boost::program_options::value<std::string>()->default_value("../data"))
+            ("configs", boost::program_options::value<std::string>()->required())
+            ("save_path", boost::program_options::value<std::string>()->required())
             ("batchSize", boost::program_options::value<int>()->required())
             ("numOfPoints", boost::program_options::value<int>()->default_value(100))
             ("equilibriumSteps", boost::program_options::value<int>()->default_value(1e4))
             ("simulationSteps", boost::program_options::value<int>()->required())
             ("batchID", boost::program_options::value<int>()->required())
         ;
-
+        
         boost::program_options::variables_map vm;
         boost::program_options::store(
             boost::program_options::command_line_parser(
@@ -420,12 +420,12 @@ int argParser(int argc, char* argv[]) {
 
         return 1;
     }
-
+    
     if (firstCommand == "findControlVoltages") {
         std::cout << "entering parser" << "\n";
         boost::program_options::options_description options("Find control voltages options");
         options.add_options()
-            ("name", boost::program_options::value<std::string>()->required())
+            ("file_name", boost::program_options::value<std::string>()->required())
             ("c_v", boost::program_options::value<std::vector<std::string>>()->composing(), "electrode index=value")
             ("input_idx", boost::program_options::value<int>()->required())
             ("output_idx", boost::program_options::value<int>()->required())
@@ -434,11 +434,11 @@ int argParser(int argc, char* argv[]) {
             ("numOfPoints", boost::program_options::value<int>()->default_value(100))
             ("equilibriumSteps", boost::program_options::value<int>()->default_value(1e4))
             ("simulationSteps", boost::program_options::value<int>()->required())
-            ("configs", boost::program_options::value<std::string>()->default_value("../configs"))
+            ("configs", boost::program_options::value<std::string>()->required())
             ("saveFolderPath", boost::program_options::value<std::string>()->required())
             ("seed", boost::program_options::value<int>()->default_value(64))
         ;
-        
+
         boost::program_options::variables_map vm;
         boost::program_options::store(
             boost::program_options::command_line_parser(
@@ -460,7 +460,7 @@ int argParser(int argc, char* argv[]) {
         voltages[vm["output_idx"].as<int>()] = 0.0;  
         
         oneDimensionalCurve(
-            vm["name"].as<std::string>(),
+            vm["file_name"].as<std::string>(),
             voltages,
             vm["input_idx"].as<int>(),
             vm["output_idx"].as<int>(),
@@ -476,6 +476,6 @@ int argParser(int argc, char* argv[]) {
 
         return 1;
     }
-
+    
     return 1;
 }
