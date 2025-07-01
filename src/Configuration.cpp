@@ -15,12 +15,18 @@ Configuration::Configuration()
     std::cout << "Configuration(): Empty constructor should not be called!" << "\n";
 }
 
-Configuration::Configuration(const std::string& configPath, bool randomCoordinates) {
+Configuration::Configuration(
+    const std::string& cfg, 
+    const std::string& acceptorCfg,
+    const std::string& donorCfg,
+    const std::string& electrodeCfg,
+    bool randomCoordinates
+) {
 
-    auto config = getConfigFilePath(configPath, "config.txt");
-    auto acceptorConfig = getConfigFilePath(configPath, "acceptor_normal.txt");
-    auto donorConfig = getConfigFilePath(configPath, "donors.txt");
-    auto electrodeConfig = getConfigFilePath(configPath, "electrodes.txt");
+    auto config = cfg;//(configPath, "config.txt");
+    auto acceptorConfig = acceptorCfg;//getConfigFilePath(configPath, "acceptor_normal.txt");
+    auto donorConfig = donorCfg;//getConfigFilePath(configPath, "donors.txt");
+    auto electrodeConfig = electrodeCfg;//getConfigFilePath(configPath, "electrodes.txt");
     /* std::cout
     << "  CWD:    " << std::filesystem::current_path() << "\n"
     << "  Target: " << std::filesystem::absolute(config) << "\n"

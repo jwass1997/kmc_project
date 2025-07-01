@@ -23,7 +23,7 @@ def wait_for_file_creation(file_path, check_interval=10):
 
 def target_function(x: np.array) -> np.array:
 
-    target = x**3
+    target = 1 / (1 + np.exp(4*x))
 
     return target
 
@@ -43,6 +43,22 @@ def pearson_correlation_coefficient(x: np.array, y: np.array) -> float:
 
     return pcc   
 
+def mse(x: np.array, y:np.array) -> float:
+
+    N = x.shape[0]
+
+    x_bar = np.mean(x)
+    y_bar = np.mean(y)
+    std_x = np.std(x, ddof=1)
+    std_y = np.std(y, ddof=1)
+
+    x_c = (x - x_bar) / std_x
+    y_c = (y - y_bar) / std_y
+
+    mse = np.mean((y_c - x_c)**2)
+
+    return mse
+
 def objective(trial):
 
     PYTHON_SCRIPT_DIR = Path(__file__).resolve().parent
@@ -51,6 +67,7 @@ def objective(trial):
     BINARY = ROOT / "build" / "kmc_project"
     CONFIG_DIR = ROOT / "configs"
     DATA_DIR = ROOT / "data" / "trials"
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
 
     SLURM_SCRIPT = ROOT / "scripts" / "slurm" / "helix_optuna.sh"
 
@@ -62,7 +79,7 @@ def objective(trial):
     control_indices = [1, 2, 3, 4, 6, 7]
     input_index = 5
     output_index = 0
-    num_of_points = 100
+    num_of_points = 50
     eq_steps = 10_000
     sim_steps = 10_000
 
@@ -88,45 +105,43 @@ def objective(trial):
 
     for idx, val in params.items():
         control_voltage_args.append(f"--c_v={idx}={val}")
-    current_dir = os.getcwd()
 
+    output_file_name = ROOT / "slurm_out" / f"find_voltage_trial{trial.number}_%j.out"
     slurm_cmd = [
         "sbatch",
+        f"--output={output_file_name}",
         str(SLURM_SCRIPT),
         str(BINARY),
         "findControlVoltages"     
-    ] + flags
+    ] + flags + control_voltage_args
 
     subprocess.run(slurm_cmd, capture_output=True, text=True)
 
-    NPZ_FILE = DATA_DIR / f"data_point{trial.number}"
+    NPZ_FILE = DATA_DIR / f"data_point_{trial.number}.npz"
 
     wait_for_file_creation(NPZ_FILE, 10)
 
     data = np.load(file=NPZ_FILE)
     curve = data["outputCurrent"]
+    vs = np.linspace(V_MIN, V_MAX, num_of_points)
+    target = target_function(vs)
 
-    score = pearson_correlation_coefficient(curve)
-    print(f"[{trial.number}] Finished with score: {score}")
+    score = mse(curve, target)#pearson_correlation_coefficient(curve, target)
+    print('\x1b[6;30;42m' + f'{trial.number}] Finished with score: {score}' + '\x1b[0m')
 
     return score
-
-
-
-
-
 
 if __name__ == "__main__":
 
     study = optuna.create_study(
-    direction="maximize",
-    sampler=optuna.samplers.TPESampler(),
-    pruner=optuna.pruners.MedianPruner() 
-    )
+        direction="minimize",
+        sampler=optuna.samplers.TPESampler(),
+        pruner=optuna.pruners.MedianPruner() 
+        )
 
     study.optimize(
-    objective,
-    n_trials=10,
-    timeout=None,
-    gc_after_trial=True,
-    )
+        objective,
+        n_trials=10,
+        timeout=None,
+        gc_after_trial=True
+        )

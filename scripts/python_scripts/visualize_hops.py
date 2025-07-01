@@ -1,10 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
+from pathlib import Path
 from matplotlib.cm import ScalarMappable
 from matplotlib.colors import ListedColormap
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.patches as patches
+
+PYTHON_SCRIPT_DIR = Path(__file__).resolve().parent
+ROOT = PYTHON_SCRIPT_DIR.parents[1]
 
 def visualizeCurrent(hopping_counts, acceptor_pos, donor_pos, total_time):
     """
@@ -86,8 +90,8 @@ def visualizeCurrent(hopping_counts, acceptor_pos, donor_pos, total_time):
 
 if __name__ == "__main__":
     # Change the device name as needed.
-    device = "device_102"
-    filename = "../data/" + device + ".npz"
+    device = 999
+    filename = ROOT / "data" / f"device_{device}.npz"
     data = np.load(filename)
 
     # Load saved arrays
@@ -109,5 +113,5 @@ if __name__ == "__main__":
     visualizeCurrent(hopping_counts, acceptor_pos, donor_pos, total_time)
 
     # Optionally, to save the figure uncomment the line below and place it before plt.show() in visualizeCurrent
-    plt.savefig("../data/" + device + "_circular.png", dpi=300)
+    plt.savefig(ROOT / f"device_{device}_circ.png", dpi=300)
     #plt.show()

@@ -10,7 +10,12 @@ class Configuration {
 
         Configuration();
 
-        Configuration(const std::string& configPath, bool randomCoordinates);
+        Configuration(
+            const std::string& cfg, 
+            const std::string& acceptorCfg,
+            const std::string& donorCfg,
+            const std::string& electrodeCfg,
+            bool randomCoordinates);
 
         int nAcceptors;
         int nDonors;

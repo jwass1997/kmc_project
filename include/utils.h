@@ -83,6 +83,26 @@ void oneDimensionalCurve(
     int simulationSteps,
     const std::string& configs,
     const std::string& saveFolderPath,
+    bool randomGeometry,
+    int seed
+);
+
+void sampleOfIVCurves(
+    int trial,
+    std::vector<double> voltages,
+    int numOfSamples,
+    int inputIdx,
+    int outputIdx,
+    double vMin,
+    double vMax,
+    int numOfPoints,
+    int equilibriumSteps,
+    int simulationSteps,
+    const std::string& cfg,
+    const std::string& acceptorCfg,
+    const std::string& donorCfg,
+    const std::string& electrodeCfg,
+    const std::string& saveFolder,
     int seed
 );
 
