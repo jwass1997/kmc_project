@@ -6,6 +6,9 @@ import time
 import optuna
 import matplotlib.pyplot as plt
 
+V_MIN = -1.5
+V_MAX = 1.5
+
 def wait_for_file(file_path, timeout=600, check_interval=5):
 
     start_time = time.time()
@@ -25,31 +28,29 @@ def wait_for_file_creation(file_path, check_interval=10):
 
 def target_function(x: np.array) -> np.array:
 
-    target = 1 / (1 + np.exp(4*x))
+    target = np.sin(0.5*x)#1 / (1 + np.exp(4*x))
 
     return target
 
-def mse(x: np.array, y:np.array) -> float:
+def mse(x: np.array, target: np.array):
 
-    N = x.shape[0]
-
-    x_bar = np.mean(x)
-    y_bar = np.mean(y)
-    std_x = np.std(x, ddof=1)
-    std_y = np.std(y, ddof=1)
+    x_bar = np.mean(x, keepdims=True, axis=1)
+    y_bar = np.mean(target)
+    std_x = np.std(x, keepdims=True, axis=1, ddof=1)
+    std_y = np.std(target, ddof=1)
 
     x_c = (x - x_bar) / std_x
-    y_c = (y - y_bar) / std_y
+    y_c = (target - y_bar) / std_y
+    diff_sq = (y_c - x_c)**2
+    mse_vals = np.mean(diff_sq, axis=1)
 
-    mse = np.mean((y_c - x_c)**2)
-
-    return mse
+    return mse_vals
 
 def suggest_spd(trial, 
                 prefix, 
                 D,
-                log_std_bounds=(-3, 3),
-                offdiag_bounds=(-1, 1)):
+                log_std_bounds,
+                offdiag_bounds):
     
     L = np.zeros(shape=(D,D))
 
@@ -64,11 +65,24 @@ def suggest_spd(trial,
         """
         Off-diagonal elements are not constrained
         """
-        for j in range(i):
+        """ for j in range(i):
 
-            L[i, j] = trial.suggest_float(f"{prefix}_L_{i}{j}", *offdiag_bounds)
+            L[i, j] = trial.suggest_float(f"{prefix}_L_{i}{j}", *offdiag_bounds) """
     
     return L @ L.T
+
+def suggest_spd_iso(trial,
+                    prefix,
+                    D,
+                    log_std_bounds,
+                    offdiag_bounds):
+    
+    L = np.eye(D,D)
+
+    log_std = trial.suggest_float(f"{prefix}_log_std", *log_std_bounds)
+    std = np.exp(log_std)
+
+    return std * L
 
 def suggest_mean_on_disc(trial,
                          prefix,
@@ -109,76 +123,85 @@ def sample(means,
 def objective(trial):
 
     PYTHON_SCRIPT_DIR = Path(__file__).resolve().parent
-    ROOT = PYTHON_SCRIPT_DIR.parents[2]
+    ROOT = PYTHON_SCRIPT_DIR.parents[1]
 
     CONFIG_DIR = ROOT / "configs"
     BINARY = ROOT / "build" / "kmc_project"
     DATA_DIR = ROOT / "data" / "experiment_0"
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
 
     SLURM_SCRIPT = ROOT / "scripts" / "slurm" / "helix_optuna.sh"
 
-    control_indices = [1, 2, 3, 4, 6, 7]
     input_index = 5
     output_index = 0
     num_of_points = 50
-    eq_steps = 1_000
-    sim_steps = 1_000
+    eq_steps = 10_000
+    sim_steps = 10_000
     radius = 150
+    max_hop_distance = 60.0
+    min_hop_distance = 3.0
 
-    samples_per_trial = 10
+    samples_per_trial = 30
 
     print(f"[Trial {trial.number}] Starting trial...")
 
     """
     Set control voltages
     """
-    V_MIN = -1.5
-    V_MAX = 1.5
 
-    control_voltages = [-0.2, 1.2, -0.9, 0.8, -0.5, 0.9]#np.random.uniform(V_MIN, V_MAX, size=(len(control_indices, )))
-    params = {
-        idx: val
-        for idx, val in zip(control_indices, control_voltages)
-    }
-
-    control_voltage_args = []
-
-    for idx, val in params.items():
-        control_voltage_args.append(f"--c_v={idx}={val}")
+    global control_voltage_args
 
     """
-    Suggest parameters of the gaussian mixture components
+    Directory for acceptor files
     """
-    K = 3
+
+    NODE_DIST_DIR = DATA_DIR / f"trial_{trial.number}"
+    NODE_DIST_DIR.mkdir(parents=True, exist_ok=True)
+
+    """
+    Suggest parameters of the gaussian mixture components, sample nodes and save into file
+    """
+    """ K = 5
     means = []
     covs = []
+
+    std_min = radius / 3
+    std_max = radius / 2
+    log_std_bounds = (2*np.log(std_min), 2*np.log(std_max))
+    #offdiag_bounds = (-std_max/2, std_max/2)
 
     raw_weights = []
     for k in range (K):
         means.append(suggest_mean_on_disc(trial=trial, prefix=f"mu_{k}", radius=radius))
-        covs.append(suggest_spd(trial=trial, prefix=f"cov_{k}", D=2))
-
+        #covs.append(suggest_spd(trial=trial, prefix=f"cov_{k}", D=2, log_std_bounds=log_std_bounds, offdiag_bounds=(0, 0)))
+        covs.append(suggest_spd_iso(trial=trial, prefix=f"cov_{k}", D=2, log_std_bounds=log_std_bounds, offdiag_bounds=(0, 0)))
         raw_weight = trial.suggest_float(f"raw_w_{k}", 0.0, 1.0)
         raw_weights.append(raw_weight)
 
     raw_weight_sum = sum(raw_weights)
     weights = [w / raw_weight_sum for w in raw_weights]
 
-    """
-    Sample multiple configuration
-    """
-    
-    NODE_DIST_DIR = DATA_DIR / f"trial_{trial.number}"
-    NODE_DIST_DIR.mkdir(parents=True, exist_ok=True)
-
     for s in range(samples_per_trial):
         X = sample(means, covs, weights, radius, 200)
-        file = open(str(NODE_DIST_DIR) + f"/acceptors_trial={trial.number}_sample={s}")
-
         with open(str(NODE_DIST_DIR) + f"/acceptors_trial={trial.number}_sample={s}", "w") as f:
             for p in X:
-                f.write(f"{p[0]}/t{p[1]}\n")                
+                f.write(f"{p[0]}\t{p[1]}\n")   """ 
+
+    """
+    Suggest parameters for Mises and Beta
+    """
+    alpha = trial.suggest_float(f"alpha", 0.5, 5)
+    beta = trial.suggest_float(f"beta", 0.5, 5)
+
+    for s in range(samples_per_trial):
+        u = np.random.beta(alpha, beta, size=200)
+        u = np.random.uniform(0, 1, size=200)
+        r = radius*np.sqrt(u)
+        theta = np.random.random(size=200)*2*np.pi
+        X = np.column_stack([r*np.cos(theta), r*np.sin(theta)])   
+        with open(str(NODE_DIST_DIR) + f"/acceptors_trial={trial.number}_sample={s}", "w") as f:
+            for p in X:
+                f.write(f"{p[0]}\t{p[1]}\n")         
+
     """
     Simulation flags
     """
@@ -194,9 +217,9 @@ def objective(trial):
         f"--simulationSteps={sim_steps}",
         f"--cfg={str(CONFIG_DIR) + '/config.txt'}",
         f"--donorCfg={str(CONFIG_DIR) + '/donors.txt'}",
-        f"--acceptorCfg={str(NODE_DIST_DIR)}"
+        f"--acceptorCfg={str(NODE_DIST_DIR)}",
         f"--electrodeCfg={str(CONFIG_DIR) + '/electrodes.txt'}",
-        f"--saveFolderPath={str(DATA_DIR)}",
+        f"--saveFolder={str(DATA_DIR)}",
     ]
 
     output_file_name = ROOT / "slurm_out" / f"find_node_dist{trial.number}_%j.out"
@@ -208,25 +231,51 @@ def objective(trial):
         "findNodeDistribution"     
     ] + flags + control_voltage_args
 
-    subprocess.run(slurm_cmd, capture_output=True, text=True)
+    proc = subprocess.run(slurm_cmd, capture_output=True, text=True)
+    #print(f"[Trial {trial.number}] SLURM script path: {SLURM_SCRIPT}")
+    #print(f"[Trial {trial.number}] sbatch exit {proc.returncode}")
+    #print(f"[Trial {trial.number}] stdout:\n{proc.stdout}")
+    #print(f"[Trial {trial.number}] stderr:\n{proc.stderr}")
+    #proc.check_returncode()   # raises if sbatch failed
+    #print(f"cmd: {slurm_cmd}")
 
-    NPZ_FILE = DATA_DIR / f"trial_{trial.number}" / f"curves={trial.number}.npz"
-
+    NPZ_FILE = DATA_DIR / f"trial_{trial.number}" / f"curves_trial={trial.number}.npz"
+    #print(f"npz_path: {str(NPZ_FILE)}")
     wait_for_file_creation(NPZ_FILE, 10)
 
     data = np.load(file=NPZ_FILE)
-    curve = data["outputCurrent"]
+    curve = data["outputs"]
     vs = np.linspace(V_MIN, V_MAX, num_of_points)
     target = target_function(vs)
 
-    losses += mse(curve, target)#pearson_correlation_coefficient(curve, target)
+    losses = mse(curve, target)
     
-    total_loss = losses / samples_per_trial
+    total_loss = np.mean(losses)
     print('\x1b[6;30;42m' + f'{trial.number}] Finished with score: {total_loss}' + '\x1b[0m')
 
     return total_loss
 
 if __name__ == "__main__":
+
+    control_indices = [1, 2, 3, 4, 6, 7]
+
+    np.random.seed(42)
+    control_voltages = []
+    for _ in range(len(control_indices)):
+        c_v = (V_MAX - V_MIN)*np.random.random_sample() + V_MIN
+        control_voltages += [c_v]
+
+    control_voltages = np.random.uniform(V_MIN, V_MAX, size=len(control_indices))
+    control_voltage_args = [
+        f"--c_v={idx}={val}"
+        for idx, val in zip(control_indices, control_voltages)
+    ]
+
+    root = Path(__file__).resolve().parents[2]
+    data_dir = root / "data" / "experiment_0"
+    data_dir.mkdir(parents=True, exist_ok=True)
+    #print(f"root_folder: {str(root)}\t")
+    #print(f"data_dir_folder: {str(data_dir)}\t")
 
     study = optuna.create_study(
         direction="minimize",

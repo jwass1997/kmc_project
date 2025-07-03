@@ -598,7 +598,6 @@ int argParser(int argc, char* argv[]) {
         options.add_options()
             ("numOfSamples", boost::program_options::value<int>()->required())
             ("trial", boost::program_options::value<int>()->required())
-            ("file_name", boost::program_options::value<std::string>()->required())
             ("c_v", boost::program_options::value<std::vector<std::string>>()->composing(), "electrode index=value")
             ("input_idx", boost::program_options::value<int>()->required())
             ("output_idx", boost::program_options::value<int>()->required())
