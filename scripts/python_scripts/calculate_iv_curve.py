@@ -16,12 +16,11 @@ def simulate_iv_curve(name: Union[float, str], seed: int, params: dict) -> None:
 
     SLURM_SCRIPT = ROOT / "scripts" / "slurm" / "helix_optuna.sh"
 
-    control_indices = [1, 2, 3, 4, 6, 7]
-    input_index = 5
+    input_index = 1
     output_index = 0
     num_of_points = 50
     eq_steps = 10_000
-    sim_steps = 10_000
+    sim_steps = 100_000
     V_MIN, V_MAX = -1.5, 1.5
 
     params = params
@@ -35,10 +34,10 @@ def simulate_iv_curve(name: Union[float, str], seed: int, params: dict) -> None:
         f"--numOfPoints={num_of_points}",
         f"--equilibriumSteps={eq_steps}",
         f"--simulationSteps={sim_steps}",
-        f"--cfg={str(CONFIG_DIR)+"/config.txt"}",
-        f"--acceptorCfg={str(CONFIG_DIR)+"/acceptor_normal.txt"}",
-        f"--donorCfg={str(CONFIG_DIR)+"/donors.txt"}",
-        f"--electrodeCfg={str(CONFIG_DIR)+"/electrodes.txt"}",
+        f"--cfg={str(CONFIG_DIR)+'/config.txt'}",
+        f"--acceptorCfg={str(CONFIG_DIR)+'/acceptor_normal.txt'}",
+        f"--donorCfg={str(CONFIG_DIR)+'/donors.txt'}",
+        f"--electrodeCfg={str(CONFIG_DIR)+'/electrodes.txt'}",
         f"--saveFolderPath={str(DATA_DIR)}",
         f"--seed={seed}"
     ]
@@ -64,10 +63,10 @@ def simulate_iv_curve(name: Union[float, str], seed: int, params: dict) -> None:
 if __name__ == "__main__":
 
     voltage_dict = {
-        1: -0.6,
         2: 0.5,
         3: -1.2,
         4: 0.0,
+        5: -0.6,
         6: 1.3,
         7: -0.9,
         }

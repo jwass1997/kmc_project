@@ -174,7 +174,7 @@ double calculateCurrent(
             inEvents += state.eventCounter[state.numOfSites*i + (electrodeIdx+state.nAcceptors)];
         }
         totalTime += elapsedTime;
-        netEvents += (inEvents-outEvents);
+        netEvents += -(inEvents-outEvents);
 
         state.resetEventCounter();
 

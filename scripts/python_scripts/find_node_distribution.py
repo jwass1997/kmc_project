@@ -120,6 +120,51 @@ def sample(means,
     
     return np.vstack(positions)
 
+def Beta_von_Mises_component(alpha,
+                             beta,
+                             mu,
+                             kappa,
+                             radius,
+                             N):
+    
+    u = np.random.beta(a=alpha, b=beta, size=N)
+    r = radius*np.sqrt(u)
+
+    theta = np.random.vonmises(mu=mu, kappa=kappa, size=N)
+
+    sample = np.column_stack([r*np.cos(theta), r*np.sin(theta)])
+    
+    return sample
+
+def sample_from_Beta_von_Mises_mixture(alphas,
+                                       betas,
+                                       mus,
+                                       kappas,
+                                       weights,
+                                       radius,
+                                       N):
+    
+    cum_weight_sum = np.cumsum(weights)
+    sample = []
+
+    for _ in range(N):
+
+        u = np.random.uniform(0., 1.)*cum_weight_sum[-1]
+        component = np.searchsorted(cum_weight_sum, u)
+
+        x = Beta_von_Mises_component(
+            alpha=alphas[component],
+            beta=betas[component],
+            mu=mus[component],
+            kappa=kappas[component],
+            radius=radius,
+            N=1
+        )
+
+        sample.append(x)
+
+    return np.vstack(sample)
+
 def objective(trial):
 
     PYTHON_SCRIPT_DIR = Path(__file__).resolve().parent
@@ -131,7 +176,7 @@ def objective(trial):
 
     SLURM_SCRIPT = ROOT / "scripts" / "slurm" / "helix_optuna.sh"
 
-    input_index = 5
+    input_index = 1
     output_index = 0
     num_of_points = 50
     eq_steps = 10_000
@@ -149,6 +194,8 @@ def objective(trial):
     """
 
     global control_voltage_args
+    #Num of mixture components
+    K = 5
 
     """
     Directory for acceptor files
@@ -160,7 +207,7 @@ def objective(trial):
     """
     Suggest parameters of the gaussian mixture components, sample nodes and save into file
     """
-    """ K = 5
+    """ 
     means = []
     covs = []
 
@@ -189,15 +236,29 @@ def objective(trial):
     """
     Suggest parameters for Mises and Beta
     """
-    alpha = trial.suggest_float(f"alpha", 0.5, 5)
-    beta = trial.suggest_float(f"beta", 0.5, 5)
+    alphas = []
+    betas = []
+    mus = []
+    kappas = []
+    raw_weights = []
+    for k in range(K):
+        alphas.append(trial.suggest_float(f"alpha_{k}", 0.5, 5))
+        betas.append(trial.suggest_float(f"beta_{k}", 0.5, 5))
+        mus.append(trial.suggest_float(f"mu_{k}", 0, 2*np.pi))
+        kappas.append(trial.suggest_float(f"kappa_{k}", 0, 8))
+        raw_weights.append(trial.suggest_float(f"raw_w_{k}", 0, 1))
+
+    raw_weight_sum = sum(raw_weights)
+    weights = [rw / raw_weight_sum for rw in raw_weights]
 
     for s in range(samples_per_trial):
-        u = np.random.beta(alpha, beta, size=200)
-        u = np.random.uniform(0, 1, size=200)
-        r = radius*np.sqrt(u)
-        theta = np.random.random(size=200)*2*np.pi
-        X = np.column_stack([r*np.cos(theta), r*np.sin(theta)])   
+        X = sample_from_Beta_von_Mises_mixture(alphas,
+                                               betas,
+                                               mus,
+                                               kappas,
+                                               weights,
+                                               radius, 
+                                               200)
         with open(str(NODE_DIST_DIR) + f"/acceptors_trial={trial.number}_sample={s}", "w") as f:
             for p in X:
                 f.write(f"{p[0]}\t{p[1]}\n")         
@@ -257,7 +318,7 @@ def objective(trial):
 
 if __name__ == "__main__":
 
-    control_indices = [1, 2, 3, 4, 6, 7]
+    control_indices = [2, 3, 4, 5, 6, 7]
 
     np.random.seed(42)
     control_voltages = []
