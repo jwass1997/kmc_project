@@ -7,20 +7,24 @@ from pathlib import Path
 PYTHON_SCRIPT_DIR = Path(__file__).resolve().parent
 ROOT = PYTHON_SCRIPT_DIR.parents[1]
 
-def simulate_iv_curve(name: Union[float, str], seed: int, params: dict) -> None:
+def simulate_iv_curve(name: Union[float, str], 
+                      save_dir, 
+                      cfg_dir, 
+                      acc_cfg,
+                      don_cfg,
+                      ele_cfg,
+                      seed: int, 
+                      params: dict) -> None:
 
     BINARY = ROOT / "build" / "kmc_project"
-    CONFIG_DIR = ROOT / "configs"
-    DATA_DIR = ROOT / "data" / "iv_curves"
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
 
     SLURM_SCRIPT = ROOT / "scripts" / "slurm" / "helix_optuna.sh"
 
     input_index = 1
     output_index = 0
-    num_of_points = 50
+    num_of_points = 100
     eq_steps = 10_000
-    sim_steps = 100_000
+    sim_steps = 10_000
     V_MIN, V_MAX = -1.5, 1.5
 
     params = params
@@ -34,11 +38,11 @@ def simulate_iv_curve(name: Union[float, str], seed: int, params: dict) -> None:
         f"--numOfPoints={num_of_points}",
         f"--equilibriumSteps={eq_steps}",
         f"--simulationSteps={sim_steps}",
-        f"--cfg={str(CONFIG_DIR)+'/config.txt'}",
-        f"--acceptorCfg={str(CONFIG_DIR)+'/acceptor_normal.txt'}",
-        f"--donorCfg={str(CONFIG_DIR)+'/donors.txt'}",
-        f"--electrodeCfg={str(CONFIG_DIR)+'/electrodes.txt'}",
-        f"--saveFolderPath={str(DATA_DIR)}",
+        f"--cfg={cfg_dir}",
+        f"--acceptorCfg={acc_cfg}",
+        f"--donorCfg={don_cfg}",
+        f"--electrodeCfg={ele_cfg}",
+        f"--saveFolderPath={save_dir}",
         f"--seed={seed}"
     ]
 
@@ -70,5 +74,21 @@ if __name__ == "__main__":
         6: 1.3,
         7: -0.9,
         }
-    simulate_iv_curve(name=1, seed=65, params=voltage_dict)
+    name = "400_acceptors"
+
+    DATA_DIR = ROOT / "data" / "iv_curves"
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    ACC_CFG = ROOT / "configs" / "acceptor_vonMises_beta.txt"
+    DON_CFG = ROOT / "configs" / "donors.txt"
+    ELE_CFG = ROOT / "configs" / "electrodes.txt"
+    CFG = ROOT / "configs" / "config.txt"
+
+    simulate_iv_curve(name=name, 
+                      seed=65, 
+                      save_dir=str(DATA_DIR), 
+                      cfg_dir=str(CFG), 
+                      acc_cfg=str(ACC_CFG), 
+                      don_cfg=str(DON_CFG), 
+                      ele_cfg=str(ELE_CFG), 
+                      params=voltage_dict)
     

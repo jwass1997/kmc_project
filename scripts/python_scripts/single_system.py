@@ -12,7 +12,7 @@ DATA_DIR = ROOT / "data"
 
 flags = [
     f"--cfg={str(CONFIG_DIR) + '/config.txt'}",
-    f"--acceptorCfg={str(CONFIG_DIR) + '/acceptor_normal.txt'}",
+    f"--acceptorCfg={str(CONFIG_DIR) + '/acceptor_vonMises_beta.txt'}",
     f"--donorCfg={str(CONFIG_DIR) + '/donors.txt'}",
     f"--electrodeCfg={str(CONFIG_DIR) + '/electrodes.txt'}",
     f"--save_path={str(DATA_DIR)}",

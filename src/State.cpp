@@ -169,6 +169,7 @@ void State::initSiteEnergies(FiniteElementeCircle& femSolver) {
 
 		if(energyDisorder != 0.0) {
 			double randomEnergy = normalDist(0.0, energyDisorder);	
+            //double randomEnergy = energyDisorder*randomDouble01();	
             //std::cout << "Random contribution:" << randomEnergy << "\n";
 			randomEnergies[i] = randomEnergy;		
 		}

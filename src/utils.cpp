@@ -231,7 +231,7 @@ void oneDimensionalCurve(
     State state(config, fem);
     KMCSimulator kmc(state);
 
-    newBoundaries[outputIdx] = 0.0;
+    newBoundaries[outputIdx] = 1.2;
     for (int _v = 0; _v < numOfPoints; ++_v) {
 
         newBoundaries[inputIdx] = vMin + _v*vStep;
@@ -417,6 +417,120 @@ void batchOfIVCurves(
     cnpy::npz_save(fileName, "outputs", outputs.data(), outputShape, "a");
 }
 
+void calculateIVCurve(
+    const std::string& fileName,
+    int sampleSize,
+    std::vector<double> voltages,
+    int inputIdx,
+    int outputIdx,
+    double vMin,
+    double vMax,
+    int numOfPoints,
+    int equilibriumSteps,
+    int simulationSteps,
+    const std::string& cfg,
+    const std::string& acceptorCfg,
+    const std::string& donorCfg,
+    const std::string& electrodeCfg,
+    const std::string& saveFolderPath,
+    bool randomGeometry,
+    int seed
+) {
+    if (saveFolderPath.empty()) {
+        throw std::invalid_argument("calculateIVCurve(): Save folder not found");
+    }    
+
+    std::string filePath = saveFolderPath + "/" + fileName + ".npz";
+
+    std::vector<double> outputs(numOfPoints*sampleSize, 0.0);
+
+    int femRes = 1e5;
+    int numOfElectrodes = 8;
+
+    double range = vMax - vMin;
+    double vStep = range / static_cast<double>(numOfPoints - 1);
+
+    #pragma omp parallel
+    {
+        int threadID = omp_get_thread_num();
+        //auto now = std::chrono::high_resolution_clock::now();
+        //auto now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
+        setRandomSeed(seed + threadID); 
+
+        #pragma omp for
+        for (int s = 0; s < sampleSize; ++s) {
+
+            Configuration config(
+                cfg,
+                acceptorCfg,
+                donorCfg,
+                electrodeCfg,
+                false
+            );
+            FiniteElementeCircle fem(config.radius, femRes);
+            State state(config, fem);
+            KMCSimulator kmc(state);
+            std::cout << config.energyDisorder << "\n";
+            std::vector<double> newBoundaries(numOfElectrodes, 0.0);
+            for (int i = 0; i < newBoundaries.size(); ++i) {
+                newBoundaries[i] = voltages[i];
+            }
+
+            newBoundaries[outputIdx] = 0.0;
+            for (int _v = 0; _v < numOfPoints; _v++) {
+
+                newBoundaries[inputIdx] = vMin + _v*vStep;
+                state.updateBoundaries(newBoundaries, fem);
+
+                double averagedCurrent = calculateCurrent(
+                    state,
+                    kmc,
+                    inputIdx,
+                    equilibriumSteps,
+                    simulationSteps,
+                    100
+                );
+
+                outputs[s*numOfPoints + _v] = averagedCurrent;
+            }
+        }
+    }
+
+    std::vector<double> averagedCurve(numOfPoints, 0.0);
+    for (int i = 0; i < numOfPoints; ++i) {
+
+        for (int j = 0; j < sampleSize; ++j) {
+            averagedCurve[i] += outputs[i + j*numOfPoints] / sampleSize;            
+        }
+    }
+
+    std::vector<size_t> shape = {static_cast<size_t>(numOfPoints)};
+    cnpy::npz_save(filePath, "ID", &fileName, {1}, "w");
+    cnpy::npz_save(filePath, "outputs", averagedCurve.data(), shape, "a");
+}
+
+/* void paramLineSweep(
+    const std::string& fileName,
+    const std::string& paramName,
+    std::vector<double> voltages,
+    int inputIdx,
+    int outputIdx,
+    double vMin,
+    double vMax,
+    int numOfPoints,
+    int equilibriumSteps,
+    int simulationSteps,
+    const std::string& cfg,
+    const std::string& acceptorCfg,
+    const std::string& donorCfg,
+    const std::string& electrodeCfg,
+    const std::string& saveFolderPath,
+    bool randomGeometry,
+    int seed
+) {
+    double param = std::to_string(paramName);    
+} */
+
 int argParser(int argc, char* argv[]) {
 
     boost::program_options::options_description globalOptions(" ");
@@ -572,6 +686,72 @@ int argParser(int argc, char* argv[]) {
         
         oneDimensionalCurve(
             vm["file_name"].as<std::string>(),
+            voltages,
+            vm["input_idx"].as<int>(),
+            vm["output_idx"].as<int>(),
+            vm["vMin"].as<double>(),
+            vm["vMax"].as<double>(),
+            vm["numOfPoints"].as<int>(),
+            vm["equilibriumSteps"].as<int>(),
+            vm["simulationSteps"].as<int>(),
+            vm["cfg"].as<std::string>(),
+            vm["acceptorCfg"].as<std::string>(),
+            vm["donorCfg"].as<std::string>(),
+            vm["electrodeCfg"].as<std::string>(),
+            vm["saveFolderPath"].as<std::string>(),
+            vm["randomGeometry"].as<int>(),
+            vm["seed"].as<int>()
+        );
+
+        return 1;
+    }
+
+    if (firstCommand == "calcIVCurve") {
+        
+        boost::program_options::options_description options("Find control voltages options");
+        options.add_options()
+            ("file_name", boost::program_options::value<std::string>()->required())
+            ("c_v", boost::program_options::value<std::vector<std::string>>()->composing(), "electrode index=value")
+            ("sampleSize", boost::program_options::value<int>()->required())
+            ("input_idx", boost::program_options::value<int>()->required())
+            ("output_idx", boost::program_options::value<int>()->required())
+            ("vMin", boost::program_options::value<double>()->default_value(-1.5))
+            ("vMax", boost::program_options::value<double>()->default_value(1.5))
+            ("numOfPoints", boost::program_options::value<int>()->default_value(100))
+            ("equilibriumSteps", boost::program_options::value<int>()->default_value(1e4))
+            ("simulationSteps", boost::program_options::value<int>()->required())
+            ("cfg", boost::program_options::value<std::string>()->required())
+            ("acceptorCfg", boost::program_options::value<std::string>()->required())
+            ("donorCfg", boost::program_options::value<std::string>()->required())
+            ("electrodeCfg", boost::program_options::value<std::string>()->required())
+            ("saveFolderPath", boost::program_options::value<std::string>()->required())
+            ("randomGeometry", boost::program_options::value<int>()->default_value(0))
+            ("seed", boost::program_options::value<int>()->default_value(64))
+        ;
+
+        boost::program_options::variables_map vm;
+        boost::program_options::store(
+            boost::program_options::command_line_parser(
+                remainingCommand).options(options).run(),
+                vm);
+        boost::program_options::notify(vm);
+        
+        std::vector<double> voltages(8, 0.0);
+        if (vm.count("c_v")) {
+            for (auto &s : vm["c_v"].as<std::vector<std::string>>()) {
+                auto eq = s.find('=');
+                int idx = std::stoi(s.substr(0, eq));
+                double v = std::stod(s.substr(eq+1));
+                voltages[idx] = v;
+            }
+        }
+
+        voltages[vm["input_idx"].as<int>()] = 0.0;
+        voltages[vm["output_idx"].as<int>()] = 0.0;  
+        
+        calculateIVCurve(
+            vm["file_name"].as<std::string>(),
+            vm["sampleSize"].as<int>(),
             voltages,
             vm["input_idx"].as<int>(),
             vm["output_idx"].as<int>(),

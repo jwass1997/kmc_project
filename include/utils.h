@@ -106,6 +106,26 @@ void sampleOfIVCurves(
     int seed
 );
 
+void calculateIVCurve(
+    const std::string& fileName,
+    int sampleSize,
+    std::vector<double> voltages,
+    int inputIdx,
+    int outputIdx,
+    double vMin,
+    double vMax,
+    int numOfPoints,
+    int equilibriumSteps,
+    int simulationSteps,
+    const std::string& cfg,
+    const std::string& acceptorCfg,
+    const std::string& donorCfg,
+    const std::string& electrodeCfg,
+    const std::string& saveFolderPath,
+    bool randomGeometry,
+    int seed
+);
+
 void batchOfIVCurves(
     int batchSize,
     int numOfPoints,
@@ -115,7 +135,10 @@ void batchOfIVCurves(
     int equilibriumSteps,
     int simulationSteps,
     int numOfIntervals,
-    const std::string& configs,
+    const std::string& cfg,
+    const std::string& acceptorCfg,
+    const std::string& donorCfg,
+    const std::string& electrodeCfg,
     const std::string& save,
     int batchID
 );
