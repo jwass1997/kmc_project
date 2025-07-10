@@ -11,12 +11,16 @@
 
       "includePath": [
         "${workspaceFolder}/include",
+        "${workspaceFolder}/../local/include",
+        "${workspaceFolder}/src", 
         "/opt/bwhpc/common/lib/boost/1.80.0/include"
       ],
 
       "browse": {
         "path": [
           "${workspaceFolder}/include",
+          "${workspaceFolder}/../local/include",
+          "${workspaceFolder}/src", 
           "/opt/bwhpc/common/lib/boost/1.80.0/include"
         ],
         "limitSymbolsToIncludedHeaders": false

@@ -2,7 +2,7 @@
 #SBATCH --partition=cpu-single
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=64
-#SBATCH --time=10:00:00
+#SBATCH --time=3:00:00
 #SBATCH --mem=64gb
 
 module load compiler/gnu/14.1

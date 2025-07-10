@@ -91,3 +91,20 @@
         "scoped_allocator": "cpp"
     }
 }
+
+/* {
+  "files.associations": {
+    "*.cpp": "cpp",
+    "*.hpp": "cpp",
+    "*.h":   "cpp"
+  },
+  "cmake.cmakePath": "/opt/bwhpc/common/devel/cmake/3.31.6/bin/cmake",
+  "cmake.buildDirectory": "${workspaceFolder}/build",
+
+  "cmake.configureEnvironment": {
+    "LD_LIBRARY_PATH": "/opt/bwhpc/common/compiler/gnu/14.1.0/lib64:${env:LD_LIBRARY_PATH}"
+  },
+  "cmake.buildEnvironment": {
+    "LD_LIBRARY_PATH": "/opt/bwhpc/common/compiler/gnu/14.1.0/lib64:${env:LD_LIBRARY_PATH}"
+  }
+} */
