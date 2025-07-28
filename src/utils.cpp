@@ -509,10 +509,12 @@ void calculateIVCurve(
     cnpy::npz_save(filePath, "outputs", averagedCurve.data(), shape, "a");
 }
 
-void param2DLineSweep(
+void param2DSweep(
     const std::string& fileName,
-    const std::string& paramName,
-    double paramValue,
+    const std::string& paramName1,
+    const std::string& paramName2,
+    double paramValue1,
+    double paramValue2,
     int sampleSize,
     std::vector<double> voltages,
     int inputIdx,
@@ -543,8 +545,18 @@ void param2DLineSweep(
         false
     );
     
-    if (paramName == "sigma") {
-        config.energyDisorder = paramValue*e / config.kbT;                
+    if (paramName1 == "sigma") {
+        config.energyDisorder = paramValue1*e / config.kbT;                
+    }
+    else if(paramName1 == "temp") {
+        config.T = paramValue1;
+    }
+
+    if (paramName2 == "temp") {
+        config.T = paramValue2;                
+    }
+    else if(paramName2 == "sigma") {
+        config.energyDisorder = paramValue2*e / config.kbT;
     }
 
     std::vector<double> outputs(numOfPoints*sampleSize, 0.0);
@@ -568,7 +580,7 @@ void param2DLineSweep(
             FiniteElementeCircle fem(config.radius, femRes);
             State state(config, fem);
             KMCSimulator kmc(state);
-            std::cout << config.energyDisorder << "\n";
+            //std::cout << config.energyDisorder << "\n";
             std::vector<double> newBoundaries(numOfElectrodes, 0.0);
             for (int i = 0; i < newBoundaries.size(); ++i) {
                 newBoundaries[i] = voltages[i];
@@ -848,14 +860,16 @@ int argParser(int argc, char* argv[]) {
         return 1;
     }
 
-    if (firstCommand == "2DLineSweep") {
+    if (firstCommand == "2DSweep") {
         
         boost::program_options::options_description options("Find control voltages options");
         options.add_options()
             ("file_name", boost::program_options::value<std::string>()->required())
             ("c_v", boost::program_options::value<std::vector<std::string>>()->composing(), "electrode index=value")
-            ("paramName", boost::program_options::value<std::string>()->required())
-            ("paramValue", boost::program_options::value<double>()->required())
+            ("paramName1", boost::program_options::value<std::string>()->required())
+            ("paramName2", boost::program_options::value<std::string>()->required())
+            ("paramValue1", boost::program_options::value<double>()->required())
+            ("paramValue2", boost::program_options::value<double>()->required())
             ("sampleSize", boost::program_options::value<int>()->required())
             ("input_idx", boost::program_options::value<int>()->required())
             ("output_idx", boost::program_options::value<int>()->required())
@@ -893,10 +907,12 @@ int argParser(int argc, char* argv[]) {
         voltages[vm["input_idx"].as<int>()] = 0.0;
         voltages[vm["output_idx"].as<int>()] = 0.0;  
         
-        param2DLineSweep(
+        param2DSweep(
             vm["file_name"].as<std::string>(),
-            vm["paramName"].as<std::string>(),
-            vm["paramValue"].as<double>(),
+            vm["paramName1"].as<std::string>(),
+            vm["paramName2"].as<std::string>(),
+            vm["paramValue1"].as<double>(),
+            vm["paramValue2"].as<double>(),
             vm["sampleSize"].as<int>(),
             voltages,
             vm["input_idx"].as<int>(),

@@ -18,8 +18,6 @@ DATA_DIR = ROOT / "data"
 SWEEP_SAVE_DIR = DATA_DIR / "test_sweep"
 SWEEP_SAVE_DIR.mkdir(parents=True, exist_ok=True)
 
-seed = np.random.randint(low=0, high=1234567890)
-
 voltage_dict = {
     2: 0.5,
     3: -1.2,
@@ -83,7 +81,7 @@ for t in temps:
     run_dir = SWEEP_SAVE_DIR / f"run_{cfg_idx}"
     run_dir.mkdir(parents=True, exist_ok=True)
     for i in range(sigmas.shape[0]):
-
+        run_seed = np.random.randint(low=0, high=2**31 - 1)
         flags = [
             f"--file_name=sweep_{i}",
             f"--paramName=sigma",
@@ -101,17 +99,17 @@ for t in temps:
             f"--donorCfg={str(DON_DIR)}",
             f"--electrodeCfg={str(ELE_DIR)}",
             f"--saveFolderPath={run_dir}",
-            f"--seed={seed + idx}"
+            f"--seed={run_seed + idx}"
         ]
 
         output_file_name = ROOT / "slurm_out" / "t_sig_sweep_%j.out"
 
         slurm_CMD = [
             "sbatch",
-            f"--output={output_file_name}",
+            #f"--output={output_file_name}",
             str(SLURM_SCRIPT),
             str(BINARY),
-            "2DLineSweep"
+            "2DSweep"
         ] + flags + control_voltage_args    
 
         subprocess.run(slurm_CMD, capture_output=True, text=True)

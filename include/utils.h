@@ -126,10 +126,12 @@ void calculateIVCurve(
     int seed
 );
 
-void param2DLineSweep(
+void param2DSweep(
     const std::string& fileName,
-    const std::string& paramName,
-    double paramValue,
+    const std::string& paramName1,
+    const std::string& paramName2,
+    double paramValue1,
+    double paramValue2,
     int sampleSize,
     std::vector<double> voltages,
     int inputIdx,
