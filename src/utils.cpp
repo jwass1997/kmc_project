@@ -509,6 +509,111 @@ void calculateIVCurve(
     cnpy::npz_save(filePath, "outputs", averagedCurve.data(), shape, "a");
 }
 
+void lineSweep(
+    const std::string& fileName,
+    const std::string& constParamName,
+    const std::string& varParamName,
+    double constParam,
+    double varParamMin,
+    double varParamMax,
+    int N,
+    int sampleSize,
+    std::vector<double> voltages,
+    int inputIdx,
+    int outputIdx,
+    double vMin,
+    double vMax,
+    int numOfPoints,
+    int equilibriumSteps,
+    int simulationSteps,
+    const std::string& cfg,
+    const std::string& acceptorCfg,
+    const std::string& donorCfg,
+    const std::string& electrodeCfg,
+    const std::string& saveFolderPath,
+    bool randomGeometry,
+    int seed
+) {
+    if (saveFolderPath.empty()) {
+        throw std::invalid_argument("param2DLineSweep(): No save folder found");
+    }
+    std::string filePath = saveFolderPath + "/" + fileName + ".npz";
+
+    Configuration config(
+        cfg,
+        acceptorCfg,
+        donorCfg,
+        electrodeCfg,
+        false
+    );
+
+    int femRes = 1e5;
+    int numOfElectrodes = 8;
+
+    double range = vMax - vMin;
+    double vStep = range / static_cast<double>(numOfPoints - 1);
+
+    if (constParamName == "sigma") {
+        config.energyDisorder = constParam*e / config.kbT;                
+    }
+    else if(constParamName == "temp") {
+        config.T = constParam;
+    }
+
+    double paramStep = (varParamMax - varParamMin) / static_cast<double>(N-1);
+
+    std::vector<double> outputs(N*numOfPoints, 0.0);
+    std::vector<size_t> outputShape = {static_cast<size_t>(N), static_cast<size_t>(numOfPoints)};
+
+    #pragma omp parallel
+    {   
+        int threadID = omp_get_thread_num();
+        setRandomSeed(seed + threadID);
+
+        #pragma omp for
+        for (int i = 0; i < N; ++i) {
+
+            double varParamVal = varParamMin + i*paramStep;
+            if (varParamName == "sigma") {
+                config.energyDisorder = varParamVal*e / config.kbT;
+            }
+            else if ( varParamName == "temp") {
+                config.T = varParamVal;
+            }
+
+            FiniteElementeCircle fem(config.radius, femRes);
+            State state(config, fem);
+            KMCSimulator kmc(state);
+            std::vector<double> newBoundaries(numOfElectrodes, 0.0);
+            for (int i = 0; i < newBoundaries.size(); ++i) {
+                newBoundaries[i] = voltages[i];
+            }
+            newBoundaries[outputIdx] = 0.0;
+            for (int s = 0; s < sampleSize; ++s) {
+
+                for (int _v = 0; _v < numOfPoints; _v++) {
+
+                    newBoundaries[inputIdx] = vMin + _v*vStep;
+                    state.updateBoundaries(newBoundaries, fem);
+
+                    double current = calculateCurrent(
+                        state,
+                        kmc,
+                        inputIdx,
+                        equilibriumSteps,
+                        simulationSteps,
+                        100
+                    );
+
+                    outputs[i*numOfPoints + _v] += current / static_cast<double>(sampleSize);
+                }
+            }
+        }
+    }
+    cnpy::npz_save(filePath, "ID", &fileName, {1}, "w");
+    cnpy::npz_save(filePath, "out", outputs.data(), outputShape, "a");
+}
+
 void param2DSweep(
     const std::string& fileName,
     const std::string& paramName1,
@@ -913,6 +1018,84 @@ int argParser(int argc, char* argv[]) {
             vm["paramName2"].as<std::string>(),
             vm["paramValue1"].as<double>(),
             vm["paramValue2"].as<double>(),
+            vm["sampleSize"].as<int>(),
+            voltages,
+            vm["input_idx"].as<int>(),
+            vm["output_idx"].as<int>(),
+            vm["vMin"].as<double>(),
+            vm["vMax"].as<double>(),
+            vm["numOfPoints"].as<int>(),
+            vm["equilibriumSteps"].as<int>(),
+            vm["simulationSteps"].as<int>(),
+            vm["cfg"].as<std::string>(),
+            vm["acceptorCfg"].as<std::string>(),
+            vm["donorCfg"].as<std::string>(),
+            vm["electrodeCfg"].as<std::string>(),
+            vm["saveFolderPath"].as<std::string>(),
+            vm["randomGeometry"].as<int>(),
+            vm["seed"].as<int>()
+        );
+
+        return 1;
+    }
+
+    if (firstCommand == "lineSweep") {
+        
+        boost::program_options::options_description options("Find control voltages options");
+        options.add_options()
+            ("file_name", boost::program_options::value<std::string>()->required())
+            ("c_v", boost::program_options::value<std::vector<std::string>>()->composing(), "electrode index=value")
+            ("constParamName", boost::program_options::value<std::string>()->required())
+            ("varParamName", boost::program_options::value<std::string>()->required())
+            ("constParam", boost::program_options::value<double>()->required())
+            ("varParamMin", boost::program_options::value<double>()->required())
+            ("varParamMax", boost::program_options::value<double>()->required())
+            ("N", boost::program_options::value<int>()->required())
+            ("sampleSize", boost::program_options::value<int>()->required())
+            ("input_idx", boost::program_options::value<int>()->required())
+            ("output_idx", boost::program_options::value<int>()->required())
+            ("vMin", boost::program_options::value<double>()->default_value(-1.5))
+            ("vMax", boost::program_options::value<double>()->default_value(1.5))
+            ("numOfPoints", boost::program_options::value<int>()->default_value(100))
+            ("equilibriumSteps", boost::program_options::value<int>()->default_value(1e4))
+            ("simulationSteps", boost::program_options::value<int>()->required())
+            ("cfg", boost::program_options::value<std::string>()->required())
+            ("acceptorCfg", boost::program_options::value<std::string>()->required())
+            ("donorCfg", boost::program_options::value<std::string>()->required())
+            ("electrodeCfg", boost::program_options::value<std::string>()->required())
+            ("saveFolderPath", boost::program_options::value<std::string>()->required())
+            ("randomGeometry", boost::program_options::value<int>()->default_value(0))
+            ("seed", boost::program_options::value<int>()->default_value(64))
+        ;
+
+        boost::program_options::variables_map vm;
+        boost::program_options::store(
+            boost::program_options::command_line_parser(
+                remainingCommand).options(options).run(),
+                vm);
+        boost::program_options::notify(vm);
+        
+        std::vector<double> voltages(8, 0.0);
+        if (vm.count("c_v")) {
+            for (auto &s : vm["c_v"].as<std::vector<std::string>>()) {
+                auto eq = s.find('=');
+                int idx = std::stoi(s.substr(0, eq));
+                double v = std::stod(s.substr(eq+1));
+                voltages[idx] = v;
+            }
+        }
+
+        voltages[vm["input_idx"].as<int>()] = 0.0;
+        voltages[vm["output_idx"].as<int>()] = 0.0;  
+        
+        lineSweep(
+            vm["file_name"].as<std::string>(),
+            vm["constParamName"].as<std::string>(),
+            vm["varParamName"].as<std::string>(),
+            vm["constParam"].as<double>(),
+            vm["varParamMin"].as<double>(),
+            vm["varParamMax"].as<double>(),
+            vm["N"].as<int>(),
             vm["sampleSize"].as<int>(),
             voltages,
             vm["input_idx"].as<int>(),

@@ -126,6 +126,32 @@ void calculateIVCurve(
     int seed
 );
 
+void lineSweep(
+    const std::string& fileName,
+    const std::string& constParamName,
+    const std::string& varParamName,
+    double constParam,
+    double varParamMin,
+    double varParamMax,
+    int N,
+    int sampleSize,
+    std::vector<double> voltages,
+    int inputIdx,
+    int outputIdx,
+    double vMin,
+    double vMax,
+    int numOfPoints,
+    int equilibriumSteps,
+    int simulationSteps,
+    const std::string& cfg,
+    const std::string& acceptorCfg,
+    const std::string& donorCfg,
+    const std::string& electrodeCfg,
+    const std::string& saveFolderPath,
+    bool randomGeometry,
+    int seed
+);
+
 void param2DSweep(
     const std::string& fileName,
     const std::string& paramName1,
