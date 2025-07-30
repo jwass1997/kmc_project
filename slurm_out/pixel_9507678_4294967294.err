@@ -1,8 +1,0 @@
-+ export OMP_NUM_THREADS=64
-+ OMP_NUM_THREADS=64
-+ row_idx=106
-+ seed=106075843
-+ shift 2
-+ file=row_106
-+ job_seed=106075949
-+ /gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project lineSweep --constParamName=temp --varParamName=sigma --constParam=142.5175879396985 --varParamMin=0.01 --varParamMax=0.2 --N=200 --sampleSize=5 --input_idx=1 --output_idx=0 --vMin=-1.5 --vMax=1.5 --numOfPoints=50 --equilibriumSteps=10000 --simulationSteps=10000 --cfg=/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/configs/config.txt --acceptorCfg=/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/configs/acceptor_normal.txt --donorCfg=/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/configs/donors.txt --electrodeCfg=/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/configs/electrodes.txt --saveFolderPath=/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/data/200_sweep --c_v=2=0.5 --c_v=3=-1.2 --c_v=4=0.0 --c_v=5=-0.6 --c_v=6=1.3 --c_v=7=-0.9 --file_name=row_106 --seed=106075949

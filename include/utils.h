@@ -6,6 +6,8 @@
 #include <cstring>
 #include <string>
 #include <filesystem>
+#include <algorithm>
+#include <numeric>
 #include <boost/program_options.hpp>
 
 #include "cnpy.h"
@@ -58,8 +60,19 @@ void singleRun(
     const std::string& ID, 
     int equilibriumSteps, 
     int numOfSteps, 
-    const std::string& defaultConfigs, 
+    const std::string& cfg, 
+    const std::string& acceptorCfg,
+    const std::string& donorCfg,
+    const std::string& electrodeCfg,
     const std::string& saveFolderPath
+);
+
+std::vector<std::vector<double>> scaledLHC(
+    std::size_t N,
+    std::size_t D,
+    const std::vector<double>& mins,
+    const std::vector<double>& maxs,
+    unsigned int seed = std::random_device{}()
 );
 
 double calculateCurrent(
@@ -72,7 +85,7 @@ double calculateCurrent(
 );
 
 void oneDimensionalCurve(
-    const std::string& name,
+    const std::string& fileName,
     std::vector<double> voltages,
     int inputIdx,
     int outputIdx,
@@ -81,7 +94,10 @@ void oneDimensionalCurve(
     int numOfPoints,
     int equilibriumSteps,
     int simulationSteps,
-    const std::string& configs,
+    const std::string& cfg,
+    const std::string& acceptorCfg,
+    const std::string& donorCfg,
+    const std::string& electrodeCfg,
     const std::string& saveFolderPath,
     bool randomGeometry,
     int seed
@@ -179,17 +195,20 @@ void param2DSweep(
 void batchOfIVCurves(
     int batchSize,
     int numOfPoints,
-    int electrodeIdx,
+    int numOfCurves,
+    int inputIdx,
+    int outputIdx,
     double minVoltage,
     double maxVoltage,
     int equilibriumSteps,
     int simulationSteps,
     int numOfIntervals,
+    int seed,
     const std::string& cfg,
     const std::string& acceptorCfg,
     const std::string& donorCfg,
     const std::string& electrodeCfg,
-    const std::string& save,
+    const std::string& saveFolder,
     int batchID
 );
 

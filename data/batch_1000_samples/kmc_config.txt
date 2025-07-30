@@ -1,2 +1,0 @@
-numOfSteps 1000000
-equilibriumSteps 10000
