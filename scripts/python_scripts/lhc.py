@@ -30,20 +30,6 @@ def create_batch(batch_size,
 
     DATA_DIR = ROOT / "data" / f"{folder_name}"
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-
-    voltage_dict = {
-    2: 0.5,
-    3: -1.2,
-    4: 0.0,
-    5: -0.6,
-    6: 1.3,
-    7: -0.9
-    }
-
-    control_voltage_args = []
-
-    for idx, val in voltage_dict.items():
-        control_voltage_args.append(f"--c_v={idx}={val}")
     
     cmd = [
         "sbatch",
@@ -70,21 +56,14 @@ def create_batch(batch_size,
 
 if __name__ == "__main__":
 
-    """ sampler = qmc.LatinHypercube(d=7)
-    sample = sampler.random(n=5)
-    l_bounds = [-1.5] * 7
-    u_bounds = [1.5] * 7
-    scaled_sample = qmc.scale(sample, l_bounds, u_bounds)
-    print(scaled_sample) """
-
-    batch_size = 10
+    batch_size = 50
     num_of_points = 100
     num_of_curves = 5
     input_idx = 1
     output_idx = 0
     eq_steps = 10_000
-    sim_steps = 100_000
-    batch_id = 112
+    sim_steps = 10_000
+    batch_id = 113
     seed = np.random.randint(low=0, high=2**31 - 1)
     folder_name = "test_batch"
         

@@ -541,7 +541,7 @@ void batchOfIVCurves(
                 for (int i = 0; i < numOfElectrodes; ++i) {
                     newBoundaries[i] = voltageSample[_batch][i];
                 }
-                newBoundaries[outputIdx] = 0.0; 
+                newBoundaries[outputIdx] = 0.6; 
                 for (int _v = 0; _v < numOfPoints; _v++) {
 
                     newBoundaries[inputIdx] = minVoltage + _v*vStep;
@@ -595,7 +595,10 @@ void lineSweep(
         throw std::invalid_argument("lineSweep(): No save folder found");
     }
     std::string filePath = saveFolderPath + "/" + fileName + ".npz";
-
+    std::cout << "N: " << N << "\n"; 
+    std::cout << "sampleSize: " << sampleSize << "\n";
+    std::cout << "numOfPoints: " << numOfPoints << "\n";
+    std::cout << "OutputLength: " << N*numOfPoints << "\n";
     int femRes = 1e5;
     int numOfElectrodes = 8;
 
@@ -662,7 +665,7 @@ void lineSweep(
                         simulationSteps,
                         100
                     );
-
+                    std::cout << "idx: " << i*numOfPoints + _v << "\n";
                     outputs[i*numOfPoints + _v] += current / static_cast<double>(sampleSize);
                 }
             }
