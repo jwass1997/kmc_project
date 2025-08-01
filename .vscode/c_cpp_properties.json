@@ -1,30 +1,23 @@
 {
-  "version": 4,
   "configurations": [
     {
       "name": "Cluster",
-      "compileCommands": "${workspaceFolder}/build/compile_commands.json",
       "compilerPath": "/opt/bwhpc/common/compiler/gnu/14.1.0/bin/g++",
-      "intelliSenseMode": "linux-gcc-x64",
       "cStandard": "c11",
       "cppStandard": "c++17",
-
+      "intelliSenseMode": "linux-gcc-x64",
       "includePath": [
-        "${workspaceFolder}/include",
-        "${workspaceFolder}/../local/include",
-        "${workspaceFolder}/src", 
-        "/opt/bwhpc/common/lib/boost/1.80.0/include"
+        "${workspaceFolder}/**",
+        "/opt/bwhpc/common/compiler/gnu/14.1.0/include",
+        "/usr/include"
       ],
-
+      "defines": [],
       "browse": {
-        "path": [
-          "${workspaceFolder}/include",
-          "${workspaceFolder}/../local/include",
-          "${workspaceFolder}/src", 
-          "/opt/bwhpc/common/lib/boost/1.80.0/include"
-        ],
-        "limitSymbolsToIncludedHeaders": false
+        "path": ["${workspaceFolder}/**"],
+        "limitSymbolsToIncludedHeaders": true,
+        "databaseFilename": ""
       }
     }
-  ]
+  ],
+  "version": 4
 }

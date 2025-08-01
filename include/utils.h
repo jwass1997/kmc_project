@@ -102,13 +102,15 @@ void singleIVCurve(
     int eqSteps,
     int simSteps,
     int numIntervals,
+    int seed,
+    std::vector<double> controlVoltages,
     const std::string& cfg,
     const std::string& acceptorCfg,
     const std::string& donorCfg,
     const std::string& electrodeCfg,
     const std::string& saveFolder,
     const std::string& fileName
-)
+);
 
 void batchOfIVCurves(
     int batchSize,
