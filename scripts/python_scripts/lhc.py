@@ -14,25 +14,31 @@ def create_batch(batch_size,
                  sim_steps,
                  seed,
                  batch_id,
-                 folder_name):
+                 folder_name,
+                 cfg,
+                 acceptor_cfg,
+                 donor_cfg,
+                 electrode_cfg):
     
     PYTHON_SCRIPT_DIR = Path(__file__).resolve().parent
     ROOT = PYTHON_SCRIPT_DIR.parents[1]
-
+    
     BINARY = ROOT / "build" / "kmc_project"
     SLURM_SCRIPT = ROOT / "scripts" / "slurm" / "batch_script.sh"
 
-    ACC_DIR = ROOT / "configs" / "acceptors.txt"
-    DON_DIR = ROOT / "configs" / "donors.txt"
-    ELE_DIR = ROOT / "configs" / "electrodes.txt"
+    ACC_DIR = ROOT / f"{acceptor_cfg}"
+    DON_DIR = ROOT / f"{donor_cfg}"
+    ELE_DIR = ROOT / f"{electrode_cfg}"
 
-    CONFIG_DIR = ROOT / "configs" / "config.txt"
+    CONFIG_DIR = ROOT / f"{cfg}"
 
-    DATA_DIR = ROOT / "data" / f"{folder_name}"
+    DATA_DIR = Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/{folder_name}")
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     
     cmd = [
         "sbatch",
+        f"--output=slurm_out/batch.out",
+        f"--error=slurm_out/batch.err",
         str(SLURM_SCRIPT),
         str(BINARY),
         "batchRun",
@@ -56,16 +62,21 @@ def create_batch(batch_size,
 
 if __name__ == "__main__":
 
-    batch_size = 50
+    batch_size = 1
     num_of_points = 100
-    num_of_curves = 5
+    num_of_curves = 30
     input_idx = 1
     output_idx = 0
     eq_steps = 10_000
-    sim_steps = 10_000
-    batch_id = 113
-    seed = np.random.randint(low=0, high=2**31 - 1)
-    folder_name = "test_batch"
+    sim_steps = 100_000
+    batch_id = 80
+    seed = np.random.randint(low=0, high=2**30 - 1)
+    folder_name = "iv_pair=01"
+
+    acceptor_cfg = "configs/acceptors.txt"
+    donor_cfg = "configs/donors.txt"
+    electrode_cfg = "configs/electrodes.txt"
+    cfg = "configs/config.txt"
         
     create_batch(
         batch_size,
@@ -77,5 +88,9 @@ if __name__ == "__main__":
         sim_steps,
         seed,
         batch_id,
-        folder_name
+        folder_name,
+        cfg,
+        acceptor_cfg,
+        donor_cfg,
+        electrode_cfg
     )

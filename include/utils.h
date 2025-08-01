@@ -52,9 +52,34 @@ inline double fastExp(double x) {
     return x;
 };
 
-double calculateDistance(double coordinateX1, double coordinateX2, double coordinateY1, double coordinateY2);
+double calculateDistance(
+    double coordinateX1, 
+    double coordinateX2, 
+    double coordinateY1,
+    double coordinateY2
+);
 
-void createDirectoryFromStringPath(const std::string& path, const std::string& directoryName);
+double calculateCurrent(
+    State& state,
+    KMCSimulator& kmc,
+    int electrodeIdx,
+    int equilibriumSteps,
+    int simulationSteps,
+    int numOfIntervals
+);
+
+void createDirectoryFromStringPath(
+    const std::string& path, 
+    const std::string& directoryName
+);
+
+std::vector<std::vector<double>> scaledLHC(
+    std::size_t N,
+    std::size_t D,
+    const std::vector<double>& mins,
+    const std::vector<double>& maxs,
+    unsigned int seed = std::random_device{}()
+);
 
 void singleRun(
     const std::string& ID, 
@@ -67,130 +92,23 @@ void singleRun(
     const std::string& saveFolderPath
 );
 
-std::vector<std::vector<double>> scaledLHC(
-    std::size_t N,
-    std::size_t D,
-    const std::vector<double>& mins,
-    const std::vector<double>& maxs,
-    unsigned int seed = std::random_device{}()
-);
-
-double calculateCurrent(
-    State& state,
-    KMCSimulator& kmc,
-    int electrodeIdx,
-    int equilibriumSteps,
-    int simulationSteps,
-    int numOfIntervals
-);
-
-void oneDimensionalCurve(
-    const std::string& fileName,
-    std::vector<double> voltages,
-    int inputIdx,
-    int outputIdx,
-    double vMin,
-    double vMax,
+void singleIVCurve(
     int numOfPoints,
-    int equilibriumSteps,
-    int simulationSteps,
-    const std::string& cfg,
-    const std::string& acceptorCfg,
-    const std::string& donorCfg,
-    const std::string& electrodeCfg,
-    const std::string& saveFolderPath,
-    bool randomGeometry,
-    int seed
-);
-
-void sampleOfIVCurves(
-    int trial,
-    std::vector<double> voltages,
     int numOfSamples,
     int inputIdx,
     int outputIdx,
-    double vMin,
-    double vMax,
-    int numOfPoints,
-    int equilibriumSteps,
-    int simulationSteps,
+    double minVoltage,
+    double maxVoltage,
+    int eqSteps,
+    int simSteps,
+    int numIntervals,
     const std::string& cfg,
     const std::string& acceptorCfg,
     const std::string& donorCfg,
     const std::string& electrodeCfg,
     const std::string& saveFolder,
-    int seed
-);
-
-void calculateIVCurve(
-    const std::string& fileName,
-    int sampleSize,
-    std::vector<double> voltages,
-    int inputIdx,
-    int outputIdx,
-    double vMin,
-    double vMax,
-    int numOfPoints,
-    int equilibriumSteps,
-    int simulationSteps,
-    const std::string& cfg,
-    const std::string& acceptorCfg,
-    const std::string& donorCfg,
-    const std::string& electrodeCfg,
-    const std::string& saveFolderPath,
-    bool randomGeometry,
-    int seed
-);
-
-void lineSweep(
-    const std::string& fileName,
-    const std::string& constParamName,
-    const std::string& varParamName,
-    double constParam,
-    double varParamMin,
-    double varParamMax,
-    int N,
-    int sampleSize,
-    std::vector<double> voltages,
-    int inputIdx,
-    int outputIdx,
-    double vMin,
-    double vMax,
-    int numOfPoints,
-    int equilibriumSteps,
-    int simulationSteps,
-    const std::string& cfg,
-    const std::string& acceptorCfg,
-    const std::string& donorCfg,
-    const std::string& electrodeCfg,
-    const std::string& saveFolderPath,
-    bool randomGeometry,
-    int seed
-);
-
-void param2DSweep(
-    const std::string& fileName,
-    const std::string& paramName1,
-    const std::string& paramName2,
-    double paramValue1,
-    double paramValue2,
-    int sampleSize,
-    std::vector<double> voltages,
-    int inputIdx,
-    int outputIdx,
-    double vMin,
-    double vMax,
-    int numOfPoints,
-    int equilibriumSteps,
-    int simulationSteps,
-    const std::string& cfg,
-    const std::string& acceptorCfg,
-    const std::string& donorCfg,
-    const std::string& electrodeCfg,
-    const std::string& saveFolderPath,
-    bool randomGeometry,
-    int seed
-);
+    const std::string& fileName
+)
 
 void batchOfIVCurves(
     int batchSize,
@@ -209,7 +127,7 @@ void batchOfIVCurves(
     const std::string& donorCfg,
     const std::string& electrodeCfg,
     const std::string& saveFolder,
-    int batchID
+    const std::string& batchID
 );
 
 int argParser(int argc, char* argv[]);

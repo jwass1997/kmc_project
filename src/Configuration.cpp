@@ -37,6 +37,23 @@ Configuration::Configuration(
     std::ifstream electrodeFile(electrodeConfig);
 
     if (!configFile.is_open()) {
+    std::cerr << "[FATAL] Could not open config file: " << config << "\n";
+    std::exit(1);
+    }
+    if (!acceptorFile.is_open()) {
+        std::cerr << "[FATAL] Could not open acceptor config: " << acceptorConfig << "\n";
+        std::exit(1);
+    }
+    if (!donorFile.is_open()) {
+        std::cerr << "[FATAL] Could not open donor config: " << donorConfig << "\n";
+        std::exit(1);
+    }
+    if (!electrodeFile.is_open()) {
+        std::cerr << "[FATAL] Could not open electrode config: " << electrodeConfig << "\n";
+        std::exit(1);
+    }
+
+    if (!configFile.is_open()) {
         std::cerr << "No such file: " << config << "\n";
     }
     else {
@@ -90,6 +107,15 @@ Configuration::Configuration(
             }
         }
         configFile.close();
+    }
+
+    if (nAcceptors <= 0) {
+    std::cerr << "[FATAL] Parsed invalid nAcceptors: " << nAcceptors << "\n";
+    std::exit(1);
+    }
+    if (nElectrodes <= 0) {
+        std::cerr << "[FATAL] Parsed invalid nElectrodes: " << nElectrodes << "\n";
+        std::exit(1);
     }
 
     numOfSites = nAcceptors + nElectrodes;

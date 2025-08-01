@@ -1,3 +1,0 @@
-/home/hd/hd_hd/hd_gy283/kmc_project/build_debug/CMakeFiles/kmc_project.dir
-/home/hd/hd_hd/hd_gy283/kmc_project/build_debug/CMakeFiles/edit_cache.dir
-/home/hd/hd_hd/hd_gy283/kmc_project/build_debug/CMakeFiles/rebuild_cache.dir

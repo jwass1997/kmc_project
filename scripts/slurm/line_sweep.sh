@@ -1,11 +1,15 @@
 #!/bin/bash
 #SBATCH --partition=cpu-single
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=64
-#SBATCH --time=5:00:00
+#SBATCH --cpus-per-task=32
+#SBATCH --time=2:00:00
 #SBATCH --mem=64gb
 #SBATCH --output=slurm_out/pixel_%A_%a.out
 #SBATCH --error=slurm_out/pixel_%A_%a.err
+
+echo "===== ENVIRONMENT IN BATCH JOB ====="
+env
+echo "===== END ENV ====="
 
 set -x
 

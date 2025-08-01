@@ -7,7 +7,7 @@ from pathlib import Path
 PYTHON_SCRIPT_DIR = Path(__file__).resolve().parent
 ROOT = PYTHON_SCRIPT_DIR.parents[1]
 
-BINARY = ROOT / "build_debug" / "kmc_project"
+BINARY = ROOT / "build" / "kmc_project"
 SLURM_SCRIPT = ROOT / "scripts" / "slurm" / "line_sweep.sh"
 
 ACC_DIR = ROOT / "configs" / "acceptors.txt"
@@ -16,7 +16,7 @@ ELE_DIR = ROOT / "configs" / "electrodes.txt"
 
 CONFIG_DIR = ROOT / "configs" / "config.txt"
 
-DATA_DIR = ROOT / "data"
+DATA_DIR = Path("/gpfs/bwfor/work/ws/hd_gy283-my_data")
 SWEEP_SAVE_DIR = DATA_DIR / "100_sweep"
 SWEEP_SAVE_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -37,8 +37,8 @@ for idx, val in voltage_dict.items():
 input_idx = 1
 output_idx = 0
 num_of_points = 50
-eq_steps = 10_000
-sim_steps = 100_000
+eq_steps = 1_000
+sim_steps = 1_000
 sample_size = 5
 V_MIN = -1.5
 V_MAX = 1.5

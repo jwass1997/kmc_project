@@ -9,6 +9,15 @@ void FiniteElementeBase::updateElectrodeVoltage(int const& electrodeIndex,
     // std::cout<<"setting electrode "<<electrodeIndex<<" to voltage "<<voltage<<"
     // indices: ";
 
+    if (electrodeIndex < 0 || electrodeIndex >= static_cast<int>(electrodeVertexIndices.size())) {
+    std::cerr << "[ERROR] updateElectrodeVoltage: invalid electrodeIndex " << electrodeIndex << "\n";
+    return;
+    }
+    if (electrodeVertexIndices[electrodeIndex].empty()) {
+        std::cerr << "[WARNING] updateElectrodeVoltage: electrode " << electrodeIndex << " has no vertex indices\n";
+        return;
+    }
+
     for (auto index : electrodeVertexIndices[electrodeIndex]) {
         (*solutionVector)[index] = voltage;
         // std::cout<<index<<" ";
@@ -32,10 +41,11 @@ void FiniteElementeBase::initRun(bool initDevice /*= false*/)
     // 6.--> see see mfem ex1.cpp in mfem lib
 
     if (mesh->bdr_attributes.Size()) {
-        Array<int> ess_bdr(2);
-        ess_bdr[0] = 0; // <<<<<<<<<<<<--------------  change this to 1 to make all
+        Array<int> ess_bdr(1);
+        ess_bdr[0] = 2;
+        /* ess_bdr[0] = 0; // <<<<<<<<<<<<--------------  change this to 1 to make all
             // of boundaries essential
-        ess_bdr[1] = 1;
+        ess_bdr[1] = 1; */
         fespace->GetEssentialTrueDofs(ess_bdr, ess_tdof_list);
     }
 
