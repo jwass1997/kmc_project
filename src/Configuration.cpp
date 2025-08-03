@@ -35,7 +35,7 @@ Configuration::Configuration(
     std::ifstream acceptorFile(acceptorConfig);
     std::ifstream donorFile(donorConfig);
     std::ifstream electrodeFile(electrodeConfig);
-
+    std::cout << config << "\n";
     if (!configFile.is_open()) {
     std::cerr << "[FATAL] Could not open config file: " << config << "\n";
     std::exit(1);

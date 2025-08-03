@@ -265,12 +265,14 @@ void singleIVCurve (
     double vStep = range / static_cast<double>(numOfPoints);
     #pragma omp parallel
     {
+        int threadID = omp_get_thread_num();
+        int threadSeed = seed + threadID * 1000000;
+
         #pragma omp for
         for (int s = 0; s < numOfSamples; ++s) {
 
-            int threadID = omp_get_thread_num();
-            setRandomSeed(seed + s);
-            std::cout << seed + s << "\n";
+            int sampleSeed = threadSeed + s;
+            setRandomSeed(sampleSeed);
 
             Configuration config(
                 cfg,
@@ -325,12 +327,12 @@ void batchOfIVCurves(
     const std::string& donorCfg,
     const std::string& electrodeCfg,
     const std::string& saveFolder,
-    const std::string& batchID
+    const std::string& fileName
 ) {
     if (saveFolder.empty()) {
         throw std::invalid_argument("singleStatebatch: Save folder not found");
     }
-    std::string fileName = saveFolder + "/batch_" + batchID + ".npz";
+    std::string file = saveFolder + "/" + fileName + ".npz";
 
     int femResolution = 1e5;
     int numOfElectrodes = 8;
@@ -340,16 +342,6 @@ void batchOfIVCurves(
 
     double range = maxVoltage - minVoltage;
     double vStep = range / (numOfPoints - 1);
-
-    /* std::vector<int> controlElectrodeIdx;
-    for (int i = 0; i < numOfElectrodes; ++i) {
-        if (i == inputIdx || i == outputIdx) {
-            continue;
-        }
-        else {
-            controlElectrodeIdx.push_back(i);
-        }
-    } */
 
     //std::vector<double> mins = {-1.5, -1.5, -1.5, -1.5, -1.5, -1.5, -1.5, -1.5};
     //std::vector<double> maxs = {1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5};
@@ -368,8 +360,6 @@ void batchOfIVCurves(
         for (int _batch = 0; _batch < batchSize; ++_batch) {
 
             int threadID = omp_get_thread_num();
-            //auto now = std::chrono::high_resolution_clock::now();
-            //auto now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
 
             for (int _c = 0; _c < numOfCurves; ++_c) {
 
@@ -391,7 +381,7 @@ void batchOfIVCurves(
                 for (int i = 0; i < numOfElectrodes; ++i) {
                     newBoundaries[i] = voltageSample[_batch][i];
                 }
-                newBoundaries[outputIdx] = 1.5; 
+                newBoundaries[outputIdx] = 0.0; 
                 for (int _v = 0; _v < numOfPoints; _v++) {
 
                     newBoundaries[inputIdx] = minVoltage + _v*vStep;
@@ -412,8 +402,20 @@ void batchOfIVCurves(
         }
     }
     
-    cnpy::npz_save(fileName, "ID", &batchID, {1}, "w");
-    cnpy::npz_save(fileName, "out", outputs.data(), outputShape, "a");
+    cnpy::npz_save(file, "out", outputs.data(), outputShape, "w");
+}
+
+double singleIVPoint(
+    State& state,
+    int numOfTasks,
+    int eqSteps,
+    int simSteps,
+    std::vector<double> voltages,
+
+) {
+
+
+
 }
 
 int argParser(int argc, char* argv[]) {
@@ -490,20 +492,23 @@ int argParser(int argc, char* argv[]) {
 
         boost::program_options::options_description options("Batch run options");
         options.add_options()
-            ("cfg", boost::program_options::value<std::string>()->required())
-            ("acceptorCfg", boost::program_options::value<std::string>()->required())
-            ("donorCfg", boost::program_options::value<std::string>()->required())
-            ("electrodeCfg", boost::program_options::value<std::string>()->required())
-            ("savePath", boost::program_options::value<std::string>()->required())
             ("batchSize", boost::program_options::value<int>()->required())
             ("numOfPoints", boost::program_options::value<int>()->default_value(100))
             ("numOfCurves", boost::program_options::value<int>()->required())
             ("inputIdx", boost::program_options::value<int>()->required())
             ("outputIdx", boost::program_options::value<int>()->required())
-            ("seed", boost::program_options::value<int>()->required())
+            ("minVoltage", boost::program_options::value<double>()->required())
+            ("maxVoltage", boost::program_options::value<double>()->required())
             ("equilibriumSteps", boost::program_options::value<int>()->default_value(1e4))
             ("simulationSteps", boost::program_options::value<int>()->required())
-            ("batchID", boost::program_options::value<std::string>()->required())
+            ("numOfIntervals", boost::program_options::value<int>()->default_value(100))
+            ("seed", boost::program_options::value<int>()->required())
+            ("cfg", boost::program_options::value<std::string>()->required())
+            ("acceptorCfg", boost::program_options::value<std::string>()->required())
+            ("donorCfg", boost::program_options::value<std::string>()->required())
+            ("electrodeCfg", boost::program_options::value<std::string>()->required())
+            ("saveFolder", boost::program_options::value<std::string>()->required())        
+            ("fileName", boost::program_options::value<std::string>()->required())
         ;
         
         boost::program_options::variables_map vm;
@@ -519,18 +524,18 @@ int argParser(int argc, char* argv[]) {
             vm["numOfCurves"].as<int>(),
             vm["inputIdx"].as<int>(),
             vm["outputIdx"].as<int>(),
-            -1.5,
-            1.5,
+            vm["minVoltage"].as<double>(),
+            vm["maxVoltage"].as<double>(),
             vm["equilibriumSteps"].as<int>(),
             vm["simulationSteps"].as<int>(),
-            100,
+            vm["numOfIntervals"].as<int>(),
             vm["seed"].as<int>(),
             vm["cfg"].as<std::string>(),
             vm["acceptorCfg"].as<std::string>(),
             vm["donorCfg"].as<std::string>(),
             vm["electrodeCfg"].as<std::string>(),
-            vm["savePath"].as<std::string>(),
-            vm["batchID"].as<std::string>()
+            vm["saveFolder"].as<std::string>(),
+            vm["fileName"].as<std::string>()
         );
 
         return 1;
@@ -578,7 +583,7 @@ int argParser(int argc, char* argv[]) {
 
         voltages[vm["inputIdx"].as<int>()] = 0.0;
         voltages[vm["outputIdx"].as<int>()] = 0.0;  
-        
+        std::cout << vm["cfg"].as<std::string>() << "\n";
         singleIVCurve(
             vm["numOfPoints"].as<int>(),
             vm["numOfSamples"].as<int>(),

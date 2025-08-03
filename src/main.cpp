@@ -2,6 +2,7 @@
 #include <vector>
 #include <ctime>
 #include <filesystem>
+#include <fstream>
 
 #include "Configuration.h"
 #include "State.h"
@@ -11,86 +12,59 @@
 #include "Random.h"
 
 int main(int argc, char* argv[]) {
-    argParser(argc, argv);
-}
+    //argParser(argc, argv);
 
-/* #include <iostream>
-#include <fstream>
-#include <cmath>
-#include <exception>
-#include "FEMmethods.h" // your original header
+    std::string cfg = "/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/configs/config.txt";
+    std::string acc = "/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/configs/acceptors.txt";
+    std::string don = "/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/configs/donors.txt";
+    std::string ele = "/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/configs/electrodes.txt";
 
-// Safe fallback for PI if not provided
-#ifndef M_PI
-constexpr double M_PI = 3.14159265358979323846;
-#endif
+    Configuration config(cfg, acc, don, ele, false);
 
-// Sample the circular domain uniformly in polar coords and dump potentials to CSV.
-// samplesR: radial subdivisions (including center), samplesTheta: angular subdivisions.
-void dumpCircleSamplingCSV(FiniteElementeCircle &fe,
-                           double radius,
-                           int samplesR,
-                           int samplesTheta,
-                           const std::string &fname) {
-    std::ofstream ofs(fname);
+    int res = 10000;
+    FiniteElementeCircle fem(config.radius, res);
+    State state(config, fem);
+    KMCSimulator kmc(state);
+    
+    std::ofstream ofs("phi_0.txt");
     if (!ofs) {
-        std::cerr << "Failed to open " << fname << " for writing\n";
-        return;
-    }
-    ofs << "x,y,potential\n";
-    for (int ir = 0; ir < samplesR; ++ir) {
-        double r = radius * ir / double(samplesR - 1); // 0..radius
-        for (int it = 0; it < samplesTheta; ++it) {
-            double theta = 2.0 * M_PI * it / double(samplesTheta);
-            double x = r * std::cos(theta);
-            double y = r * std::sin(theta);
-            double pot = NAN;
-            try {
-                pot = fe.getPotential(x, y);
-            } catch (const std::exception &e) {
-                // out-of-range should not happen if r <= radius; leave as NaN
-            }
-            ofs << x << "," << y << "," << pot << "\n";
-        }
-    }
-}
-
-int main() {
-    try {
-        // domain / mesh parameters
-        double radius = 1.0;
-        int maxElements = 2000; // adjust for resolution
-        bool saveSolution = true;
-
-        // sampling resolution for output CSV
-        const int samplesR = 80;
-        const int samplesTheta = 120;
-
-        // Construct the circular finite element problem
-        FiniteElementeCircle fe(radius, maxElements, saveSolution);
-        fe.initRun();
-
-        // First solve: electrode from angle 0 to pi/4 at voltage 1.0
-        double begin_angle = 0.0;
-        double end_angle = M_PI / 4.0;
-        fe.setElectrode(1.0, begin_angle, end_angle);
-        fe.run(); // solution #0
-        dumpCircleSamplingCSV(fe, radius, samplesR, samplesTheta, "circle_electrode_1.0.csv");
-
-        // Update electrode voltage to 2.0 and resolve
-        fe.updateElectrodeVoltage(0, 2.0); // assuming this is the first electrode
-        fe.run(); // solution #1
-        dumpCircleSamplingCSV(fe, radius, samplesR, samplesTheta, "circle_electrode_2.0.csv");
-
-        std::cout << "Done. Outputs:\n"
-                  << "  circle_electrode_1.0.csv\n"
-                  << "  circle_electrode_2.0.csv\n"
-                  << "  (and GF files from original run: laplace_solution*.gf)\n";
-    } catch (const std::exception &e) {
-        std::cerr << "Exception during run: " << e.what() << std::endl;
+        std::cerr << "Cannot open output file\n";
         return 1;
     }
+
+    const int radialSteps = 100;
+    const int angularSteps = 360;
+    for (int ir = 1; ir <= radialSteps; ++ir) {
+        double r = config.radius * ir / radialSteps;
+        for (int jt = 0; jt < angularSteps; ++jt) {
+            double theta = 2 * M_PI * jt / angularSteps;
+            double x = r * std::cos(theta);
+            double y = r * std::sin(theta);
+            double phi = fem.getPotential(x, y);
+            ofs << x << " " << y << " " << phi << "\n";
+        }
+        ofs << "\n";
+    }
+
+    std::vector<double> newBoundaries = {10.5, -9.2, 9.9, 8.2, -9.0, 8.5, 9.4, -9.1};
+    state.updateBoundaries(newBoundaries, fem);
+
+    std::ofstream ofs_1("phi_1.txt");
+    if (!ofs_1) {
+        std::cerr << "Cannot open output file\n";
+        return 1;
+    }
+    for (int ir = 1; ir <= radialSteps; ++ir) {
+        double r = config.radius * ir / radialSteps;
+        for (int jt = 0; jt < angularSteps; ++jt) {
+            double theta = 2 * M_PI * jt / angularSteps;
+            double x = r * std::cos(theta);
+            double y = r * std::sin(theta);
+            double phi = fem.getPotential(x, y);
+            ofs_1 << x << " " << y << " " << phi << "\n";
+        }
+        ofs_1 << "\n";
+    }
+
     return 0;
-} */
-
-
+}

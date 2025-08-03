@@ -1,0 +1,813 @@
+/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/configs/config.txt
+Entering InitSiteEnergies
+Potential energy: 10250.8for site 0
+Random energy: 1.39454for site 0
+Potential energy: -3209.66for site 1
+Random energy: 2.28414for site 1
+Potential energy: -16577.9for site 2
+Random energy: 1.52044for site 2
+Potential energy: -3362.33for site 3
+Random energy: 0.661525for site 3
+Potential energy: -2400.6for site 4
+Random energy: -0.193131for site 4
+Potential energy: 13808.2for site 5
+Random energy: 2.67723for site 5
+Potential energy: 12335.3for site 6
+Random energy: 0.708119for site 6
+Potential energy: 84.1138for site 7
+Random energy: 1.00747for site 7
+Potential energy: 191.366for site 8
+Random energy: 0.225136for site 8
+Potential energy: 1369.96for site 9
+Random energy: 2.3168for site 9
+Potential energy: 1349.48for site 10
+Random energy: 1.62501for site 10
+Potential energy: -1177.09for site 11
+Random energy: 1.76624for site 11
+Potential energy: 11892.1for site 12
+Random energy: 0.205558for site 12
+Potential energy: -214.019for site 13
+Random energy: -2.58408for site 13
+Potential energy: 1855.9for site 14
+Random energy: -2.6221for site 14
+Potential energy: -1093.9for site 15
+Random energy: -2.39165for site 15
+Potential energy: -2407.9for site 16
+Random energy: -1.09695for site 16
+Potential energy: 30.7677for site 17
+Random energy: -0.169999for site 17
+Potential energy: -12514.2for site 18
+Random energy: 0.492262for site 18
+Potential energy: 1293.05for site 19
+Random energy: -0.115247for site 19
+Potential energy: 10229.6for site 20
+Random energy: 0.586602for site 20
+Potential energy: -1040.37for site 21
+Random energy: 0.685861for site 21
+Potential energy: 751.403for site 22
+Random energy: 4.39507for site 22
+Potential energy: 1032.86for site 23
+Random energy: -4.82965for site 23
+Potential energy: 1044.21for site 24
+Random energy: -3.15735for site 24
+Potential energy: 129.955for site 25
+Random energy: 0.467748for site 25
+Potential energy: 5463.36for site 26
+Random energy: 0.610113for site 26
+Potential energy: 1300.93for site 27
+Random energy: 2.138for site 27
+Potential energy: -1093.9for site 28
+Random energy: 1.3957for site 28
+Potential energy: 7406.7for site 29
+Random energy: 0.190001for site 29
+Potential energy: 499.932for site 30
+Random energy: -0.858382for site 30
+Potential energy: 3211.31for site 31
+Random energy: 1.32962for site 31
+Potential energy: 1169.43for site 32
+Random energy: 0.307709for site 32
+Potential energy: -3971.53for site 33
+Random energy: -3.69687for site 33
+Potential energy: -448.146for site 34
+Random energy: -0.572573for site 34
+Potential energy: 6124.3for site 35
+Random energy: 2.04536for site 35
+Potential energy: 8506.53for site 36
+Random energy: 1.99476for site 36
+Potential energy: 184.766for site 37
+Random energy: -0.313681for site 37
+Potential energy: 3612.29for site 38
+Random energy: 0.42449for site 38
+Potential energy: -264.201for site 39
+Random energy: -0.476619for site 39
+Potential energy: 1145.16for site 40
+Random energy: -0.409337for site 40
+Potential energy: 2791.95for site 41
+Random energy: -0.0889414for site 41
+Potential energy: -7526.71for site 42
+Random energy: -0.0812378for site 42
+Potential energy: -9416.84for site 43
+Random energy: 0.194644for site 43
+Potential energy: 6313.32for site 44
+Random energy: -0.584803for site 44
+Potential energy: -6232.95for site 45
+Random energy: -0.971947for site 45
+Potential energy: -2348.76for site 46
+Random energy: -1.35684for site 46
+Potential energy: 11108.2for site 47
+Random energy: -0.88554for site 47
+Potential energy: 4337.21for site 48
+Random energy: -3.57777for site 48
+Potential energy: -7739.21for site 49
+Random energy: -1.47863for site 49
+Potential energy: 144.714for site 50
+Random energy: 1.77087for site 50
+Potential energy: -270.978for site 51
+Random energy: -1.42315for site 51
+Potential energy: -5629.2for site 52
+Random energy: 1.59932for site 52
+Potential energy: 4907.73for site 53
+Random energy: -1.63842for site 53
+Potential energy: -8468.89for site 54
+Random energy: -2.81733for site 54
+Potential energy: 4438.7for site 55
+Random energy: -0.0370457for site 55
+Potential energy: -3075.58for site 56
+Random energy: -0.648934for site 56
+Potential energy: -3600.01for site 57
+Random energy: 1.47968for site 57
+Potential energy: -811.869for site 58
+Random energy: 1.02491for site 58
+Potential energy: -31.3918for site 59
+Random energy: -1.69666for site 59
+Potential energy: 2087.13for site 60
+Random energy: -0.0595395for site 60
+Potential energy: -3971.53for site 61
+Random energy: -0.190655for site 61
+Potential energy: 11536for site 62
+Random energy: -0.554986for site 62
+Potential energy: -90.7054for site 63
+Random energy: -0.225649for site 63
+Potential energy: -795.685for site 64
+Random energy: -0.651942for site 64
+Potential energy: 258.256for site 65
+Random energy: -0.192674for site 65
+Potential energy: -3075.58for site 66
+Random energy: 0.374163for site 66
+Potential energy: -12363.7for site 67
+Random energy: 1.73465for site 67
+Potential energy: -1128.71for site 68
+Random energy: -1.28014for site 68
+Potential energy: 81.4453for site 69
+Random energy: 1.75905for site 69
+Potential energy: 1390.61for site 70
+Random energy: -0.134275for site 70
+Potential energy: 1658.6for site 71
+Random energy: -0.857029for site 71
+Potential energy: 14085.3for site 72
+Random energy: -0.759251for site 72
+Potential energy: 5521.15for site 73
+Random energy: -0.756697for site 73
+Potential energy: 190.608for site 74
+Random energy: -1.40805for site 74
+Potential energy: 13259.1for site 75
+Random energy: -0.509016for site 75
+Potential energy: -98.0803for site 76
+Random energy: -1.18722for site 76
+Potential energy: 649.138for site 77
+Random energy: -0.584009for site 77
+Potential energy: 3291.86for site 78
+Random energy: -1.93716for site 78
+Potential energy: -11789.3for site 79
+Random energy: -2.05309for site 79
+Potential energy: -11925.5for site 80
+Random energy: -0.59779for site 80
+Potential energy: 810.692for site 81
+Random energy: -1.80306for site 81
+Potential energy: -2347.43for site 82
+Random energy: 1.43882for site 82
+Potential energy: -4373.32for site 83
+Random energy: 0.657002for site 83
+Potential energy: 3894.75for site 84
+Random energy: 0.0761547for site 84
+Potential energy: -284.377for site 85
+Random energy: -1.101for site 85
+Potential energy: 1062.22for site 86
+Random energy: -0.593146for site 86
+Potential energy: -13911.9for site 87
+Random energy: -0.664678for site 87
+Potential energy: 10067.7for site 88
+Random energy: -0.170321for site 88
+Potential energy: 337.022for site 89
+Random energy: -0.353244for site 89
+Potential energy: 10997.8for site 90
+Random energy: 2.01699for site 90
+Potential energy: 3540.43for site 91
+Random energy: 0.0359217for site 91
+Potential energy: 0for site 92
+Random energy: 2.64596for site 92
+Potential energy: 1011.29for site 93
+Random energy: -0.892318for site 93
+Potential energy: 4590.39for site 94
+Random energy: 0.290901for site 94
+Potential energy: -12093.7for site 95
+Random energy: 3.55457for site 95
+Potential energy: 4500.68for site 96
+Random energy: 4.2732for site 96
+Potential energy: 1696.98for site 97
+Random energy: -1.16182for site 97
+Potential energy: 2650.21for site 98
+Random energy: 3.86983for site 98
+Potential energy: -2951.61for site 99
+Random energy: 1.15111for site 99
+Potential energy: -14382.9for site 100
+Random energy: -1.7747for site 100
+Potential energy: -449.35for site 101
+Random energy: 0.0718057for site 101
+Potential energy: -8106.99for site 102
+Random energy: -1.86011for site 102
+Potential energy: 8307.44for site 103
+Random energy: -1.39005for site 103
+Potential energy: -1943.86for site 104
+Random energy: 1.03295for site 104
+Potential energy: -165.921for site 105
+Random energy: 0.57148for site 105
+Potential energy: -1177.09for site 106
+Random energy: -3.89764for site 106
+Potential energy: 1933.54for site 107
+Random energy: 0.0571219for site 107
+Potential energy: -6820.94for site 108
+Random energy: 1.22712for site 108
+Potential energy: -12468.6for site 109
+Random energy: -0.61658for site 109
+Potential energy: 4648.54for site 110
+Random energy: 1.05821for site 110
+Potential energy: 9761.64for site 111
+Random energy: 0.333957for site 111
+Potential energy: 0for site 112
+Random energy: 0.0948287for site 112
+Potential energy: 165.89for site 113
+Random energy: -0.704829for site 113
+Potential energy: -982.66for site 114
+Random energy: -0.873598for site 114
+Potential energy: 2690.72for site 115
+Random energy: -0.043034for site 115
+Potential energy: -1792.86for site 116
+Random energy: 0.524539for site 116
+Potential energy: -1739.69for site 117
+Random energy: 0.742213for site 117
+Potential energy: -1952.01for site 118
+Random energy: -0.404555for site 118
+Potential energy: 1112.5for site 119
+Random energy: 0.0894267for site 119
+Potential energy: -42.434for site 120
+Random energy: -1.51342for site 120
+Potential energy: -10417.6for site 121
+Random energy: 2.52423for site 121
+Potential energy: -12093.7for site 122
+Random energy: -1.09446for site 122
+Potential energy: -1090.03for site 123
+Random energy: -1.32018for site 123
+Potential energy: 1418.8for site 124
+Random energy: -0.677391for site 124
+Potential energy: -573.463for site 125
+Random energy: 1.08918for site 125
+Potential energy: -9054.35for site 126
+Random energy: 1.76439for site 126
+Potential energy: -333.77for site 127
+Random energy: 3.22477for site 127
+Potential energy: -2347.43for site 128
+Random energy: -0.361333for site 128
+Potential energy: -4891.41for site 129
+Random energy: -1.81347for site 129
+Potential energy: -333.77for site 130
+Random energy: -0.964944for site 130
+Potential energy: 4110.66for site 131
+Random energy: 2.3355for site 131
+Potential energy: 734.345for site 132
+Random energy: 0.560154for site 132
+Potential energy: -2137for site 133
+Random energy: -0.197888for site 133
+Potential energy: -8319.05for site 134
+Random energy: -0.92429for site 134
+Potential energy: 4646.17for site 135
+Random energy: 0.224675for site 135
+Potential energy: -1457.18for site 136
+Random energy: 1.4135for site 136
+Potential energy: 338.288for site 137
+Random energy: -1.03082for site 137
+Potential energy: -7584.52for site 138
+Random energy: -0.35476for site 138
+Potential energy: 1367.62for site 139
+Random energy: -0.673601for site 139
+Potential energy: -179.592for site 140
+Random energy: 1.77058for site 140
+Potential energy: 1455.96for site 141
+Random energy: -0.86261for site 141
+Potential energy: -6227.97for site 142
+Random energy: -0.0722323for site 142
+Potential energy: 379.56for site 143
+Random energy: -4.14109for site 143
+Potential energy: -2027.73for site 144
+Random energy: 2.04072for site 144
+Potential energy: 536.566for site 145
+Random energy: -0.948353for site 145
+Potential energy: -13911.9for site 146
+Random energy: 0.727929for site 146
+Potential energy: -13581.1for site 147
+Random energy: -1.54683for site 147
+Potential energy: -14833.7for site 148
+Random energy: 2.68637for site 148
+Potential energy: 1873.74for site 149
+Random energy: -1.16721for site 149
+Potential energy: 3471.84for site 150
+Random energy: 1.24077for site 150
+Potential energy: -1607.76for site 151
+Random energy: -0.814845for site 151
+Potential energy: -387.918for site 152
+Random energy: 2.8071for site 152
+Potential energy: -7286.29for site 153
+Random energy: -2.56954for site 153
+Potential energy: -1026.82for site 154
+Random energy: -1.65548for site 154
+Potential energy: 14706.5for site 155
+Random energy: 1.3874for site 155
+Potential energy: -11384.4for site 156
+Random energy: -1.1422for site 156
+Potential energy: -11206.5for site 157
+Random energy: 0.218874for site 157
+Potential energy: 90.2541for site 158
+Random energy: 1.38663for site 158
+Potential energy: 930.252for site 159
+Random energy: 1.48996for site 159
+Potential energy: 4406.18for site 160
+Random energy: -0.422664for site 160
+Potential energy: 9853.07for site 161
+Random energy: -2.36752for site 161
+Potential energy: -200.082for site 162
+Random energy: -1.92316for site 162
+Potential energy: -311.583for site 163
+Random energy: -0.192178for site 163
+Potential energy: -478.679for site 164
+Random energy: 0.692315for site 164
+Potential energy: 5752.46for site 165
+Random energy: -1.51179for site 165
+Potential energy: -1949.61for site 166
+Random energy: 1.11728for site 166
+Potential energy: -168.562for site 167
+Random energy: -3.86125for site 167
+Potential energy: 26.9607for site 168
+Random energy: 0.314542for site 168
+Potential energy: -386.878for site 169
+Random energy: -1.44753for site 169
+Potential energy: 2875.85for site 170
+Random energy: 2.40755for site 170
+Potential energy: 8860.36for site 171
+Random energy: 1.60174for site 171
+Potential energy: 9649.96for site 172
+Random energy: 0.342049for site 172
+Potential energy: 15176.3for site 173
+Random energy: 2.67348for site 173
+Potential energy: 11254.4for site 174
+Random energy: -1.11024for site 174
+Potential energy: 14357.6for site 175
+Random energy: 3.10354for site 175
+Potential energy: 10299.6for site 176
+Random energy: -0.563423for site 176
+Potential energy: -4376.13for site 177
+Random energy: -0.473376for site 177
+Potential energy: -7075.5for site 178
+Random energy: -1.95491for site 178
+Potential energy: 3789.57for site 179
+Random energy: -0.577236for site 179
+Potential energy: 2301.38for site 180
+Random energy: 0.994945for site 180
+Potential energy: 5682.86for site 181
+Random energy: -1.07386for site 181
+Potential energy: 4448.98for site 182
+Random energy: -1.69945for site 182
+Potential energy: 5200.15for site 183
+Random energy: 0.786889for site 183
+Potential energy: -1223.4for site 184
+Random energy: -3.00086for site 184
+Potential energy: -9316.6for site 185
+Random energy: 0.293795for site 185
+Potential energy: -13704.2for site 186
+Random energy: -0.404166for site 186
+Potential energy: 691.26for site 187
+Random energy: -3.91887for site 187
+Potential energy: 1062.22for site 188
+Random energy: -1.05198for site 188
+Potential energy: -7435.86for site 189
+Random energy: 0.407263for site 189
+Potential energy: 5909.06for site 190
+Random energy: -0.736302for site 190
+Potential energy: 1947.62for site 191
+Random energy: 0.139289for site 191
+Potential energy: 9217.57for site 192
+Random energy: 1.06504for site 192
+Potential energy: 9607.69for site 193
+Random energy: 0.577658for site 193
+Potential energy: 1669.74for site 194
+Random energy: 0.527597for site 194
+Potential energy: -303.232for site 195
+Random energy: -0.534822for site 195
+Potential energy: 6558.38for site 196
+Random energy: -0.522118for site 196
+Potential energy: 3718.93for site 197
+Random energy: 0.372087for site 197
+Potential energy: -9808.74for site 198
+Random energy: 0.00870488for site 198
+Potential energy: -1897.15for site 199
+Random energy: -1.39033for site 199
+Leaving InitSiteEnergies
+Entering updateBoundaries
+Old potential energy: 10250.8for site: 010250.8
+Old potential energy: -3209.66for site: 1-3209.66
+Old potential energy: -16577.9for site: 2-16577.9
+Old potential energy: -3362.33for site: 3-3362.33
+Old potential energy: -2400.6for site: 4-2400.6
+Old potential energy: 13808.2for site: 513808.2
+Old potential energy: 12335.3for site: 612335.3
+Old potential energy: 84.1138for site: 784.1138
+Old potential energy: 191.366for site: 8191.366
+Old potential energy: 1369.96for site: 91369.96
+Old potential energy: 1349.48for site: 101349.48
+Old potential energy: -1177.09for site: 11-1177.09
+Old potential energy: 11892.1for site: 1211892.1
+Old potential energy: -214.019for site: 13-214.019
+Old potential energy: 1855.9for site: 141855.9
+Old potential energy: -1093.9for site: 15-1093.9
+Old potential energy: -2407.9for site: 16-2407.9
+Old potential energy: 30.7677for site: 1730.7677
+Old potential energy: -12514.2for site: 18-12514.2
+Old potential energy: 1293.05for site: 191293.05
+Old potential energy: 10229.6for site: 2010229.6
+Old potential energy: -1040.37for site: 21-1040.37
+Old potential energy: 751.403for site: 22751.403
+Old potential energy: 1032.86for site: 231032.86
+Old potential energy: 1044.21for site: 241044.21
+Old potential energy: 129.955for site: 25129.955
+Old potential energy: 5463.36for site: 265463.36
+Old potential energy: 1300.93for site: 271300.93
+Old potential energy: -1093.9for site: 28-1093.9
+Old potential energy: 7406.7for site: 297406.7
+Old potential energy: 499.932for site: 30499.932
+Old potential energy: 3211.31for site: 313211.31
+Old potential energy: 1169.43for site: 321169.43
+Old potential energy: -3971.53for site: 33-3971.53
+Old potential energy: -448.146for site: 34-448.146
+Old potential energy: 6124.3for site: 356124.3
+Old potential energy: 8506.53for site: 368506.53
+Old potential energy: 184.766for site: 37184.766
+Old potential energy: 3612.29for site: 383612.29
+Old potential energy: -264.201for site: 39-264.201
+Old potential energy: 1145.16for site: 401145.16
+Old potential energy: 2791.95for site: 412791.95
+Old potential energy: -7526.71for site: 42-7526.71
+Old potential energy: -9416.84for site: 43-9416.84
+Old potential energy: 6313.32for site: 446313.32
+Old potential energy: -6232.95for site: 45-6232.95
+Old potential energy: -2348.76for site: 46-2348.76
+Old potential energy: 11108.2for site: 4711108.2
+Old potential energy: 4337.21for site: 484337.21
+Old potential energy: -7739.21for site: 49-7739.21
+Old potential energy: 144.714for site: 50144.714
+Old potential energy: -270.978for site: 51-270.978
+Old potential energy: -5629.2for site: 52-5629.2
+Old potential energy: 4907.73for site: 534907.73
+Old potential energy: -8468.89for site: 54-8468.89
+Old potential energy: 4438.7for site: 554438.7
+Old potential energy: -3075.58for site: 56-3075.58
+Old potential energy: -3600.01for site: 57-3600.01
+Old potential energy: -811.869for site: 58-811.869
+Old potential energy: -31.3918for site: 59-31.3918
+Old potential energy: 2087.13for site: 602087.13
+Old potential energy: -3971.53for site: 61-3971.53
+Old potential energy: 11536for site: 6211536
+Old potential energy: -90.7054for site: 63-90.7054
+Old potential energy: -795.685for site: 64-795.685
+Old potential energy: 258.256for site: 65258.256
+Old potential energy: -3075.58for site: 66-3075.58
+Old potential energy: -12363.7for site: 67-12363.7
+Old potential energy: -1128.71for site: 68-1128.71
+Old potential energy: 81.4453for site: 6981.4453
+Old potential energy: 1390.61for site: 701390.61
+Old potential energy: 1658.6for site: 711658.6
+Old potential energy: 14085.3for site: 7214085.3
+Old potential energy: 5521.15for site: 735521.15
+Old potential energy: 190.608for site: 74190.608
+Old potential energy: 13259.1for site: 7513259.1
+Old potential energy: -98.0803for site: 76-98.0803
+Old potential energy: 649.138for site: 77649.138
+Old potential energy: 3291.86for site: 783291.86
+Old potential energy: -11789.3for site: 79-11789.3
+Old potential energy: -11925.5for site: 80-11925.5
+Old potential energy: 810.692for site: 81810.692
+Old potential energy: -2347.43for site: 82-2347.43
+Old potential energy: -4373.32for site: 83-4373.32
+Old potential energy: 3894.75for site: 843894.75
+Old potential energy: -284.377for site: 85-284.377
+Old potential energy: 1062.22for site: 861062.22
+Old potential energy: -13911.9for site: 87-13911.9
+Old potential energy: 10067.7for site: 8810067.7
+Old potential energy: 337.022for site: 89337.022
+Old potential energy: 10997.8for site: 9010997.8
+Old potential energy: 3540.43for site: 913540.43
+Old potential energy: 0for site: 920
+Old potential energy: 1011.29for site: 931011.29
+Old potential energy: 4590.39for site: 944590.39
+Old potential energy: -12093.7for site: 95-12093.7
+Old potential energy: 4500.68for site: 964500.68
+Old potential energy: 1696.98for site: 971696.98
+Old potential energy: 2650.21for site: 982650.21
+Old potential energy: -2951.61for site: 99-2951.61
+Old potential energy: -14382.9for site: 100-14382.9
+Old potential energy: -449.35for site: 101-449.35
+Old potential energy: -8106.99for site: 102-8106.99
+Old potential energy: 8307.44for site: 1038307.44
+Old potential energy: -1943.86for site: 104-1943.86
+Old potential energy: -165.921for site: 105-165.921
+Old potential energy: -1177.09for site: 106-1177.09
+Old potential energy: 1933.54for site: 1071933.54
+Old potential energy: -6820.94for site: 108-6820.94
+Old potential energy: -12468.6for site: 109-12468.6
+Old potential energy: 4648.54for site: 1104648.54
+Old potential energy: 9761.64for site: 1119761.64
+Old potential energy: 0for site: 1120
+Old potential energy: 165.89for site: 113165.89
+Old potential energy: -982.66for site: 114-982.66
+Old potential energy: 2690.72for site: 1152690.72
+Old potential energy: -1792.86for site: 116-1792.86
+Old potential energy: -1739.69for site: 117-1739.69
+Old potential energy: -1952.01for site: 118-1952.01
+Old potential energy: 1112.5for site: 1191112.5
+Old potential energy: -42.434for site: 120-42.434
+Old potential energy: -10417.6for site: 121-10417.6
+Old potential energy: -12093.7for site: 122-12093.7
+Old potential energy: -1090.03for site: 123-1090.03
+Old potential energy: 1418.8for site: 1241418.8
+Old potential energy: -573.463for site: 125-573.463
+Old potential energy: -9054.35for site: 126-9054.35
+Old potential energy: -333.77for site: 127-333.77
+Old potential energy: -2347.43for site: 128-2347.43
+Old potential energy: -4891.41for site: 129-4891.41
+Old potential energy: -333.77for site: 130-333.77
+Old potential energy: 4110.66for site: 1314110.66
+Old potential energy: 734.345for site: 132734.345
+Old potential energy: -2137for site: 133-2137
+Old potential energy: -8319.05for site: 134-8319.05
+Old potential energy: 4646.17for site: 1354646.17
+Old potential energy: -1457.18for site: 136-1457.18
+Old potential energy: 338.288for site: 137338.288
+Old potential energy: -7584.52for site: 138-7584.52
+Old potential energy: 1367.62for site: 1391367.62
+Old potential energy: -179.592for site: 140-179.592
+Old potential energy: 1455.96for site: 1411455.96
+Old potential energy: -6227.97for site: 142-6227.97
+Old potential energy: 379.56for site: 143379.56
+Old potential energy: -2027.73for site: 144-2027.73
+Old potential energy: 536.566for site: 145536.566
+Old potential energy: -13911.9for site: 146-13911.9
+Old potential energy: -13581.1for site: 147-13581.1
+Old potential energy: -14833.7for site: 148-14833.7
+Old potential energy: 1873.74for site: 1491873.74
+Old potential energy: 3471.84for site: 1503471.84
+Old potential energy: -1607.76for site: 151-1607.76
+Old potential energy: -387.918for site: 152-387.918
+Old potential energy: -7286.29for site: 153-7286.29
+Old potential energy: -1026.82for site: 154-1026.82
+Old potential energy: 14706.5for site: 15514706.5
+Old potential energy: -11384.4for site: 156-11384.4
+Old potential energy: -11206.5for site: 157-11206.5
+Old potential energy: 90.2541for site: 15890.2541
+Old potential energy: 930.252for site: 159930.252
+Old potential energy: 4406.18for site: 1604406.18
+Old potential energy: 9853.07for site: 1619853.07
+Old potential energy: -200.082for site: 162-200.082
+Old potential energy: -311.583for site: 163-311.583
+Old potential energy: -478.679for site: 164-478.679
+Old potential energy: 5752.46for site: 1655752.46
+Old potential energy: -1949.61for site: 166-1949.61
+Old potential energy: -168.562for site: 167-168.562
+Old potential energy: 26.9607for site: 16826.9607
+Old potential energy: -386.878for site: 169-386.878
+Old potential energy: 2875.85for site: 1702875.85
+Old potential energy: 8860.36for site: 1718860.36
+Old potential energy: 9649.96for site: 1729649.96
+Old potential energy: 15176.3for site: 17315176.3
+Old potential energy: 11254.4for site: 17411254.4
+Old potential energy: 14357.6for site: 17514357.6
+Old potential energy: 10299.6for site: 17610299.6
+Old potential energy: -4376.13for site: 177-4376.13
+Old potential energy: -7075.5for site: 178-7075.5
+Old potential energy: 3789.57for site: 1793789.57
+Old potential energy: 2301.38for site: 1802301.38
+Old potential energy: 5682.86for site: 1815682.86
+Old potential energy: 4448.98for site: 1824448.98
+Old potential energy: 5200.15for site: 1835200.15
+Old potential energy: -1223.4for site: 184-1223.4
+Old potential energy: -9316.6for site: 185-9316.6
+Old potential energy: -13704.2for site: 186-13704.2
+Old potential energy: 691.26for site: 187691.26
+Old potential energy: 1062.22for site: 1881062.22
+Old potential energy: -7435.86for site: 189-7435.86
+Old potential energy: 5909.06for site: 1905909.06
+Old potential energy: 1947.62for site: 1911947.62
+Old potential energy: 9217.57for site: 1929217.57
+Old potential energy: 9607.69for site: 1939607.69
+Old potential energy: 1669.74for site: 1941669.74
+Old potential energy: -303.232for site: 195-303.232
+Old potential energy: 6558.38for site: 1966558.38
+Old potential energy: 3718.93for site: 1973718.93
+Old potential energy: -9808.74for site: 198-9808.74
+Old potential energy: -1897.15for site: 199-1897.15
+Old potential energy: 0for site: 2000
+Old potential energy: 0for site: 2010
+Old potential energy: -15146.2for site: 202-15146.2
+Old potential energy: 15176.3for site: 20315176.3
+Old potential energy: 16608for site: 20416608
+Old potential energy: -15206.4for site: 205-15206.4
+Old potential energy: -16577.9for site: 206-16577.9
+Old potential energy: 16577.9for site: 20716577.9
+New potential energy: -515.905for site: 0
+New potential energy: 543.054for site: 1
+New potential energy: 1416.66for site: 2
+New potential energy: 533.193for site: 3
+New potential energy: 1022.26for site: 4
+New potential energy: -1029.23for site: 5
+New potential energy: -782.884for site: 6
+New potential energy: 314.394for site: 7
+New potential energy: 491.931for site: 8
+New potential energy: 319.265for site: 9
+New potential energy: 656.049for site: 10
+New potential energy: 296.727for site: 11
+New potential energy: -328.395for site: 12
+New potential energy: 283.18for site: 13
+New potential energy: 255.966for site: 14
+New potential energy: 213.447for site: 15
+New potential energy: 527.998for site: 16
+New potential energy: 9.79695for site: 17
+New potential energy: 1124.06for site: 18
+New potential energy: 290.38for site: 19
+New potential energy: -581.081for site: 20
+New potential energy: -584.206for site: 21
+New potential energy: 1161.03for site: 22
+New potential energy: 891.57for site: 23
+New potential energy: 462.443for site: 24
+New potential energy: 204.759for site: 25
+New potential energy: 501.103for site: 26
+New potential energy: 511.003for site: 27
+New potential energy: 213.447for site: 28
+New potential energy: -412.476for site: 29
+New potential energy: 373.46for site: 30
+New potential energy: 551.008for site: 31
+New potential energy: 283.264for site: 32
+New potential energy: 556.526for site: 33
+New potential energy: 173.648for site: 34
+New potential energy: -11.4474for site: 35
+New potential energy: -495.966for site: 36
+New potential energy: 140.629for site: 37
+New potential energy: 209.734for site: 38
+New potential energy: 541.186for site: 39
+New potential energy: 363.489for site: 40
+New potential energy: 847.452for site: 41
+New potential energy: 963.165for site: 42
+New potential energy: 894.192for site: 43
+New potential energy: 995.045for site: 44
+New potential energy: 464.571for site: 45
+New potential energy: 470.126for site: 46
+New potential energy: -741.194for site: 47
+New potential energy: -110.346for site: 48
+New potential energy: 788.019for site: 49
+New potential energy: 710.439for site: 50
+New potential energy: -1001.26for site: 51
+New potential energy: 1186.28for site: 52
+New potential energy: -179.484for site: 53
+New potential energy: 980.178for site: 54
+New potential energy: -85.2517for site: 55
+New potential energy: 447.825for site: 56
+New potential energy: 509.118for site: 57
+New potential energy: -1036.66for site: 58
+New potential energy: 237.102for site: 59
+New potential energy: 383.717for site: 60
+New potential energy: 556.526for site: 61
+New potential energy: 566.411for site: 62
+New potential energy: -535.923for site: 63
+New potential energy: 394.492for site: 64
+New potential energy: 321.113for site: 65
+New potential energy: 447.825for site: 66
+New potential energy: 1098.52for site: 67
+New potential energy: 525.588for site: 68
+New potential energy: 158.546for site: 69
+New potential energy: 900.054for site: 70
+New potential energy: 142.243for site: 71
+New potential energy: 1190.8for site: 72
+New potential energy: 57.4257for site: 73
+New potential energy: 258.025for site: 74
+New potential energy: -879.759for site: 75
+New potential energy: 1067.44for site: 76
+New potential energy: 1328.48for site: 77
+New potential energy: 58.6838for site: 78
+New potential energy: 1065.18for site: 79
+New potential energy: 1072.63for site: 80
+New potential energy: 267.627for site: 81
+New potential energy: 348.093for site: 82
+New potential energy: 48.6726for site: 83
+New potential energy: -135.463for site: 84
+New potential energy: 297.262for site: 85
+New potential energy: 1049.66for site: 86
+New potential energy: 1221.85for site: 87
+New potential energy: -490.597for site: 88
+New potential energy: 260.838for site: 89
+New potential energy: -257.549for site: 90
+New potential energy: 532.488for site: 91
+New potential energy: 1582.43for site: 92
+New potential energy: 305.166for site: 93
+New potential energy: 217.21for site: 94
+New potential energy: 1059.33for site: 95
+New potential energy: 435.146for site: 96
+New potential energy: 771.777for site: 97
+New potential energy: 382.697for site: 98
+New potential energy: -151.56for site: 99
+New potential energy: 1227.33for site: 100
+New potential energy: -1198.81for site: 101
+New potential energy: 758.635for site: 102
+New potential energy: 395.939for site: 103
+New potential energy: 10.124for site: 104
+New potential energy: 95.6146for site: 105
+New potential energy: 296.727for site: 106
+New potential energy: 149.561for site: 107
+New potential energy: 729.54for site: 108
+New potential energy: 1121.73for site: 109
+New potential energy: 533.598for site: 110
+New potential energy: 324.876for site: 111
+New potential energy: 1582.43for site: 112
+New potential energy: 260.463for site: 113
+New potential energy: 336.992for site: 114
+New potential energy: 236.198for site: 115
+New potential energy: 373.426for site: 116
+New potential energy: 391.095for site: 117
+New potential energy: -615.287for site: 118
+New potential energy: 671.424for site: 119
+New potential energy: -484.676for site: 120
+New potential energy: 973.672for site: 121
+New potential energy: 1059.33for site: 122
+New potential energy: 383.33for site: 123
+New potential energy: 357.932for site: 124
+New potential energy: 228.857for site: 125
+New potential energy: 800.118for site: 126
+New potential energy: -708.335for site: 127
+New potential energy: 348.093for site: 128
+New potential energy: 575.285for site: 129
+New potential energy: -708.335for site: 130
+New potential energy: -28.8461for site: 131
+New potential energy: 361.867for site: 132
+New potential energy: 214.043for site: 133
+New potential energy: 828.027for site: 134
+New potential energy: 406.37for site: 135
+New potential energy: 423.212for site: 136
+New potential energy: 201.068for site: 137
+New potential energy: 656.751for site: 138
+New potential energy: 871.684for site: 139
+New potential energy: 241.109for site: 140
+New potential energy: 361.005for site: 141
+New potential energy: 692.33for site: 142
+New potential energy: 1092.65for site: 143
+New potential energy: 520.577for site: 144
+New potential energy: 1349.15for site: 145
+New potential energy: 1221.85for site: 146
+New potential energy: 1189.67for site: 147
+New potential energy: 1289.42for site: 148
+New potential energy: 212.264for site: 149
+New potential energy: 413.357for site: 150
+New potential energy: 114.288for site: 151
+New potential energy: -477.176for site: 152
+New potential energy: 768.742for site: 153
+New potential energy: 14.4911for site: 154
+New potential energy: -996.691for site: 155
+New potential energy: 1025.82for site: 156
+New potential energy: 998.707for site: 157
+New potential energy: 305.177for site: 158
+New potential energy: 494.397for site: 159
+New potential energy: -124.084for site: 160
+New potential energy: 100.444for site: 161
+New potential energy: 197.399for site: 162
+New potential energy: 316.912for site: 163
+New potential energy: 443.667for site: 164
+New potential energy: -75.772for site: 165
+New potential energy: 456.899for site: 166
+New potential energy: 313.79for site: 167
+New potential energy: 297.968for site: 168
+New potential energy: -41.8557for site: 169
+New potential energy: 1077.8for site: 170
+New potential energy: 313.216for site: 171
+New potential energy: -712.376for site: 172
+New potential energy: 1235.81for site: 173
+New potential energy: 1054.48for site: 174
+New potential energy: 1184.91for site: 175
+New potential energy: 51.5611for site: 176
+New potential energy: 563.862for site: 177
+New potential energy: 450.816for site: 178
+New potential energy: -34.5696for site: 179
+New potential energy: 336.543for site: 180
+New potential energy: 164.215for site: 181
+New potential energy: 310.388for site: 182
+New potential energy: 135.193for site: 183
+New potential energy: 297.586for site: 184
+New potential energy: 903.477for site: 185
+New potential energy: 1181.57for site: 186
+New potential energy: 154.07for site: 187
+New potential energy: 1049.66for site: 188
+New potential energy: 768.655for site: 189
+New potential energy: -152.268for site: 190
+New potential energy: 677.163for site: 191
+New potential energy: -361.193for site: 192
+New potential energy: -391.652for site: 193
+New potential energy: 313.996for site: 194
+New potential energy: -530.014for site: 195
+New potential energy: 172.17for site: 196
+New potential energy: 19.5996for site: 197
+New potential energy: 913.162for site: 198
+New potential energy: 396.776for site: 199
+Leaving updateBoundaries

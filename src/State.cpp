@@ -145,7 +145,7 @@ void State::initPotential(FiniteElementeCircle& femSolver) {
 }
 
 void State::initSiteEnergies(FiniteElementeCircle& femSolver) {
-
+    std::cout << "Entering InitSiteEnergies" << "\n";
     std::vector<double> inverseDistances(nAcceptors, 0.0);
     // Acc-Don interaction + random energy + potential energy (for acceptors only)
     for(int i = 0; i < nAcceptors; ++i) {
@@ -153,7 +153,7 @@ void State::initSiteEnergies(FiniteElementeCircle& femSolver) {
             acceptorCoordinates[i*2], 
             acceptorCoordinates[i*2 + 1]
         )*e / kbT;
-        //std::cout << potentialEnergy << "\n";
+        std::cout << "Potential energy: " << potentialEnergy << "for site " << i << "\n";
 		double sumOfInverseDistances = 0.0;
 		for(int j = 0; j <  nDonors; j++) {
 			sumOfInverseDistances += 1.0 / calculateDistance(
@@ -171,9 +171,10 @@ void State::initSiteEnergies(FiniteElementeCircle& femSolver) {
 			double randomEnergy = normalDist(0.0, energyDisorder);	
             //double randomEnergy = energyDisorder*randomDouble01();	
             //std::cout << "Random contribution:" << randomEnergy << "\n";
-			randomEnergies[i] = randomEnergy;		
+			randomEnergies[i] = randomEnergy;	
+            std::cout << "Random energy: " << randomEnergy << "for site " << i << "\n";
 		}
-
+        std::cout << "Donor interaction " << acceptorDonorInteraction[i] << " for site " << i << "\n";
         initialSiteEnergies[i] = potentialEnergy + acceptorDonorInteraction[i] + randomEnergies[i];
         currentPotential[i] += potentialEnergy;
         initialPotential[i] += potentialEnergy;
@@ -193,7 +194,9 @@ void State::initSiteEnergies(FiniteElementeCircle& femSolver) {
             }
         }
         initialSiteEnergies[i] += - A0*acceptorInteraction[i];
+        std::cout << "Acceptor interaction " << acceptorInteraction[i] << " for site " << i << "\n";
     }
+    std::cout << "Leaving InitSiteEnergies" << "\n";
 }
 
 void State::initOccupiedSites() {
@@ -217,7 +220,7 @@ void State::initOccupiedSites() {
 }
 
 void State::updateSiteEnergies(std::vector<int> lastHopIndices) {
-
+    
     if (lastHopIndices[0] < nAcceptors && lastHopIndices[1] < nAcceptors) {
         for (int i = 0; i < nAcceptors; ++i) {
             if (i != lastHopIndices[1]) {
@@ -265,13 +268,14 @@ void State::updateSiteOccupation(std::vector<int> lastHopIndices) {
 }
 
 void State::updateBoundaries(std::vector<double> boundaryValues, FiniteElementeCircle& femSolver) {
-
+    std::cout << "Entering updateBoundaries" << "\n";
     if (boundaryValues.size() > nElectrodes) {
         throw std::invalid_argument("updateBoundaries(std::vector<double> boundaryValues, FiniteElementeCircle& fem): Too many boundary values");
     }
 
     for (int i = 0; i < numOfSites; ++i) {
         siteEnergies[i] -= currentPotential[i];
+        std::cout << "Old potential energy: " << currentPotential[i] << "for site: " << i << "\n";
     }
 
     for (int bdrVal = 0; bdrVal < boundaryValues.size(); ++bdrVal) {
@@ -283,12 +287,14 @@ void State::updateBoundaries(std::vector<double> boundaryValues, FiniteElementeC
     for (int i = 0; i < nAcceptors; ++i) {
         currentPotential[i] = femSolver.getPotential(acceptorCoordinates[i*2], acceptorCoordinates[i*2 + 1])*e / kbT;
         siteEnergies[i] += currentPotential[i];
+        std::cout << "New potential energy: " << currentPotential[i] << "for site: " << i << "\n";
     }
     for (int i = 0; i < nElectrodes; ++i) {
         int idx = nAcceptors + i;
         currentPotential[idx] = femSolver.getPotential(electrodeCoordinates[i*2], electrodeCoordinates[i*2 + 1])*e / kbT;
         siteEnergies[idx] += currentPotential[idx]; 
     }
+    std::cout << "Leaving updateBoundaries" << "\n";
 }
 
 void State::increaseStateTime(double rate) {

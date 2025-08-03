@@ -129,7 +129,15 @@ void batchOfIVCurves(
     const std::string& donorCfg,
     const std::string& electrodeCfg,
     const std::string& saveFolder,
-    const std::string& batchID
+    const std::string& fileName
+);
+
+double singleIVPoint(
+    State& state,
+    int numOfTasks,
+    int eqSteps,
+    int simSteps,
+    std::vector<double> voltages
 );
 
 int argParser(int argc, char* argv[]);
