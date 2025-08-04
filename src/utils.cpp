@@ -407,15 +407,14 @@ void batchOfIVCurves(
 
 double singleIVPoint(
     State& state,
+    Configuration& config,
     int numOfTasks,
     int eqSteps,
     int simSteps,
     std::vector<double> voltages,
-
 ) {
 
-
-
+    State equilState = state;        
 }
 
 int argParser(int argc, char* argv[]) {

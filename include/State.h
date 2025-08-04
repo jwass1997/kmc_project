@@ -15,6 +15,10 @@ class State {
 
         State();
 
+        State(State const& other);
+
+        State& oeprator=(State const& other);
+
         State(Configuration& config, FiniteElementeCircle& fem);
         
         void initRandomState();

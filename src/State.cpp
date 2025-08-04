@@ -8,8 +8,92 @@
 
 State::State() 
 {
-
     std::cout << "State(): Empty constructor should not be called!" << "\n";
+}
+
+State::State(State const& other)
+    : acceptorCoordinates(other.acceptorCoordinates)
+    , donorCoordinates(other.donorCoordinates)
+    , electrodeCoordinates(other.electrodeCoordinates)
+    , nAcceptors(other.nAcceptors)
+    , nDonors(other.nDonors)
+    , nElectrodes(other.nElectrodes)
+    , numOfSites(other.numOfSites)
+    , radius(other.radius)
+    , nu0(other.nu0)
+    , a(other.a)
+    , T(other.T)
+    , kbT(other.kbT)
+    , energyDisorder(other.energyDisorder)
+    , R(other.R)
+    , A0(other.A0)
+    , electrodeWidth(other.electrodeWidth)
+    , minHopDistance(other.minHopDistance)
+    , maxHopDistance(other.maxHopDistance)
+    , electrodeData(other.electrodeData)
+    , distanceMatrix(other.distanceMatrix)
+    , inverseAcceptorDistances(other.inverseAcceptorDistances)
+    , currentOccupation(other.currentOccupation)
+    , initialOccupation(other.initialOccupation)
+    , randomEnergies(other.randomEnergies)
+    , acceptorDonorInteraction(other.acceptorDonorInteraction)
+    , acceptorInteraction(other.acceptorInteraction)
+    , initialSiteEnergies(other.initialSiteEnergies)
+    , initialPotential(other.initialPotential)
+    , currentPotential(other.currentPotential)
+    , siteEnergies(other.siteEnergies)
+    , eventCounter(other.eventCounter)
+    , jaggedArrayLengths(other.jaggedArrayLengths)
+    , neighbourIndices(other.neighbourIndices)
+    , numOfNeighbours(other.numOfNeighbours)
+    , totalNumOfEvents(other.totalNumOfEvents)
+    , stateTime(other.stateTime)
+{
+
+}
+
+State& State::operator=(State const& other) {
+    if (this == &other) return *this;
+
+    acceptorCoordinates = other.acceptorCoordinates;
+    donorCoordinates = other.donorCoordinates;
+    electrodeCoordinates = other.electrodeCoordinates;
+    nAcceptors = other.nAcceptors;
+    nDonors = other.nDonors;
+    nElectrodes = other.nElectrodes;
+    numOfSites = other.numOfSites;
+    radius = other.radius;
+    nu0 = other.nu0;
+    a = other.a;
+    T = other.T;
+    kbT = other.kbT;
+    energyDisorder = other.energyDisorder;
+    R = other.R;
+    A0 = other.A0;
+    electrodeWidth = other.electrodeWidth;
+    minHopDistance = other.minHopDistance;
+    maxHopDistance = other.maxHopDistance;
+    electrodeData = other.electrodeData;
+
+    distanceMatrix = other.distanceMatrix;
+    inverseAcceptorDistances = other.inverseAcceptorDistances;
+    currentOccupation = other.currentOccupation;
+    initialOccupation = other.initialOccupation;
+    randomEnergies = other.randomEnergies;
+    acceptorDonorInteraction = other.acceptorDonorInteraction;
+    acceptorInteraction = other.acceptorInteraction;
+    initialSiteEnergies = other.initialSiteEnergies;
+    initialPotential = other.initialPotential;
+    currentPotential = other.currentPotential;
+    siteEnergies = other.siteEnergies;
+    eventCounter = other.eventCounter;
+    jaggedArrayLengths = other.jaggedArrayLengths;
+    neighbourIndices = other.neighbourIndices;
+    numOfNeighbours = other.numOfNeighbours;
+    totalNumOfEvents = other.totalNumOfEvents;
+    stateTime = other.stateTime;
+
+    return *this;
 }
 
 State::State(Configuration& config, FiniteElementeCircle& fem)
@@ -49,13 +133,9 @@ State::State(Configuration& config, FiniteElementeCircle& fem)
     initContainers();
     initOccupiedSites();
     initPotential(fem);    
-    initSiteEnergies(fem);
+    //initSiteEnergies(fem);
 
     stateTime = 0.0;
-}
-
-void State::initRandomState() {
-    
 }
 
 void State::initContainers() {
@@ -137,11 +217,11 @@ void State::initPotential(FiniteElementeCircle& femSolver) {
 
     femSolver.initRun();
 
-    for (int i = 0; i < electrodeData.size(); ++i) {
+    /* for (int i = 0; i < electrodeData.size(); ++i) {
         femSolver.updateElectrodeVoltage(i, electrodeData[i].voltage);
     }
 
-    femSolver.run();
+    femSolver.run(); */
 }
 
 void State::initSiteEnergies(FiniteElementeCircle& femSolver) {
