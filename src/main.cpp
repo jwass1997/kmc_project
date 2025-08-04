@@ -14,19 +14,28 @@
 int main(int argc, char* argv[]) {
     //argParser(argc, argv);
 
-    std::string cfg = "/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/configs/config.txt";
+    /* std::string cfg = "/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/configs/config.txt";
     std::string acc = "/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/configs/acceptors.txt";
     std::string don = "/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/configs/donors.txt";
     std::string ele = "/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/configs/electrodes.txt";
 
     Configuration config(cfg, acc, don, ele, false);
 
-    int res = 10000;
-    FiniteElementeCircle fem(config.radius, res);
-    State state(config, fem);
+    State state(config);
+
+    std::vector<double> voltages = {1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, 1.0};
+    state.updateBoundaries(voltages);
     KMCSimulator kmc(state);
+    kmc.simulate(state, 10000, false, true);
+    for (int i = 0; i < state.numOfSites*state.numOfSites; ++i) {
+        std::cout << state.eventCounter[i];
+    } */
+    //std::cout << state.currentPotential[200] << "\n";
+    //State state2(state);
+    //std::cout << state2.currentPotential[200] << "\n";
+    //KMCSimulator kmc(state);
     
-    std::ofstream ofs("phi_0.txt");
+    /* std::ofstream ofs("phi_0.txt");
     if (!ofs) {
         std::cerr << "Cannot open output file\n";
         return 1;
@@ -66,5 +75,5 @@ int main(int argc, char* argv[]) {
         ofs_1 << "\n";
     }
 
-    return 0;
+    return 0; */
 }

@@ -1728,3 +1728,439 @@ void param2DSweep(
     bool randomGeometry,
     int seed
 );
+
+std::vector<double> calculateSlopes(
+    std::vector<double> fX,
+    std::vector<double> X
+) {
+        
+    if (fX.size() != X.size()) {
+        std::cerr << "Slope can not be calculated if sizes do not match" << "\n";
+    }
+
+    std::vector<double> slopes(fX.size(), 0.0);
+
+    double _slope = 0.0;
+    for (int i = 1; i < slopes.size(); ++i) {
+        _slope = (fX[i] - fX[i-1]) / (X[i] - X[i-1]);
+        slopes[i] = _slope;
+    }
+
+    return slopes;
+}
+
+double calculateCurrent(
+    State& state,
+    KMCSimulator& kmc,
+    int electrodeIdx,
+    int equilibriumSteps,
+    int simulationSteps,
+    int numOfIntervals
+) {
+
+    double averagedCurrent = 0.0;
+    double totalTime = 0.0;
+    int netEvents = 0;
+    int intervalSteps = simulationSteps / numOfIntervals;
+    int intervalCount = 0;
+
+    state.resetEventCounter();
+    kmc.simulate(state, equilibriumSteps, false, false);
+
+    while (intervalCount < numOfIntervals) {
+        //std::cout << "Thread #" << omp_get_thread_num() << " at count" << intervalCount << "\n";
+        double startClock = state.stateTime;
+        kmc.simulate(state, intervalSteps, false, true);
+        double endClock = state.stateTime;
+
+        double elapsedTime = endClock - startClock;
+        int inEvents = 0;
+        int outEvents = 0;
+        for (int i = 0; i < state.numOfSites; ++i) {
+            outEvents += state.eventCounter[(electrodeIdx+state.nAcceptors)*state.numOfSites + i];
+            inEvents += state.eventCounter[state.numOfSites*i + (electrodeIdx+state.nAcceptors)];
+        }
+        totalTime += elapsedTime;
+        netEvents += inEvents-outEvents;
+
+        state.resetEventCounter();
+
+        intervalCount++;
+    }
+
+    averagedCurrent = static_cast<double>(netEvents) / totalTime;
+
+    return averagedCurrent;
+}
+
+
+void createDirectoryFromStringPath(const std::string& path, const std::string& folderName) {
+
+    if (folderName.empty()) {
+        std::cerr << "Must specify a folder name " << "\n";
+        return;
+    }
+
+    std::filesystem::path directoryPath = path.empty() ? std::filesystem::current_path() : std::filesystem::path(path);
+    std::filesystem::path newFolder = std::filesystem::path(directoryPath)/folderName;
+
+    try {
+        if(std::filesystem::create_directory(newFolder)) {
+            std::cout << "Folder has been created: " << newFolder << "\n";
+        }
+        else {
+            std::cout << "Folder already exists: " << newFolder << "\n";
+        }
+    }
+    catch(const std::filesystem::filesystem_error& e) {
+        std::cerr << "Error creating new folder: " << e.what() << "\n";
+    }
+}
+
+void singleIVCurve (
+    int numOfPoints,
+    int inputIdx,
+    int outputIdx,
+    double minVoltage,
+    double maxVoltage,
+    int eqSteps,
+    int simSteps,
+    int numIntervals,
+    int seed,
+    std::vector<double> controlVoltages,
+    const std::string& cfg,
+    const std::string& acceptorCfg,
+    const std::string& donorCfg,
+    const std::string& electrodeCfg,
+    const std::string& saveFolder,
+    const std::string& fileName
+) {
+
+    if (saveFolder.empty()) {
+        throw std::invalid_argument("singleIVCurve(): Save folder not found");
+    }
+    std::string file = saveFolder + "/" + fileName + ".npz";
+
+    std::vector<double> currentData(numOfSamples*numOfPoints, 0.0);
+    std::vector<size_t> currentDataShape = {static_cast<size_t>(numOfSamples), static_cast<size_t>(numOfPoints)};
+
+    std::vector<double> controlData(controlVoltages.size(), 0.0);
+    std::vector<size_t> controlDataShape = {controlVoltages.size()};
+
+    for (int cv = 0; cv < controlVoltages.size(); ++cv) {
+        controlData[cv] = controlVoltages[cv];
+    }
+    controlData[inputIdx] = -999.999;
+    controlData[outputIdx] = -999.999;
+
+    int femRes = 100000;
+
+    double range = maxVoltage - minVoltage;
+    double vStep = range / static_cast<double>(numOfPoints);
+    #pragma omp parallel
+    {
+        int threadID = omp_get_thread_num();
+        int threadSeed = seed + threadID * 1000000;
+
+        #pragma omp for
+        for (int s = 0; s < numOfSamples; ++s) {
+
+            int sampleSeed = threadSeed + s;
+            setRandomSeed(sampleSeed);
+
+            Configuration config(
+                cfg,
+                acceptorCfg,
+                donorCfg,
+                electrodeCfg,
+                false
+            );
+            FiniteElementeCircle fem(config.radius, femRes);
+            State state(config, fem);
+            KMCSimulator kmc(state);
+
+            std::vector<double> newBoundaries(controlVoltages.size(), 0.0);
+            newBoundaries[outputIdx] = 0.0;
+            for (int v = 0; v < numOfPoints; v++) {
+
+                newBoundaries[inputIdx] = minVoltage + v*vStep;
+                state.updateBoundaries(newBoundaries, fem);
+
+                double averagedCurrent = calculateCurrent(
+                    state,
+                    kmc,
+                    outputIdx,
+                    eqSteps,
+                    simSteps,
+                    numIntervals
+                );
+
+                currentData[s*numOfPoints + v] = averagedCurrent;
+            }
+        }
+    }
+
+    cnpy::npz_save(file, "current", currentData.data(), currentDataShape, "w");
+    cnpy::npz_save(file, "control", controlData.data(), controlDataShape, "a");
+}
+
+void batchOfIVCurves(
+    int batchSize,
+    int numOfPoints,
+    int numOfCurves,
+    int inputIdx,
+    int outputIdx,
+    double minVoltage,
+    double maxVoltage,
+    int equilibriumSteps,
+    int simulationSteps,
+    int numOfIntervals,
+    int seed,
+    const std::string& cfg,
+    const std::string& acceptorCfg,
+    const std::string& donorCfg,
+    const std::string& electrodeCfg,
+    const std::string& saveFolder,
+    const std::string& fileName
+) {
+    if (saveFolder.empty()) {
+        throw std::invalid_argument("singleStatebatch: Save folder not found");
+    }
+    std::string file = saveFolder + "/" + fileName + ".npz";
+
+    int femResolution = 1e5;
+    int numOfElectrodes = 8;
+
+    std::vector<double> outputs(batchSize*numOfPoints, 0.0);
+    std::vector<size_t> outputShape = {static_cast<size_t>(batchSize), static_cast<size_t>(numOfPoints)}; 
+
+    double range = maxVoltage - minVoltage;
+    double vStep = range / (numOfPoints - 1);
+
+    //std::vector<double> mins = {-1.5, -1.5, -1.5, -1.5, -1.5, -1.5, -1.5, -1.5};
+    //std::vector<double> maxs = {1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5};
+    std::vector<double> mins(8, 0.0);
+    std::vector<double> maxs(8, 0.0);
+    std::vector<std::vector<double>> voltageSample = scaledLHC(
+        batchSize,
+        numOfElectrodes,
+        mins,
+        maxs            
+    );
+
+    #pragma omp parallel
+    {   
+        #pragma omp for
+        for (int _batch = 0; _batch < batchSize; ++_batch) {
+
+            int threadID = omp_get_thread_num();
+
+            for (int _c = 0; _c < numOfCurves; ++_c) {
+
+                setRandomSeed(seed + _batch * numOfCurves + _c);
+
+                Configuration config(
+                    cfg, 
+                    acceptorCfg, 
+                    donorCfg, 
+                    electrodeCfg, 
+                    false
+                );                
+
+                FiniteElementeCircle fem(config.radius, femResolution);
+                State state(config, fem);
+                KMCSimulator kmc(state);
+
+                std::vector<double> newBoundaries(numOfElectrodes, 0.0);
+                for (int i = 0; i < numOfElectrodes; ++i) {
+                    newBoundaries[i] = voltageSample[_batch][i];
+                }
+                newBoundaries[outputIdx] = 0.0; 
+                for (int _v = 0; _v < numOfPoints; _v++) {
+
+                    newBoundaries[inputIdx] = minVoltage + _v*vStep;
+                    state.updateBoundaries(newBoundaries, fem);
+
+                    double averagedCurrent = calculateCurrent(
+                        state,
+                        kmc,
+                        outputIdx,
+                        equilibriumSteps,
+                        simulationSteps,
+                        numOfIntervals
+                    );
+
+                    outputs[_batch*numOfPoints + _v] += averagedCurrent / static_cast<double>(numOfCurves);
+                }
+            }
+        }
+    }
+    
+    cnpy::npz_save(file, "out", outputs.data(), outputShape, "w");
+}
+
+
+    if (firstCommand == "batchRun") {
+
+        boost::program_options::options_description options("Batch run options");
+        options.add_options()
+            ("batchSize", boost::program_options::value<int>()->required())
+            ("numOfPoints", boost::program_options::value<int>()->default_value(100))
+            ("numOfCurves", boost::program_options::value<int>()->required())
+            ("inputIdx", boost::program_options::value<int>()->required())
+            ("outputIdx", boost::program_options::value<int>()->required())
+            ("minVoltage", boost::program_options::value<double>()->required())
+            ("maxVoltage", boost::program_options::value<double>()->required())
+            ("equilibriumSteps", boost::program_options::value<int>()->default_value(1e4))
+            ("simulationSteps", boost::program_options::value<int>()->required())
+            ("numOfIntervals", boost::program_options::value<int>()->default_value(100))
+            ("seed", boost::program_options::value<int>()->required())
+            ("cfg", boost::program_options::value<std::string>()->required())
+            ("acceptorCfg", boost::program_options::value<std::string>()->required())
+            ("donorCfg", boost::program_options::value<std::string>()->required())
+            ("electrodeCfg", boost::program_options::value<std::string>()->required())
+            ("saveFolder", boost::program_options::value<std::string>()->required())        
+            ("fileName", boost::program_options::value<std::string>()->required())
+        ;
+        
+        boost::program_options::variables_map vm;
+        boost::program_options::store(
+            boost::program_options::command_line_parser(
+                remainingCommand).options(options).run(),
+                vm);
+        boost::program_options::notify(vm);
+
+        batchOfIVCurves(
+            vm["batchSize"].as<int>(),
+            vm["numOfPoints"].as<int>(),
+            vm["numOfCurves"].as<int>(),
+            vm["inputIdx"].as<int>(),
+            vm["outputIdx"].as<int>(),
+            vm["minVoltage"].as<double>(),
+            vm["maxVoltage"].as<double>(),
+            vm["equilibriumSteps"].as<int>(),
+            vm["simulationSteps"].as<int>(),
+            vm["numOfIntervals"].as<int>(),
+            vm["seed"].as<int>(),
+            vm["cfg"].as<std::string>(),
+            vm["acceptorCfg"].as<std::string>(),
+            vm["donorCfg"].as<std::string>(),
+            vm["electrodeCfg"].as<std::string>(),
+            vm["saveFolder"].as<std::string>(),
+            vm["fileName"].as<std::string>()
+        );
+
+        return 1;
+    }
+
+    if (firstCommand == "singleCurve") {
+
+        boost::program_options::options_description options("Find control voltages options");
+        options.add_options()
+            ("numOfPoints", boost::program_options::value<int>()->required())
+            ("numOfSamples", boost::program_options::value<int>()->required())
+            ("inputIdx", boost::program_options::value<int>()->required())
+            ("outputIdx", boost::program_options::value<int>()->required())
+            ("minVoltage", boost::program_options::value<double>()->default_value(-1.5))
+            ("maxVoltage", boost::program_options::value<double>()->default_value(1.5))
+            ("eqSteps", boost::program_options::value<int>()->default_value(1e4))
+            ("simSteps", boost::program_options::value<int>()->required())
+            ("numIntervals", boost::program_options::value<int>()->default_value(100))
+            ("seed", boost::program_options::value<int>()->default_value(64))
+            ("cfg", boost::program_options::value<std::string>()->required())
+            ("accCfg", boost::program_options::value<std::string>()->required())
+            ("donCfg", boost::program_options::value<std::string>()->required())
+            ("eleCfg", boost::program_options::value<std::string>()->required())
+            ("saveFolder", boost::program_options::value<std::string>()->required())
+            ("fileName", boost::program_options::value<std::string>()->required())
+            ("c_v", boost::program_options::value<std::vector<std::string>>()->composing(), "electrode index=value")
+        ;
+
+        boost::program_options::variables_map vm;
+        boost::program_options::store(
+            boost::program_options::command_line_parser(
+                remainingCommand).options(options).run(),
+                vm);
+        boost::program_options::notify(vm);
+        
+        std::vector<double> voltages(8, 0.0);
+        if (vm.count("c_v")) {
+            for (auto &s : vm["c_v"].as<std::vector<std::string>>()) {
+                auto eq = s.find('=');
+                int idx = std::stoi(s.substr(0, eq));
+                double v = std::stod(s.substr(eq+1));
+                voltages[idx] = v;
+            }
+        }
+
+        voltages[vm["inputIdx"].as<int>()] = 0.0;
+        voltages[vm["outputIdx"].as<int>()] = 0.0;  
+        std::cout << vm["cfg"].as<std::string>() << "\n";
+        singleIVCurve(
+            vm["numOfPoints"].as<int>(),
+            vm["numOfSamples"].as<int>(),
+            vm["inputIdx"].as<int>(),
+            vm["outputIdx"].as<int>(),
+            vm["minVoltage"].as<double>(),
+            vm["maxVoltage"].as<double>(),
+            vm["eqSteps"].as<int>(),
+            vm["simSteps"].as<int>(),
+            vm["numIntervals"].as<int>(),
+            vm["seed"].as<int>(),
+            voltages,
+            vm["cfg"].as<std::string>(),
+            vm["accCfg"].as<std::string>(),
+            vm["donCfg"].as<std::string>(),
+            vm["eleCfg"].as<std::string>(),
+            vm["saveFolder"].as<std::string>(),
+            vm["fileName"].as<std::string>()
+        );
+
+        return 1;
+
+    }
+
+    State& State::operator=(State const& other) {
+    if (this == &other) return *this;
+
+    acceptorCoordinates = other.acceptorCoordinates;
+    donorCoordinates = other.donorCoordinates;
+    electrodeCoordinates = other.electrodeCoordinates;
+    nAcceptors = other.nAcceptors;
+    nDonors = other.nDonors;
+    nElectrodes = other.nElectrodes;
+    numOfSites = other.numOfSites;
+    radius = other.radius;
+    nu0 = other.nu0;
+    a = other.a;
+    T = other.T;
+    kbT = other.kbT;
+    energyDisorder = other.energyDisorder;
+    R = other.R;
+    A0 = other.A0;
+    electrodeWidth = other.electrodeWidth;
+    minHopDistance = other.minHopDistance;
+    maxHopDistance = other.maxHopDistance;
+    electrodeData = other.electrodeData;
+
+    distanceMatrix = other.distanceMatrix;
+    inverseAcceptorDistances = other.inverseAcceptorDistances;
+    currentOccupation = other.currentOccupation;
+    initialOccupation = other.initialOccupation;
+    randomEnergies = other.randomEnergies;
+    acceptorDonorInteraction = other.acceptorDonorInteraction;
+    acceptorInteraction = other.acceptorInteraction;
+    initialSiteEnergies = other.initialSiteEnergies;
+    initialPotential = other.initialPotential;
+    currentPotential = other.currentPotential;
+    siteEnergies = other.siteEnergies;
+    eventCounter = other.eventCounter;
+    jaggedArrayLengths = other.jaggedArrayLengths;
+    neighbourIndices = other.neighbourIndices;
+    numOfNeighbours = other.numOfNeighbours;
+    totalNumOfEvents = other.totalNumOfEvents;
+    stateTime = other.stateTime;
+    femRes = other.femRes;
+
+    return *this;
+}

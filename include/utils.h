@@ -122,7 +122,7 @@ void batchOfIVCurves(
     double maxVoltage,
     int equilibriumSteps,
     int simulationSteps,
-    int numOfIntervals,
+    int numOfTasks,
     int seed,
     const std::string& cfg,
     const std::string& acceptorCfg,
@@ -133,10 +133,11 @@ void batchOfIVCurves(
 );
 
 double singleIVPoint(
-    State& state,
+    State& initState,
+    int outputIdx,
     int numOfTasks,
-    int eqSteps,
     int simSteps,
+    int femRes,
     std::vector<double> voltages
 );
 

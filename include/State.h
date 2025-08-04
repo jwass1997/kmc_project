@@ -3,8 +3,10 @@
 #include <vector>
 #include <string>
 #include <cmath>
+#include <memory>
 
 #include "utils.h"
+#include "mfem.hpp"
 
 class Configuration;
 class FiniteElementeCircle;
@@ -17,17 +19,13 @@ class State {
 
         State(State const& other);
 
-        State& oeprator=(State const& other);
-
-        State(Configuration& config, FiniteElementeCircle& fem);
-        
-        void initRandomState();
+        State(Configuration& config);
 
         void initContainers();
 
-        void initPotential(FiniteElementeCircle& femSolver);
+        void initPotential();
 
-        void initSiteEnergies(FiniteElementeCircle& femSolver);
+        void initSiteEnergies();
 
         void initOccupiedSites();
 
@@ -35,17 +33,15 @@ class State {
 
         void updateSiteOccupation(std::vector<int> lastHopIndices);
 
-        void updateBoundaries(std::vector<double> boundaryValues, FiniteElementeCircle& fem);
+        void updateBoundaries(std::vector<double> boundaryValues);
+
+        mfem::GridFunction getSolutionVector() const;
 
         void increaseStateTime(double rate);
 
         void resetEventCounter();
 
         void resetState();
-
-        void updatePotential(FiniteElementeCircle& fem);
-
-        void resetPotential(FiniteElementeCircle& fem);
 
         int nAcceptors;
 
@@ -113,4 +109,8 @@ class State {
         int totalNumOfEvents;
 
         std::vector<int> eventCounter;
+
+        int femRes;
+
+        std::unique_ptr<FiniteElementeCircle> femSolver;
 };

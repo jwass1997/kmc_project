@@ -42,6 +42,8 @@ class Configuration {
 
         bool noDimension = true;
 
+        int femRes;
+
         std::vector<int> occupiedSites;
 
         std::vector<double> acceptorCoords;
