@@ -324,6 +324,7 @@ void batchOfIVPoints(
             int threadSeed = threadID * 100000 + threadBaseSeed + ivPoint;
             setRandomSeed(threadSeed);
             std::vector<double> voltages =  samples[ivPoint];
+            voltages[outputIdx] = 0.0;
             
             double averagedCurrent = singleIVPoint(
                 equilState,
