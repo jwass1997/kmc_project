@@ -155,7 +155,7 @@ if __name__ == "__main__":
     #control_volts = [1.0, 0, 0, -1.0, 0, 0]
     control_indices = [2, 3, 4, 5, 6, 7]
 
-    """ slurm_single_IV(
+    slurm_single_IV(
         numOfPoints=50,
         inputIdx=0,
         outputIdx=1,
@@ -168,18 +168,18 @@ if __name__ == "__main__":
         num_intervals=100,
         seed=1200031,
         cfg="configs/config.txt",
-        acc_cfg="configs/acceptor_normal.txt",
+        acc_cfg="configs/acceptors.txt",
         don_cfg="configs/donors.txt",
         ele_cfg="configs/electrodes.txt",
         save_folder="test_folder",
-        file_name="test_file_50",
+        file_name="test_file_6969",
         ROOT=ROOT,
         WS_DIR=WS_DIR,
         BINARY=BINARY,
         SH_SCRIPT=SH_SCRIPT
-    ) """
+    )
 
-    slurm_single_batch(
+    """ slurm_single_batch(
         batch_size=1000,
         min_V=-1.5,
         max_V=1.5,
@@ -200,4 +200,4 @@ if __name__ == "__main__":
         WS_DIR = WS_DIR,
         BINARY = BINARY,
         SH_SCRIPT = str(ROOT / "scripts" / "slurm" / "batch_script.sh")
-    )
+    ) """
