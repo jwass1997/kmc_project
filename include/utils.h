@@ -92,9 +92,16 @@ void singleRun(
     const std::string& saveFolderPath
 );
 
+double singleIVPoint(
+    State& initState,
+    int outputIdx,
+    int numOfTasks,
+    int simSteps,
+    std::vector<double> voltages
+);
+
 void singleIVCurve(
     int numOfPoints,
-    int numOfSamples,
     int inputIdx,
     int outputIdx,
     double minVoltage,
@@ -112,33 +119,23 @@ void singleIVCurve(
     const std::string& fileName
 );
 
-void batchOfIVCurves(
+void batchOfIVPoints(
     int batchSize,
-    int numOfPoints,
-    int numOfCurves,
-    int inputIdx,
-    int outputIdx,
     double minVoltage,
     double maxVoltage,
-    int equilibriumSteps,
-    int simulationSteps,
+    int inputIdx,
+    int outputIdx,
+    int eqSteps,
+    int simSteps,
     int numOfTasks,
-    int seed,
+    int LHCSeed,
+    int threadBaseSeed,
     const std::string& cfg,
-    const std::string& acceptorCfg,
-    const std::string& donorCfg,
-    const std::string& electrodeCfg,
+    const std::string& accCfg,
+    const std::string& donCfg,
+    const std::string& eleCfg,
     const std::string& saveFolder,
     const std::string& fileName
-);
-
-double singleIVPoint(
-    State& initState,
-    int outputIdx,
-    int numOfTasks,
-    int simSteps,
-    int femRes,
-    std::vector<double> voltages
 );
 
 int argParser(int argc, char* argv[]);

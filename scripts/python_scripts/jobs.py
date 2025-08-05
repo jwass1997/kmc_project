@@ -7,7 +7,6 @@ from pathlib import Path
 
 def slurm_single_IV(
         numOfPoints,
-        numOfSamples,
         inputIdx,
         outputIdx,
         control_indices,
@@ -55,7 +54,6 @@ def slurm_single_IV(
         f"{str(BINARY)}",
         f"singleCurve",
         f"--numOfPoints={numOfPoints}",
-        f"--numOfSamples={numOfSamples}",
         f"--inputIdx={inputIdx}",
         f"--outputIdx={outputIdx}",
         f"--minVoltage={minVoltage}",
@@ -83,24 +81,25 @@ def slurm_single_IV(
 
 def slurm_single_batch(
         batch_size,
-        numOfPoints,
-        numOfSamples,
-        inputIdx,
-        outputIdx,
-        control_indices,
-        control_volts,
-        minVoltage,
-        maxVoltage,
+        min_V,
+        max_V,
+        input_idx,
+        output_idx,
         eq_steps,
         sim_steps,
-        num_intervals,
-        seed,
+        num_of_tasks,
+        LHCSeed,
+        threadBaseSeed,
         cfg,
         acc_cfg,
         don_cfg,
         ele_cfg,
         save_folder,
-        file_name
+        file_name,
+        ROOT,
+        WS_DIR,
+        BINARY,
+        SH_SCRIPT
 ):
     CFG_DIR = Path(ROOT) / f"{cfg}"
     ACC_DIR = Path(ROOT) / f"{acc_cfg}"
@@ -118,18 +117,17 @@ def slurm_single_batch(
         f"--output={output_file_name}",
         str(SH_SCRIPT),
         str(BINARY),
-        "batchRun",
+        "batch",
         f"--batchSize={batch_size}",
-        f"--numOfPoints={numOfPoints}",
-        f"--numOfSamples={numOfSamples}",
-        f"--inputIdx={inputIdx}",
-        f"--outputIdx={outputIdx}",
-        f"--minVoltage={minVoltage}",
-        f"--maxVoltage={maxVoltage}",
+        f"--minVoltage={min_V}",
+        f"--maxVoltage={max_V}",
+        f"--inputIdx={input_idx}",
+        f"--outputIdx={output_idx}",
         f"--eqSteps={eq_steps}",
         f"--simSteps={sim_steps}",
-        f"--numIntervals={num_intervals}",
-        f"--seed={seed}",
+        f"--numOfTasks={num_of_tasks}",
+        f"--LHCSeed={LHCSeed}",
+        f"--threadBaseSeed={threadBaseSeed}",
         f"--cfg={str(CFG_DIR)}",
         f"--accCfg={str(ACC_DIR)}",
         f"--donCfg={str(DON_DIR)}",
@@ -137,6 +135,13 @@ def slurm_single_batch(
         f"--saveFolder={str(DATA_DIR)}",
         f"--fileName={file_name}"
     ]
+
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    print("Running command:", " ".join(cmd))
+    if result.returncode != 0:
+        print("sbatch failed with stderr:\n", result.stderr)
+    else:
+        print("sbatch submission output:\n", result.stdout)
 
 if __name__ == "__main__":
 
@@ -146,13 +151,12 @@ if __name__ == "__main__":
     BINARY = ROOT / "build" / "kmc_project"
     SH_SCRIPT = ROOT / "scripts" / "slurm" / "single_curve.sh"
 
-    #control_volts = [-100.5, 100.7, 110.2, -100.9, -110.0, 110.0]
-    control_volts = [0, 0, 0, 0, 0, 0]
+    control_volts = [0.5, 1.3, 1.2, -0.9, -0.1, 1.0]
+    #control_volts = [1.0, 0, 0, -1.0, 0, 0]
     control_indices = [2, 3, 4, 5, 6, 7]
 
-    slurm_single_IV(
-        numOfPoints=100,
-        numOfSamples=10,
+    """ slurm_single_IV(
+        numOfPoints=50,
         inputIdx=0,
         outputIdx=1,
         control_indices=control_indices,
@@ -160,17 +164,40 @@ if __name__ == "__main__":
         minVoltage=-1.5,
         maxVoltage=1.5,
         eq_steps=10_000,
-        sim_steps=100_000,
+        sim_steps=1_000_000,
         num_intervals=100,
         seed=1200031,
         cfg="configs/config.txt",
-        acc_cfg="configs/acceptors_1.txt",
+        acc_cfg="configs/acceptor_normal.txt",
         don_cfg="configs/donors.txt",
         ele_cfg="configs/electrodes.txt",
         save_folder="test_folder",
-        file_name="test_file_32",
+        file_name="test_file_50",
         ROOT=ROOT,
         WS_DIR=WS_DIR,
         BINARY=BINARY,
         SH_SCRIPT=SH_SCRIPT
+    ) """
+
+    slurm_single_batch(
+        batch_size=1000,
+        min_V=-1.5,
+        max_V=1.5,
+        input_idx=1,
+        output_idx=0,
+        eq_steps=10_000,
+        sim_steps=1_000_000,
+        num_of_tasks=100,
+        LHCSeed=121,
+        threadBaseSeed=97123,
+        cfg="configs/config.txt",
+        acc_cfg="configs/acceptors.txt",
+        don_cfg="configs/donors.txt",
+        ele_cfg="configs/electrodes.txt",
+        save_folder="test_batch",
+        file_name="batch_0",
+        ROOT=ROOT,
+        WS_DIR = WS_DIR,
+        BINARY = BINARY,
+        SH_SCRIPT = str(ROOT / "scripts" / "slurm" / "batch_script.sh")
     )

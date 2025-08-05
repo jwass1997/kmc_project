@@ -335,8 +335,8 @@ void State::updateBoundaries(std::vector<double> boundaryValues) {
     }
 
     for (int i = 0; i < numOfSites; ++i) {
-        std::cout << currentPotential[i] << "\n";
         siteEnergies[i] -= currentPotential[i];
+        //std::cout << "OLD POTENTIAL: " << currentPotential[i] << "\n";
     }
 
     for (int bdrVal = 0; bdrVal < boundaryValues.size(); ++bdrVal) {
@@ -347,11 +347,13 @@ void State::updateBoundaries(std::vector<double> boundaryValues) {
     
     for (int i = 0; i < nAcceptors; ++i) {
         currentPotential[i] = femSolver->getPotential(acceptorCoordinates[i*2], acceptorCoordinates[i*2 + 1])*e / kbT;
+        //std::cout << "NEW ACCEPTOR POTENTIAL: " << currentPotential[i] << "\n";
         siteEnergies[i] += currentPotential[i];
     }
     for (int i = 0; i < nElectrodes; ++i) {
         int idx = nAcceptors + i;
         currentPotential[idx] = femSolver->getPotential(electrodeCoordinates[i*2], electrodeCoordinates[i*2 + 1])*e / kbT;
+        //std::cout << "NEW ELECTRODE POTENTIAL: " << currentPotential[idx] << "\n";
         siteEnergies[idx] += currentPotential[idx]; 
     }
     //std::cout << "Leaving updateBoundaries" << "\n";

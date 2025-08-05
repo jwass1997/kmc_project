@@ -12,7 +12,7 @@
 #include "Random.h"
 
 int main(int argc, char* argv[]) {
-    //argParser(argc, argv);
+    argParser(argc, argv);
 
     /* std::string cfg = "/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/configs/config.txt";
     std::string acc = "/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/configs/acceptors.txt";

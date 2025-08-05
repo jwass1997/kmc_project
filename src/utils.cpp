@@ -139,10 +139,11 @@ double singleIVPoint(
     int outputIdx,
     int numOfTasks,
     int simSteps,
-    int femRes,
     std::vector<double> voltages
 ) {
-    State equilState(initState); 
+    State equilState(initState);
+    equilState.updateBoundaries(voltages);
+
     KMCSimulator kmc(equilState);
 
     equilState.resetEventCounter();
@@ -215,8 +216,6 @@ void singleIVCurve(
     controlData[inputIdx] = -999.999;
     controlData[outputIdx] = -999.999;
 
-    int femRes = 100000;
-
     double range = maxVoltage - minVoltage;
     double vStep = range / static_cast<double>(numOfPoints);
 
@@ -241,23 +240,113 @@ void singleIVCurve(
         for (int v = 0; v < numOfPoints; ++v) {
             
             std::vector<double> voltages(controlVoltages.size(), 0.0);
+            for (int k = 0; k < voltages.size(); ++k) {
+                voltages[k] = controlVoltages[k];
+                //std::cout << "VOLTAGE " << k << " " << voltages[k] << "\n";
+            }
             voltages[outputIdx] = 0.0;
             voltages[inputIdx] = minVoltage + v*vStep;
-            singleIVPoint(
-                state,
+            double currentOutput = singleIVPoint(
+                state, 
+                outputIdx, 
+                numOfTasks, 
+                simSteps, 
+                voltages
+            );
+
+            currentData[v] = currentOutput;
+        }
+    }
+
+    cnpy::npz_save(file, "current", currentData.data(), currentDataShape, "w");
+}
+
+void batchOfIVPoints(
+    int batchSize,
+    double minVoltage,
+    double maxVoltage,
+    int inputIdx,
+    int outputIdx,
+    int eqSteps,
+    int simSteps,
+    int numOfTasks,
+    int LHCSeed,
+    int threadBaseSeed,
+    const std::string& cfg,
+    const std::string& accCfg,
+    const std::string& donCfg,
+    const std::string& eleCfg,
+    const std::string& saveFolder,
+    const std::string& fileName
+) {
+    if (saveFolder.empty()) {
+        throw std::invalid_argument("singleIVCurve(): Save folder not found");
+    }
+
+    std::string file = saveFolder + "/" + fileName + ".npz";
+    
+    std::vector<double> currentData(batchSize, 0.0);
+    std::vector<size_t> currentDataShape = {static_cast<size_t>(batchSize)};
+
+    std::vector<double> inputData(batchSize*8, 0.0);
+    std::vector<size_t> inputDataShape = {static_cast<size_t>(batchSize), 8};
+
+    std::vector<double> mins(8, minVoltage);
+    std::vector<double> maxs(8, maxVoltage);
+    std::vector<std::vector<double>> samples = scaledLHC(
+        batchSize,
+        8,
+        mins,
+        maxs,
+        LHCSeed 
+    );
+
+    Configuration config(
+        cfg, 
+        accCfg, 
+        donCfg, 
+        eleCfg, 
+        false
+    );
+    State equilState(config);
+    KMCSimulator kmc(equilState);
+    kmc.simulate(equilState, eqSteps, false, false);
+    equilState.resetEventCounter();
+    equilState.stateTime = 0.0;
+
+    #pragma omp parallel
+    {
+        int threadID = omp_get_thread_num();
+
+        #pragma omp for
+        for (int ivPoint = 0; ivPoint < batchSize; ++ivPoint) {
+
+            int threadSeed = threadID * 100000 + threadBaseSeed + ivPoint;
+            setRandomSeed(threadSeed);
+            std::vector<double> voltages =  samples[ivPoint];
+            
+            double averagedCurrent = singleIVPoint(
+                equilState,
                 outputIdx,
                 numOfTasks,
                 simSteps,
-                femRes,
-                voltages        
+                voltages
             );
+
+            currentData[ivPoint] = averagedCurrent;
+            for (int k = 0; k < 8; ++k) {
+                inputData[k + ivPoint*8] = voltages[k];
+            }
         }
     }
+
+    cnpy::npz_save(file, "inputIdx", &inputIdx, {1}, "w");
+    cnpy::npz_save(file, "outputIdx", &outputIdx, {1}, "a");
+    cnpy::npz_save(file, "currents", currentData.data(), currentDataShape, "a");
+    cnpy::npz_save(file, "inputs", inputData.data(), inputDataShape, "a");
 }
 
 int argParser(int argc, char* argv[]) {
-
-    std::cout << "Hello argParser!" << "\n";
 
     boost::program_options::options_description globalOptions(" ");
 
@@ -319,6 +408,121 @@ int argParser(int argc, char* argv[]) {
             vm["donorCfg"].as<std::string>(),
             vm["electrodeCfg"].as<std::string>(),
             vm["save_path"].as<std::string>()
+        );
+
+        return 1;
+    }
+
+    if (firstCommand == "singleCurve") {
+
+        boost::program_options::options_description options("Find control voltages options");
+        options.add_options()
+            ("numOfPoints", boost::program_options::value<int>()->required())
+            ("inputIdx", boost::program_options::value<int>()->required())
+            ("outputIdx", boost::program_options::value<int>()->required())
+            ("minVoltage", boost::program_options::value<double>()->default_value(-1.5))
+            ("maxVoltage", boost::program_options::value<double>()->default_value(1.5))
+            ("eqSteps", boost::program_options::value<int>()->default_value(1e4))
+            ("simSteps", boost::program_options::value<int>()->required())
+            ("numIntervals", boost::program_options::value<int>()->default_value(100))
+            ("seed", boost::program_options::value<int>()->default_value(64))
+            ("cfg", boost::program_options::value<std::string>()->required())
+            ("accCfg", boost::program_options::value<std::string>()->required())
+            ("donCfg", boost::program_options::value<std::string>()->required())
+            ("eleCfg", boost::program_options::value<std::string>()->required())
+            ("saveFolder", boost::program_options::value<std::string>()->required())
+            ("fileName", boost::program_options::value<std::string>()->required())
+            ("c_v", boost::program_options::value<std::vector<std::string>>()->composing(), "electrode index=value")
+        ;
+
+        boost::program_options::variables_map vm;
+        boost::program_options::store(
+            boost::program_options::command_line_parser(
+                remainingCommand).options(options).run(),
+                vm);
+        boost::program_options::notify(vm);
+        
+        std::vector<double> voltages(8, 0.0);
+        if (vm.count("c_v")) {
+            for (auto &s : vm["c_v"].as<std::vector<std::string>>()) {
+                auto eq = s.find('=');
+                int idx = std::stoi(s.substr(0, eq));
+                double v = std::stod(s.substr(eq+1));
+                voltages[idx] = v;
+            }
+        }
+
+        voltages[vm["inputIdx"].as<int>()] = 0.0;
+        voltages[vm["outputIdx"].as<int>()] = 0.0;  
+        std::cout << vm["cfg"].as<std::string>() << "\n";
+        singleIVCurve(
+            vm["numOfPoints"].as<int>(),
+            vm["inputIdx"].as<int>(),
+            vm["outputIdx"].as<int>(),
+            vm["minVoltage"].as<double>(),
+            vm["maxVoltage"].as<double>(),
+            vm["eqSteps"].as<int>(),
+            vm["simSteps"].as<int>(),
+            vm["numIntervals"].as<int>(),
+            vm["seed"].as<int>(),
+            voltages,
+            vm["cfg"].as<std::string>(),
+            vm["accCfg"].as<std::string>(),
+            vm["donCfg"].as<std::string>(),
+            vm["eleCfg"].as<std::string>(),
+            vm["saveFolder"].as<std::string>(),
+            vm["fileName"].as<std::string>()
+        );
+
+        return 1;
+    }
+
+    if (firstCommand == "batch") {
+
+        boost::program_options::options_description options("Batch run options");
+        options.add_options()
+            ("batchSize", boost::program_options::value<int>()->required())
+            ("minVoltage", boost::program_options::value<double>()->required())
+            ("maxVoltage", boost::program_options::value<double>()->required())
+            ("inputIdx", boost::program_options::value<int>()->required())
+            ("outputIdx", boost::program_options::value<int>()->required())
+            ("eqSteps", boost::program_options::value<int>()->default_value(1e4))
+            ("simSteps", boost::program_options::value<int>()->required())
+            ("numOfTasks", boost::program_options::value<int>()->default_value(100))
+            ("LHCSeed", boost::program_options::value<int>()->required())
+            ("threadBaseSeed", boost::program_options::value<int>()->required())
+            ("cfg", boost::program_options::value<std::string>()->required())
+            ("accCfg", boost::program_options::value<std::string>()->required())
+            ("donCfg", boost::program_options::value<std::string>()->required())
+            ("eleCfg", boost::program_options::value<std::string>()->required())
+            ("saveFolder", boost::program_options::value<std::string>()->required())        
+            ("fileName", boost::program_options::value<std::string>()->required())
+        ;
+        
+        boost::program_options::variables_map vm;
+        boost::program_options::store(
+            boost::program_options::command_line_parser(
+                remainingCommand).options(options).run(),
+                vm);
+        boost::program_options::notify(vm);
+
+        batchOfIVPoints(
+            vm["batchSize"].as<int>(),
+            vm["minVoltage"].as<double>(),
+            vm["maxVoltage"].as<double>(),
+            vm["inputIdx"].as<int>(),
+            vm["outputIdx"].as<int>(),
+            vm["eqSteps"].as<int>(),
+            vm["simSteps"].as<int>(),
+            vm["numOfTasks"].as<int>(),
+            vm["LHCSeed"].as<int>(),
+            vm["threadBaseSeed"].as<int>(),
+            vm["cfg"].as<std::string>(),
+            vm["accCfg"].as<std::string>(),
+            vm["donCfg"].as<std::string>(),
+            vm["eleCfg"].as<std::string>(),
+            vm["saveFolder"].as<std::string>(),
+            vm["fileName"].as<std::string>()
         );
 
         return 1;
