@@ -151,7 +151,7 @@ if __name__ == "__main__":
     BINARY = ROOT / "build" / "kmc_project"
     SH_SCRIPT = ROOT / "scripts" / "slurm" / "single_curve.sh"
 
-    control_volts = [0.5, 1.3, 1.2, -0.9, -0.1, 1.0]
+    control_volts = [0.5, -1.3, 0.7, -0.1, 0.8, 1.2]
     #control_volts = [1.0, 0, 0, -1.0, 0, 0]
     control_indices = [2, 3, 4, 5, 6, 7]
 
@@ -166,13 +166,13 @@ if __name__ == "__main__":
         eq_steps=10_000,
         sim_steps=1_000_000,
         num_intervals=100,
-        seed=1200031,
+        seed=13145,
         cfg="configs/config.txt",
-        acc_cfg="configs/acceptors.txt",
+        acc_cfg="configs/acc_0.txt",
         don_cfg="configs/donors.txt",
         ele_cfg="configs/electrodes.txt",
         save_folder="test_folder",
-        file_name="test_file_6969",
+        file_name="acc_0_steps=1e6_seed=13145",
         ROOT=ROOT,
         WS_DIR=WS_DIR,
         BINARY=BINARY,
@@ -188,14 +188,14 @@ if __name__ == "__main__":
         eq_steps=10_000,
         sim_steps=1_000_000,
         num_of_tasks=100,
-        LHCSeed=214124,
-        threadBaseSeed=643631,
+        LHCSeed=5342,
+        threadBaseSeed=123,
         cfg="configs/config.txt",
         acc_cfg="configs/acceptors.txt",
         don_cfg="configs/donors.txt",
         ele_cfg="configs/electrodes.txt",
         save_folder="test_batch",
-        file_name="batch_steps=1e6_1",
+        file_name="batch_steps=1e6_4",
         ROOT=ROOT,
         WS_DIR = WS_DIR,
         BINARY = BINARY,

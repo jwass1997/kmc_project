@@ -259,6 +259,7 @@ void singleIVCurve(
     }
 
     cnpy::npz_save(file, "current", currentData.data(), currentDataShape, "w");
+    cnpy::npz_save(file, "control", controlData.data(), controlDataShape, "a");
 }
 
 void batchOfIVPoints(
