@@ -119,16 +119,30 @@ if __name__ == "__main__":
 
     X_train, X_test, y_train, y_test = train_test_split(inputs, outputs, test_size=0.2, random_state=42, shuffle=True)
 
-    train_set = MakeDataset(X_train, y_train)
-    test_set = MakeDataset(X_test, y_test)
+    eps = 1e-8
+
+    X_train_mean = X_train.mean(0)
+    X_train_std = X_train.std(0) + eps
+
+    y_train_mean = y_train.mean(0)
+    y_train_std = y_train.std(0) + eps
+
+    X_train_norm = (X_train - X_train_mean) / X_train_std
+    X_test_norm = (X_test - X_train_mean) / X_train_std
+
+    y_train_norm = (y_train - y_train_mean) / y_train_std
+    y_test_norm = (y_test - y_train_mean) / y_train_std
+
+    train_set = MakeDataset(X_train_norm, y_train_norm)
+    test_set = MakeDataset(X_test_norm, y_test_norm)
 
     batch_size = 128
 
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True,  num_workers=4)
     test_loader  = DataLoader(test_set,  batch_size=batch_size, shuffle=False, num_workers=4)
 
-    learning_rate = 1e-5
-    num_epochs = 3000
+    learning_rate = 1e-4
+    num_epochs = 2000
 
     model = NeuralNet(in_features=8, out_features=1, hidden_dim=90, num_layers=5).to(device)
     criterion = nn.MSELoss()
