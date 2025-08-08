@@ -2,9 +2,9 @@
 #SBATCH --partition=gpu-single
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=20
-#SBATCH --gres=gpu:A40:1
-#SBATCH --time=1:00:00
-#SBATCH --mem=16G
+#SBATCH --gres=gpu:A40:2
+#SBATCH --time=5:00:00
+#SBATCH --mem=64gb
 module load devel/cuda
 export OMP_NUM_THREADS=${SLURM_NTASKS}
 

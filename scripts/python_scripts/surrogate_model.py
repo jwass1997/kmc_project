@@ -98,30 +98,24 @@ class NeuralNet(nn.Module):
     
 if __name__ == "__main__":
 
-    data_0 = np.load(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/test_batch/batch_steps=1e6_0.npz")
-    data_1 = np.load(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/test_batch/batch_steps=1e6_1.npz")
-    data_2 = np.load(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/test_batch/batch_steps=1e6_2.npz")
-    data_3 = np.load(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/test_batch/batch_steps=1e6_3.npz")
-    data_4 = np.load(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/test_batch/batch_steps=1e6_4.npz")
+    input_list = []
+    output_list = []
 
-    inputs_0 = data_0["inputs"]
-    inputs_1 = data_1["inputs"]
-    inputs_2 = data_2["inputs"]
-    inputs_3 = data_3["inputs"]
-    inputs_4 = data_4["inputs"]
+    num_batches = 100
+    for i in range(num_batches):
+        batch = np.load(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/sm_batches/batch_{i}.npz")
+        _input = batch["inputs"]
+        _output = batch["currents"]
+        input_list.append(_input)
+        output_list.append(_output)
 
-    outputs_0 = data_0["currents"]
-    outputs_1 = data_1["currents"]
-    outputs_2 = data_2["currents"]
-    outputs_3 = data_3["currents"]
-    outputs_4 = data_4["currents"]
-
-    raw_inputs = np.concatenate([inputs_0, inputs_1, inputs_2, inputs_3, inputs_4])
-    outputs = np.concatenate([outputs_0, outputs_1, outputs_2, outputs_3, outputs_4])
+    
+    raw_inputs = np.concatenate(input_list)
+    outputs = np.concatenate(output_list)
     inputs = raw_inputs[:, 1:]
-
-    print(f"input_shape = {inputs.shape}")
-    print(f"output_shape = {outputs.shape}")
+    print(f"raw_inputs shape: {raw_inputs.shape}")
+    print(f"outputs shape: {outputs.shape}")
+    print(f"inputs shape: {inputs.shape}")
 
     X_train, X_test, y_train, y_test = train_test_split(inputs, outputs, test_size=0.2, random_state=42, shuffle=True)
     """ train_set = MakeDataset(X_train, y_train)
@@ -143,7 +137,7 @@ if __name__ == "__main__":
     train_set = MakeDataset(X_train_norm, y_train_norm)
     test_set = MakeDataset(X_test_norm, y_test_norm)
 
-    batch_size = 128
+    batch_size = 512
 
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
     test_loader  = DataLoader(test_set,  batch_size=batch_size, shuffle=False)
@@ -196,4 +190,4 @@ if __name__ == "__main__":
             f"Val Loss: {epoch_val_loss:.10f}"
             f"   LR: {current_lr:.2e}")
     
-    torch.save(model.state_dict(), "SM_0.pth")
+    torch.save(model.state_dict(), "SM_100k_0.pth")

@@ -155,7 +155,7 @@ if __name__ == "__main__":
     #control_volts = [1.0, 0, 0, -1.0, 0, 0]
     control_indices = [2, 3, 4, 5, 6, 7]
 
-    slurm_single_IV(
+    """ slurm_single_IV(
         numOfPoints=100,
         inputIdx=0,
         outputIdx=1,
@@ -177,27 +177,30 @@ if __name__ == "__main__":
         WS_DIR=WS_DIR,
         BINARY=BINARY,
         SH_SCRIPT=SH_SCRIPT
-    )
-
-    """ slurm_single_batch(
-        batch_size=1000,
-        min_V=-1.5,
-        max_V=1.5,
-        input_idx=1,
-        output_idx=0,
-        eq_steps=10_000,
-        sim_steps=1_000_000,
-        num_of_tasks=100,
-        LHCSeed=5342,
-        threadBaseSeed=123,
-        cfg="configs/config.txt",
-        acc_cfg="configs/acceptors.txt",
-        don_cfg="configs/donors.txt",
-        ele_cfg="configs/electrodes.txt",
-        save_folder="test_batch",
-        file_name="batch_steps=1e6_4",
-        ROOT=ROOT,
-        WS_DIR = WS_DIR,
-        BINARY = BINARY,
-        SH_SCRIPT = str(ROOT / "scripts" / "slurm" / "batch_script.sh")
     ) """
+
+    num_batches = 100
+    for i in range(num_batches):
+        time.sleep(0.1)
+        slurm_single_batch(
+            batch_size=1000,
+            min_V=-1.5,
+            max_V=1.5,
+            input_idx=1,
+            output_idx=0,
+            eq_steps=10_000,
+            sim_steps=1_000_000,
+            num_of_tasks=100,
+            LHCSeed=np.random.randint(low=0, high=2**20 - 1),
+            threadBaseSeed=np.random.randint(low=0, high=2**20 - 1),
+            cfg="configs/config.txt",
+            acc_cfg="configs/acceptors.txt",
+            don_cfg="configs/donors.txt",
+            ele_cfg="configs/electrodes.txt",
+            save_folder="sm_batches",
+            file_name=f"batch_{i}",
+            ROOT=ROOT,
+            WS_DIR = WS_DIR,
+            BINARY = BINARY,
+            SH_SCRIPT = str(ROOT / "scripts" / "slurm" / "batch_script.sh")
+        )
