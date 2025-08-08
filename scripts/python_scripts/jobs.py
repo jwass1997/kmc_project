@@ -151,12 +151,12 @@ if __name__ == "__main__":
     BINARY = ROOT / "build" / "kmc_project"
     SH_SCRIPT = ROOT / "scripts" / "slurm" / "single_curve.sh"
 
-    control_volts = [0.5, -1.3, 0.7, -0.1, 0.8, 1.2]
+    control_volts = [0.0, 0.2, -0.6, -0.8, 1.5, 1.1]
     #control_volts = [1.0, 0, 0, -1.0, 0, 0]
     control_indices = [2, 3, 4, 5, 6, 7]
 
     slurm_single_IV(
-        numOfPoints=50,
+        numOfPoints=100,
         inputIdx=0,
         outputIdx=1,
         control_indices=control_indices,
@@ -166,13 +166,13 @@ if __name__ == "__main__":
         eq_steps=10_000,
         sim_steps=1_000_000,
         num_intervals=100,
-        seed=315412,
+        seed=543763,
         cfg="configs/config.txt",
         acc_cfg="configs/acceptors.txt",
         don_cfg="configs/donors.txt",
         ele_cfg="configs/electrodes.txt",
         save_folder="test_folder",
-        file_name="acceptors_seed=315412",
+        file_name="acceptors_seed=543763",
         ROOT=ROOT,
         WS_DIR=WS_DIR,
         BINARY=BINARY,

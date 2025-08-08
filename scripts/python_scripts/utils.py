@@ -29,7 +29,7 @@ def create_dopant_configuration(radius, n_a, n_d, name_a, name_d):
 
     return angles_acc, angles_don, r_acc, r_don
 
-def jiggle_configuration(angles, radii, radius, dtheta_max, radial_sigma, name):
+def jiggle_configuration(angles, radii, dtheta_max, radial_sigma, name):
 
     N = angles.size
     new_positions = np.zeros(shape=(N, 2))

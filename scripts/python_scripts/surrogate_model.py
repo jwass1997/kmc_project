@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(device)
+#print(device)
 
 class MakeDataset(Dataset):
     def __init__(self, x_data, labels=None):
@@ -53,7 +53,8 @@ class NeuralNet(nn.Module):
             in_features: int,
             out_features: int,
             hidden_dim: int,
-            num_layers: int
+            num_layers: int,
+            dropout_p: float = 0.2
     ):
         super(NeuralNet, self).__init__()
 
@@ -61,6 +62,7 @@ class NeuralNet(nn.Module):
         self.out_features = out_features
         self.hidden_dim = hidden_dim
         self.num_layers = num_layers
+        self.dropout_p    = dropout_p
 
         self.model_layers = self.build_model()
         self.model = nn.Sequential(*self.model_layers)
@@ -72,22 +74,26 @@ class NeuralNet(nn.Module):
         return out
     
     def build_model(self):
-
         layer_list = []
 
         for l in range(self.num_layers):
-
+            # Determine dims for this layer
             if l == 0:
-                layer_list += [nn.Linear(in_features=self.in_features, out_features=self.hidden_dim)]
-                layer_list += [nn.ReLU()]
-
-            if l == self.num_layers - 1:
-                layer_list += [nn.Linear(in_features=self.hidden_dim, out_features=self.out_features)]
-
+                in_dim, out_dim = self.in_features, self.hidden_dim
+            elif l == self.num_layers - 1:
+                in_dim, out_dim = self.hidden_dim, self.out_features
             else:
-                layer_list += [nn.Linear(in_features=self.hidden_dim, out_features=self.hidden_dim)]
-                layer_list += [nn.ReLU()]
-        
+                in_dim = out_dim = self.hidden_dim
+
+            # Linear
+            layer_list.append(nn.Linear(in_dim, out_dim))
+
+            # If not final layer, add BN, activation, dropout
+            if l < self.num_layers - 1:
+                layer_list.append(nn.BatchNorm1d(out_dim))
+                layer_list.append(nn.ReLU())
+                #layer_list.append(nn.Dropout(self.dropout_p))
+
         return layer_list
     
 if __name__ == "__main__":
@@ -110,17 +116,18 @@ if __name__ == "__main__":
     outputs_3 = data_3["currents"]
     outputs_4 = data_4["currents"]
 
-
-    inputs = np.concatenate([inputs_0, inputs_1, inputs_2, inputs_3, inputs_4])
+    raw_inputs = np.concatenate([inputs_0, inputs_1, inputs_2, inputs_3, inputs_4])
     outputs = np.concatenate([outputs_0, outputs_1, outputs_2, outputs_3, outputs_4])
+    inputs = raw_inputs[:, 1:]
 
     print(f"input_shape = {inputs.shape}")
     print(f"output_shape = {outputs.shape}")
 
     X_train, X_test, y_train, y_test = train_test_split(inputs, outputs, test_size=0.2, random_state=42, shuffle=True)
+    """ train_set = MakeDataset(X_train, y_train)
+    test_set = MakeDataset(X_test, y_test) """
 
     eps = 1e-8
-
     X_train_mean = X_train.mean(0)
     X_train_std = X_train.std(0) + eps
 
@@ -138,15 +145,17 @@ if __name__ == "__main__":
 
     batch_size = 128
 
-    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True,  num_workers=4)
-    test_loader  = DataLoader(test_set,  batch_size=batch_size, shuffle=False, num_workers=4)
+    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
+    test_loader  = DataLoader(test_set,  batch_size=batch_size, shuffle=False)
 
-    learning_rate = 1e-4
-    num_epochs = 2000
+    learning_rate = 1e-5
+    num_epochs = 5000
 
-    model = NeuralNet(in_features=8, out_features=1, hidden_dim=90, num_layers=5).to(device)
+    model = NeuralNet(in_features=7, out_features=1, hidden_dim=90, num_layers=7).to(device)
     criterion = nn.MSELoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
+    #scheduler = torch.optim.lr_scheduler.StepLR(optimizer=optimizer, step_size=200, gamma=0.1)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=100, T_mult=2, eta_min=1e-6)
 
     for epoch in range(1, num_epochs+1):
 
@@ -178,9 +187,13 @@ if __name__ == "__main__":
                 val_loss += loss.item() * inputs_batch.size(0)
 
         epoch_val_loss = val_loss / len(test_loader.dataset)
+        scheduler.step()
+
+        current_lr = optimizer.param_groups[0]['lr']
 
         print(f"Epoch {epoch:2d}/{num_epochs}   "
             f"Train Loss: {epoch_train_loss:.10f}   "
-            f"Val Loss: {epoch_val_loss:.10f}")
+            f"Val Loss: {epoch_val_loss:.10f}"
+            f"   LR: {current_lr:.2e}")
     
-    torch.save(model.state_dict(), "SM_num_layers=5_hd=90_0.pth")
+    torch.save(model.state_dict(), "SM_0.pth")
