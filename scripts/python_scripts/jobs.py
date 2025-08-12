@@ -151,14 +151,14 @@ if __name__ == "__main__":
     BINARY = ROOT / "build" / "kmc_project"
     SH_SCRIPT = ROOT / "scripts" / "slurm" / "single_curve.sh"
 
-    control_volts = [0.0, 0.2, -0.6, -0.8, 1.5, 1.1]
+    control_volts = [0.1, -1.2, 0.9, -0.6, -1.4, 1.5]
     #control_volts = [1.0, 0, 0, -1.0, 0, 0]
     control_indices = [2, 3, 4, 5, 6, 7]
 
-    """ slurm_single_IV(
+    slurm_single_IV(
         numOfPoints=100,
-        inputIdx=0,
-        outputIdx=1,
+        inputIdx=1,
+        outputIdx=0,
         control_indices=control_indices,
         control_volts=control_volts,
         minVoltage=-1.5,
@@ -166,30 +166,30 @@ if __name__ == "__main__":
         eq_steps=10_000,
         sim_steps=1_000_000,
         num_intervals=100,
-        seed=543763,
+        seed=64252,
         cfg="configs/config.txt",
-        acc_cfg="configs/acceptors.txt",
+        acc_cfg="configs/vonMises_beta_2.txt",
         don_cfg="configs/donors.txt",
         ele_cfg="configs/electrodes.txt",
-        save_folder="test_folder",
-        file_name="acceptors_seed=543763",
+        save_folder="example_curves",
+        file_name="vonMises_beta_2",
         ROOT=ROOT,
         WS_DIR=WS_DIR,
         BINARY=BINARY,
         SH_SCRIPT=SH_SCRIPT
-    ) """
+    )
 
-    num_batches = 100
-    for i in range(num_batches):
+    num_batches = 300
+    """ for i in range(150, num_batches):
         time.sleep(0.1)
         slurm_single_batch(
-            batch_size=1000,
+            batch_size=500,
             min_V=-1.5,
             max_V=1.5,
             input_idx=1,
             output_idx=0,
             eq_steps=10_000,
-            sim_steps=1_000_000,
+            sim_steps=10_000_000,
             num_of_tasks=100,
             LHCSeed=np.random.randint(low=0, high=2**20 - 1),
             threadBaseSeed=np.random.randint(low=0, high=2**20 - 1),
@@ -197,10 +197,10 @@ if __name__ == "__main__":
             acc_cfg="configs/acceptors.txt",
             don_cfg="configs/donors.txt",
             ele_cfg="configs/electrodes.txt",
-            save_folder="sm_batches",
-            file_name=f"batch_{i}",
+            save_folder="sm_batches_1e7",
+            file_name=f"batch_1e7_{i}",
             ROOT=ROOT,
             WS_DIR = WS_DIR,
             BINARY = BINARY,
             SH_SCRIPT = str(ROOT / "scripts" / "slurm" / "batch_script.sh")
-        )
+        ) """

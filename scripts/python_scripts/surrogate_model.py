@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-#print(device)
+print(device)
 
 class MakeDataset(Dataset):
     def __init__(self, x_data, labels=None):
@@ -101,9 +101,9 @@ if __name__ == "__main__":
     input_list = []
     output_list = []
 
-    num_batches = 100
+    num_batches = 300
     for i in range(num_batches):
-        batch = np.load(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/sm_batches/batch_{i}.npz")
+        batch = np.load(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/sm_batches_1e7/batch_1e7_{i}.npz")
         _input = batch["inputs"]
         _output = batch["currents"]
         input_list.append(_input)
@@ -137,19 +137,19 @@ if __name__ == "__main__":
     train_set = MakeDataset(X_train_norm, y_train_norm)
     test_set = MakeDataset(X_test_norm, y_test_norm)
 
-    batch_size = 512
+    batch_size = 1024
 
-    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
-    test_loader  = DataLoader(test_set,  batch_size=batch_size, shuffle=False)
+    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=10, pin_memory=True)
+    test_loader  = DataLoader(test_set,  batch_size=batch_size, shuffle=False, num_workers=10, pin_memory=True)
 
-    learning_rate = 1e-5
-    num_epochs = 5000
+    learning_rate = 1e-4
+    num_epochs = 2000
 
-    model = NeuralNet(in_features=7, out_features=1, hidden_dim=90, num_layers=7).to(device)
+    model = NeuralNet(in_features=7, out_features=1, hidden_dim=90, num_layers=10).to(device)
     criterion = nn.MSELoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     #scheduler = torch.optim.lr_scheduler.StepLR(optimizer=optimizer, step_size=200, gamma=0.1)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=100, T_mult=2, eta_min=1e-6)
+    #scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=100, T_mult=2, eta_min=1e-6)
 
     for epoch in range(1, num_epochs+1):
 
@@ -181,13 +181,13 @@ if __name__ == "__main__":
                 val_loss += loss.item() * inputs_batch.size(0)
 
         epoch_val_loss = val_loss / len(test_loader.dataset)
-        scheduler.step()
+        #scheduler.step()
 
         current_lr = optimizer.param_groups[0]['lr']
 
-        print(f"Epoch {epoch:2d}/{num_epochs}   "
-            f"Train Loss: {epoch_train_loss:.10f}   "
-            f"Val Loss: {epoch_val_loss:.10f}"
-            f"   LR: {current_lr:.2e}")
+        print(f"Epoch {epoch:2d}/{num_epochs} "
+              f"Train Loss: {epoch_train_loss:.10f}"
+              f"Val Loss: {epoch_val_loss:.10f}"
+              f"   LR: {current_lr:.2e}", flush=True)
     
-    torch.save(model.state_dict(), "SM_100k_0.pth")
+    torch.save(model.state_dict(), "SM_1e7_2_normed_data.pth")

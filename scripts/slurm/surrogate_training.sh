@@ -1,11 +1,11 @@
 #!/bin/bash
 #SBATCH --partition=gpu-single
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=20
-#SBATCH --gres=gpu:A40:2
-#SBATCH --time=5:00:00
-#SBATCH --mem=64gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=10
+#SBATCH --gres=gpu:A100:1
+#SBATCH --time=3:00:00
+#SBATCH --mem=32G
 module load devel/cuda
-export OMP_NUM_THREADS=${SLURM_NTASKS}
 
 python3 scripts/python_scripts/surrogate_model.py
