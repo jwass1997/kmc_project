@@ -278,7 +278,7 @@ Configuration::Configuration(
                     acceptorCoords.push_back(randomR*std::sin(randomPhi));
                 }
                 else {
-                    std::vector<double> coords = sample_truncated_gaussian_reject(1.0, radius);
+                    std::vector<double> coords = sample_truncated_gaussian_reject(2.0, radius);
 
                     double _r = std::sqrt(coords[0]*coords[0] + coords[1]*coords[1]);
                     double randomPhi = 2.0*M_PI*randomDouble01();

@@ -91,7 +91,7 @@ def visualizeCurrent(hopping_counts, acceptor_pos, donor_pos, total_time):
 if __name__ == "__main__":
     # Change the device name as needed.
     device = 999
-    filename = ROOT / "data" / f"device_{device}.npz"
+    filename = f"/gpfs/bwfor/work/ws/hd_gy283-my_data/data/devices/test_device.npz"
     data = np.load(filename)
 
     # Load saved arrays

@@ -279,7 +279,7 @@ if __name__ == "__main__":
         acc_cfg="configs/acceptors.txt",
         don_cfg="configs/donors.txt",
         ele_cfg="configs/electrodes.txt",
-        save_folder="data/devices",
+        save_folder="devices",
         file_name="test_device",
         ROOT=ROOT,
         WS_DIR=WS_DIR,
