@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <chrono>
+#include <cmath>
 
 #include "Configuration.h"
 #include "Random.h"
@@ -20,7 +21,9 @@ Configuration::Configuration(
     const std::string& acceptorCfg,
     const std::string& donorCfg,
     const std::string& electrodeCfg,
-    bool randomCoordinates
+    bool randomCoordinates,
+    const std::string type,
+    double epsilon
 ) {
 
     auto config = cfg;//(configPath, "config.txt");
@@ -232,22 +235,65 @@ Configuration::Configuration(
     }  
     
     else {
-        auto now = std::chrono::high_resolution_clock::now();
-        auto now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
-        setRandomSeed(static_cast<long int>(now_ns));
 
-        for (int i = 0; i < nAcceptors; ++i) {
-            double randomPhi = 2.0*M_PI*randomDouble01();
-            double randomR = radius*std::sqrt(randomDouble01());
-            acceptorCoords.push_back(randomR*std::cos(randomPhi));
-            acceptorCoords.push_back(randomR*std::sin(randomPhi));
+        if (type == "uniform") {
+
+            auto now = std::chrono::high_resolution_clock::now();
+            auto now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
+            setRandomSeed(static_cast<long int>(now_ns));
+
+            for (int i = 0; i < nAcceptors; ++i) {
+                double randomPhi = 2.0*M_PI*randomDouble01();
+                double randomR = radius*std::sqrt(randomDouble01());
+                acceptorCoords.push_back(randomR*std::cos(randomPhi));
+                acceptorCoords.push_back(randomR*std::sin(randomPhi));
+            }
+
+            for (int i = 0; i < nDonors; ++i) {
+                double randomPhi = 2.0*M_PI*randomDouble01();
+                double randomR = radius*std::sqrt(randomDouble01());
+                donorCoords.push_back(randomR*std::cos(randomPhi));
+                donorCoords.push_back(randomR*std::sin(randomPhi));
+            }
         }
 
-        for (int i = 0; i < nDonors; ++i) {
-            double randomPhi = 2.0*M_PI*randomDouble01();
-            double randomR = radius*std::sqrt(randomDouble01());
-            donorCoords.push_back(randomR*std::cos(randomPhi));
-            donorCoords.push_back(randomR*std::sin(randomPhi));
+        else if (type == "mixed") {
+
+            if (epsilon < 0.0 || epsilon > 1.0) {
+                throw std::invalid_argument("Configuration: epsilon must be in [0,1]");
+            }
+
+            auto now = std::chrono::high_resolution_clock::now();
+            auto now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
+            setRandomSeed(static_cast<long int>(now_ns)); 
+
+            for (int i = 0; i < nAcceptors; ++i) {
+                
+                double u01 = randomDouble01();
+
+                if (u01 < (1 - epsilon)) {
+                    double randomPhi = 2.0*M_PI*randomDouble01();
+                    double randomR = radius*std::sqrt(randomDouble01());
+                    acceptorCoords.push_back(randomR*std::cos(randomPhi));
+                    acceptorCoords.push_back(randomR*std::sin(randomPhi));
+                }
+                else {
+                    std::vector<double> coords = sample_truncated_gaussian_reject(1.0, radius);
+
+                    double _r = std::sqrt(coords[0]*coords[0] + coords[1]*coords[1]);
+                    double randomPhi = 2.0*M_PI*randomDouble01();
+
+                    acceptorCoords.push_back(coords[0]);
+                    acceptorCoords.push_back(coords[1]);
+                }
+            }
+
+            for (int i = 0; i < nDonors; ++i) {
+                double randomPhi = 2.0*M_PI*randomDouble01();
+                double randomR = radius*std::sqrt(randomDouble01());
+                donorCoords.push_back(randomR*std::cos(randomPhi));
+                donorCoords.push_back(randomR*std::sin(randomPhi));
+            }
         }
     }
 }

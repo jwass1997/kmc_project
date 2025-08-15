@@ -15,7 +15,10 @@ class Configuration {
             const std::string& acceptorCfg,
             const std::string& donorCfg,
             const std::string& electrodeCfg,
-            bool randomCoordinates);
+            bool randomCoordinates,
+            const std::string type,
+            double epsilon
+        );
 
         int nAcceptors;
         int nDonors;

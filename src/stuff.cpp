@@ -2164,3 +2164,15 @@ void batchOfIVCurves(
 
     return *this;
 }
+
+while (true) {
+                        double x = normalDist(0.0, 1.0);
+                        double y = normalDist(0.0, 1.0);
+
+                        if (std::sqrt(x*x + y*y) <= radius) {
+                            double randomPhi = 2.0*M_PI*randomDouble01();
+                            acceptorCoords.push_back(radius*std::cos(randomPhi));
+                            acceptorCoords.push_back(radius*std::sin(randomPhi));
+                            break;
+                        }
+                    }

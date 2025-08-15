@@ -1,5 +1,6 @@
 #pragma once
 #include <random>
+#include <vector>
 
 enum RNG_TYPE {
     MT,
@@ -20,3 +21,5 @@ double randomDouble01();
 int randomInt(int low, int high);
 
 double normalDist(double mean, double stdDev);
+
+std::vector<double> sample_truncated_gaussian_reject(double sigma, double R);

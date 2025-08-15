@@ -5,6 +5,68 @@ import subprocess
 
 from pathlib import Path
 
+def slurm_single_device(
+        control_indices,
+        control_volts,
+        eq_steps,
+        sim_steps,
+        seed,
+        cfg,
+        acc_cfg,
+        don_cfg,
+        ele_cfg,
+        save_folder,
+        file_name,
+        ROOT,
+        WS_DIR,
+        BINARY,
+        SH_SCRIPT
+):
+    CFG_DIR = ROOT / f"{cfg}"
+    ACC_DIR = ROOT / f"{acc_cfg}"
+    DON_DIR = ROOT / f"{don_cfg}"
+    ELE_DIR = ROOT / f"{ele_cfg}"
+    DATA_DIR = Path(WS_DIR) / f"{save_folder}"
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+    SLURM_OUT_DIR = ROOT / "slurm_out"
+    SLURM_OUT_DIR.mkdir(parents=True, exist_ok=True)
+    output_file_name = SLURM_OUT_DIR / f"{file_name}.out"
+    params = {
+        idx: c_v
+        for idx, c_v in zip(control_indices, control_volts)
+    }
+    
+    control_volts_args = []
+    for idx, c_v in params.items():
+        control_volts_args.append(f"--c_v={idx}={c_v}")
+
+    args = [
+        "sbatch",
+        f"--output={output_file_name}",
+        f"{str(SH_SCRIPT)}",
+        f"{str(BINARY)}",
+        f"singleRun",
+        f"--eqSteps={eq_steps}",
+        f"--simSteps={sim_steps}",
+        f"--seed={seed}",
+        f"--cfg={str(CFG_DIR)}",
+        f"--accCfg={str(ACC_DIR)}",
+        f"--donCfg={str(DON_DIR)}",
+        f"--eleCfg={str(ELE_DIR)}",
+        f"--saveFolder={str(DATA_DIR)}",
+        f"--fileName={file_name}"
+    ]
+   
+    cmd = args + control_volts_args
+
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    print("Running command:", " ".join(cmd))
+    if result.returncode != 0:
+        print("sbatch failed with stderr:\n", result.stderr)
+    else:
+        print("sbatch submission output:\n", result.stdout)
+
 def slurm_single_IV(
         numOfPoints,
         inputIdx,
@@ -151,7 +213,7 @@ if __name__ == "__main__":
     BINARY = ROOT / "build" / "kmc_project"
     SH_SCRIPT = ROOT / "scripts" / "slurm" / "single_curve.sh"
 
-    control_volts = [0.1, -1.2, 0.9, -0.6, -1.4, 1.5]
+    control_volts = [1.4268, -0.5445, -1.1118, -1.4234, -0.4153,  1.4797]
     #control_volts = [1.0, 0, 0, -1.0, 0, 0]
     control_indices = [2, 3, 4, 5, 6, 7]
 
@@ -166,13 +228,13 @@ if __name__ == "__main__":
         eq_steps=10_000,
         sim_steps=1_000_000,
         num_intervals=100,
-        seed=64252,
+        seed=4214124,
         cfg="configs/config.txt",
-        acc_cfg="configs/acceptors.txt",
+        acc_cfg="configs/vonMises_beta_SM.txt",
         don_cfg="configs/donors.txt",
         ele_cfg="configs/electrodes.txt",
         save_folder="example_curves",
-        file_name="acceptors_voltage_at_output",
+        file_name="test_sine",
         ROOT=ROOT,
         WS_DIR=WS_DIR,
         BINARY=BINARY,
@@ -181,7 +243,7 @@ if __name__ == "__main__":
 
     num_batches = 200
     batch_size = 1_000
-    for i in range(0, 150):
+    """ for i in range(0, 150):
         time.sleep(0.1)
         slurm_single_batch(
             batch_size=batch_size,
@@ -204,4 +266,23 @@ if __name__ == "__main__":
             WS_DIR = WS_DIR,
             BINARY = BINARY,
             SH_SCRIPT = str(ROOT / "scripts" / "slurm" / "batch_script.sh")
-        )
+        ) """
+    voltages = [0.1, -0.2, 1.2, 0.8, 0.6, -0.9, 0.5, 0.5]
+    voltage_indices = [0, 1, 2, 3, 4, 5, 6, 7]
+    slurm_single_device(
+        control_indices=voltage_indices,
+        control_volts=voltages,
+        eq_steps=10_000,
+        sim_steps=1_000_000,
+        seed=1312,
+        cfg="configs/config.txt",
+        acc_cfg="configs/acceptors.txt",
+        don_cfg="configs/donors.txt",
+        ele_cfg="configs/electrodes.txt",
+        save_folder="data/devices",
+        file_name="test_device",
+        ROOT=ROOT,
+        WS_DIR=WS_DIR,
+        BINARY=BINARY,
+        SH_SCRIPT=str(ROOT / "scripts" / "slurm" / "helix_single.sh")
+    )

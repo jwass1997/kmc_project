@@ -1,5 +1,6 @@
 #include <ctime>
 #include <random>
+#include <vector>
 #include <stdexcept>
 
 #include "Random.h"
@@ -100,5 +101,26 @@ double normalDist(double mean, double stdDev) {
         
         default:
             throw std::runtime_error("normalDist: Invalid RNG");
+    }
+}
+
+std::vector<double> sample_truncated_gaussian_reject(double sigma, double R) {
+    
+    if (!(sigma > 0.0)) {
+        throw std::invalid_argument("sample_truncated_reject: invalid sigma");
+    }
+    if (!(R >= 0.0)) {
+        throw std::invalid_argument("sample_truncated_reject: invalid R");
+    }
+
+    const double R2 = R*R;
+
+    while (true) {
+        double x = normalDist(0.0, sigma);
+        double y = normalDist(0.0, sigma);
+
+        if (x*x + y*y <= R2) {
+            return {x, y};
+        }
     }
 }

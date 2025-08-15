@@ -83,12 +83,14 @@ std::vector<std::vector<double>> scaledLHC(
 
 void singleRun(
     const std::string& ID, 
-    int equilibriumSteps, 
-    int numOfSteps, 
+    int eqSteps, 
+    int simSteps, 
+    std::vector<double> voltages,
     const std::string& cfg, 
     const std::string& acceptorCfg,
     const std::string& donorCfg,
     const std::string& electrodeCfg,
+    int seed,
     const std::string& saveFolderPath
 );
 
