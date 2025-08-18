@@ -4,11 +4,47 @@
 
 #include "utils.h"
 
+struct ConfigurationParams {
+    int nAcceptors = 200;
+    int nDonors = 3;
+    int nElectrodes = 8;
+
+    double radius = 150.0;
+    double nu0 = 1.0;
+    double a = 20.0;
+    double T = 77.0;
+
+    double energyDisorder = 0.01;
+
+    double electrodeWidth = 60.0;
+    double minHopDistance = 1.5;
+    double maxHopDistance = 60.0;
+
+    int noDimension = 1;
+
+    int femRes = 10_000;
+
+    std::vector<Electrode> electrodeData = {
+        {0.0, 0.0},
+        {45.0, 0.0},
+        {90.0, 0.0},
+        {135.0, 0.0},
+        {180.0, 0.0},
+        {225.0, 0.0},
+        {270.0, 0.0},
+        {315.0, 0.0}
+    };
+}
+
 class Configuration {
 
     public:
 
         Configuration();
+
+        Configuration(
+            const ConfigurationParams& params            
+        );
 
         Configuration(
             const std::string& cfg, 

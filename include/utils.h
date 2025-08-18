@@ -160,4 +160,31 @@ void batchOfIVPoints(
     const std::string& fileName
 );
 
+void functionTestBody(
+    int batchSize,
+    double minVoltage,
+    double maxVoltage,
+    int inputIdx,
+    int outputIdx,
+    int eqSteps,
+    int simSteps,
+    int numOfTasks,
+    int LHCSeed,
+    int threadBaseSeed,
+    int nAcceptors,
+    int nDonors,
+    int nElectrodes,
+    double radius = 150.0,
+    double nu0,
+    double a,
+    double T,
+    double energyDisorder,
+    double electrodeWidth,
+    double minHopDistance,
+    double maxHopDistance,
+    int femRes,
+    const std::string& saveFolder,
+    const std::string& fileName
+);
+
 int argParser(int argc, char* argv[]);

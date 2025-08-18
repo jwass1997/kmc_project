@@ -17,6 +17,50 @@ Configuration::Configuration()
 }
 
 Configuration::Configuration(
+    const ConfigurationParams& params
+) {
+
+    if (params.nElectrodes != params.electrodeData.size()) {
+        throw std::invalid_argument("[Configuration]: electrodeData.size() is not equal to nElectrodes");
+    }
+
+    nAcceptors = params.nAcceptors;
+    nDonors = params.nDonors;
+    nElectrodes = params.nElectrodes;
+
+    numOfSites = nAcceptors + nElectrodes;
+
+    radius = params.radius;
+
+    nu0 = params.nu0;
+    a = params.a;
+    T = params.T;
+
+    kbT = kb*T;
+
+    energyDisorder = params.energyDisorder;
+
+    electrodeWidth = params.electrodeWidth;
+    minHopDistance = params.minHopDistance;
+    maxHopDistance = params.maxHopDistance;
+
+    noDimension = params.noDimension;
+
+    A0 = (e*e) / (4.0*kb*T*PI*eps0*epsr*1e-9);
+    R = std::sqrt(M_PI*radius*radius / static_cast<double>(nAcceptors));
+
+    if (noDimension) {
+        A0 = A0 / R;
+        radius = radius / R;
+        electrodeWidth = electrodeWidth / R;
+        minHopDistance = minHopDistance / R;
+        maxHopDistance = maxHopDistance / R;        
+    }
+
+    
+}
+
+Configuration::Configuration(
     const std::string& cfg, 
     const std::string& acceptorCfg,
     const std::string& donorCfg,

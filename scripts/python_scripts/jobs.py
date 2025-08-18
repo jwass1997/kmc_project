@@ -353,8 +353,8 @@ if __name__ == "__main__":
         SH_SCRIPT=str(ROOT / "scripts" / "slurm" / "helix_single.sh")
     ) """
 
-    """ slurm_single_batch_with_dist_param(
-        batch_size=1_000,
+    slurm_single_batch_with_dist_param(
+        batch_size=100,
         min_V=-1.5,
         max_V=1.5,
         input_idx=1,
@@ -375,9 +375,9 @@ if __name__ == "__main__":
         WS_DIR = WS_DIR,
         BINARY = BINARY,
         SH_SCRIPT = str(ROOT / "scripts" / "slurm" / "batch_script.sh")
-    ) """
+    )
 
-    slurm_single_batch(
+    """ slurm_single_batch(
         batch_size=100,
         min_V=-1.5,
         max_V=1.5,
@@ -398,4 +398,4 @@ if __name__ == "__main__":
         WS_DIR = WS_DIR,
         BINARY = BINARY,
         SH_SCRIPT = str(ROOT / "scripts" / "slurm" / "batch_script.sh")
-    )
+    ) """

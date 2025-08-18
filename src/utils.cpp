@@ -394,7 +394,8 @@ void batchOfIVPointsWithDistParam(
     if (saveFolder.empty()) {
         throw std::invalid_argument("[batchOfIVPointsWithDistParam]: Save folder not found");
     }
-
+    int nAcceptors = 200;
+    int nDonors = 3;
     std::string file = saveFolder + "/" + fileName + ".npz";
 
     std::vector<double> currentData(batchSize, 0.0);
@@ -404,6 +405,14 @@ void batchOfIVPointsWithDistParam(
 
     std::vector<double> inputData(batchSize*numParams, 0.0);
     std::vector<size_t> inputDataShape = {static_cast<size_t>(batchSize), static_cast<size_t>(numParams)};
+
+    /*coordinate data*/
+    std::vector<double> accCoords(batchSize*nAcceptors*2);
+    std::vector<size_t> accCoordsShape = {static_cast<size_t>(batchSize), static_cast<size_t>(nAcceptors), 2};
+
+    std::vector<double> donCoords(batchSize*nDonors*2);
+    std::vector<size_t> donCoordsShape = {static_cast<size_t>(batchSize), static_cast<size_t>(nDonors), 2};
+
     /*boundary vls are now for voltages + eps*/
     std::vector<double> minParamValues(numParams, -1.5);
     std::vector<double> maxParamValues(numParams, 1.5);
@@ -464,14 +473,27 @@ void batchOfIVPointsWithDistParam(
             currentData[_p] = averagedCurrent;
             for (int k = 0; k < numParams; ++k) {
                 inputData[k + _p*numParams] = params[k];
-            }            
+            }     
+            
+            for (int l = 0; l < equilState.nAcceptors; ++l) {
+                accCoords[2*l + _p*equilState.nAcceptors*2] = equilState.acceptorCoordinates[l*2];
+                accCoords[2*l + _p*equilState.nAcceptors*2 + 1] = equilState.acceptorCoordinates[l*2 + 1];
+            }
+
+            for (int m = 0; m < equilState.nDonors; ++m) {
+                donCoords[2*m + _p*equilState.nDonors*2] = equilState.donorCoordinates[m*2];
+                donCoords[2*m + _p*equilState.nDonors*2 + 1] = equilState.donorCoordinates[m*2 + 1];
+            }
         }
     }
-
+    /*input-output data*/
     cnpy::npz_save(file, "inputIdx", &inputIdx, {1}, "w");
     cnpy::npz_save(file, "outputIdx", &outputIdx, {1}, "a");
     cnpy::npz_save(file, "currents", currentData.data(), currentDataShape, "a");
     cnpy::npz_save(file, "inputs", inputData.data(), inputDataShape, "a");
+    /*coordinate data*/
+    cnpy::npz_save(file, "acc_xy", accCoords.data(), accCoordsShape, "a");
+    cnpy::npz_save(file, "don_xy", donCoords.data(), donCoordsShape, "a");
 }
 
 int argParser(int argc, char* argv[]) {
