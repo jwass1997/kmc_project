@@ -262,7 +262,7 @@ void State::initSiteEnergies() {
 void State::initOccupiedSites() {
 
     if (nDonors >= nAcceptors) {
-        throw std::invalid_argument("initOccupiedStates(): Number of acceptors can not be equal or smaller than number of donors!");
+        throw std::invalid_argument("[initOccupiedStates]: Number of acceptors can not be equal or smaller than number of donors!");
     }
 
     std::vector<int> randomVector(nAcceptors, 0);
@@ -331,7 +331,7 @@ void State::updateBoundaries(std::vector<double> boundaryValues) {
 
     //std::cout << "Entering updateBoundaries" << "\n";
     if (boundaryValues.size() > nElectrodes) {
-        throw std::invalid_argument("updateBoundaries(): Too many boundary values");
+        throw std::invalid_argument("[updateBoundaries]: Too many boundary values");
     }
 
     for (int i = 0; i < numOfSites; ++i) {

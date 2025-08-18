@@ -90,8 +90,8 @@ def visualizeCurrent(hopping_counts, acceptor_pos, donor_pos, total_time):
 
 if __name__ == "__main__":
     # Change the device name as needed.
-    device = 999
-    filename = f"/gpfs/bwfor/work/ws/hd_gy283-my_data/data/devices/test_device.npz"
+    device = "eps=0.9"
+    filename = f"/gpfs/bwfor/work/ws/hd_gy283-my_data/devices/single_device_{device}.npz"
     data = np.load(filename)
 
     # Load saved arrays
@@ -113,5 +113,5 @@ if __name__ == "__main__":
     visualizeCurrent(hopping_counts, acceptor_pos, donor_pos, total_time)
 
     # Optionally, to save the figure uncomment the line below and place it before plt.show() in visualizeCurrent
-    plt.savefig(ROOT / f"device_{device}_circ.png", dpi=300)
+    plt.savefig(ROOT / "data" /f"device_{device}.png", dpi=300)
     #plt.show()

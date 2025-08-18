@@ -205,6 +205,72 @@ def slurm_single_batch(
     else:
         print("sbatch submission output:\n", result.stdout)
 
+def slurm_single_batch_with_dist_param(
+        batch_size,
+        min_V,
+        max_V,
+        input_idx,
+        output_idx,
+        eq_steps,
+        sim_steps,
+        num_of_tasks,
+        LHCSeed,
+        threadBaseSeed,
+        dist_type,
+        cfg,
+        acc_cfg,
+        don_cfg,
+        ele_cfg,
+        save_folder,
+        file_name,
+        ROOT,
+        WS_DIR,
+        BINARY,
+        SH_SCRIPT
+):
+    CFG_DIR = Path(ROOT) / f"{cfg}"
+    ACC_DIR = Path(ROOT) / f"{acc_cfg}"
+    DON_DIR = Path(ROOT) / f"{don_cfg}"
+    ELE_DIR = Path(ROOT) / f"{ele_cfg}"
+    DATA_DIR = Path(WS_DIR) / f"{save_folder}"
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+    SLURM_OUT_DIR = Path(ROOT) / "slurm_out"
+    SLURM_OUT_DIR.mkdir(parents=True, exist_ok=True)
+    output_file_name = SLURM_OUT_DIR / f"{file_name}.out"
+
+    cmd = [
+        "sbatch",
+        f"--output={output_file_name}",
+        str(SH_SCRIPT),
+        str(BINARY),
+        "batch_with_dist_param",
+        f"--batchSize={batch_size}",
+        f"--minVoltage={min_V}",
+        f"--maxVoltage={max_V}",
+        f"--inputIdx={input_idx}",
+        f"--outputIdx={output_idx}",
+        f"--eqSteps={eq_steps}",
+        f"--simSteps={sim_steps}",
+        f"--numOfTasks={num_of_tasks}",
+        f"--LHCSeed={LHCSeed}",
+        f"--threadBaseSeed={threadBaseSeed}",
+        f"--distType={dist_type}",
+        f"--cfg={str(CFG_DIR)}",
+        f"--accCfg={str(ACC_DIR)}",
+        f"--donCfg={str(DON_DIR)}",
+        f"--eleCfg={str(ELE_DIR)}",
+        f"--saveFolder={str(DATA_DIR)}",
+        f"--fileName={file_name}"
+    ]
+
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    print("Running command:", " ".join(cmd))
+    if result.returncode != 0:
+        print("sbatch failed with stderr:\n", result.stderr)
+    else:
+        print("sbatch submission output:\n", result.stdout)
+
 if __name__ == "__main__":
 
     ROOT = Path(__file__).resolve().parents[2]
@@ -269,20 +335,67 @@ if __name__ == "__main__":
         ) """
     voltages = [0.1, -0.2, 1.2, 0.8, 0.6, -0.9, 0.5, 0.5]
     voltage_indices = [0, 1, 2, 3, 4, 5, 6, 7]
-    slurm_single_device(
+    """ slurm_single_device(
         control_indices=voltage_indices,
         control_volts=voltages,
         eq_steps=10_000,
         sim_steps=1_000_000,
-        seed=1312,
+        seed=np.random.randint(low=0, high=2**28),
         cfg="configs/config.txt",
         acc_cfg="configs/acceptors.txt",
         don_cfg="configs/donors.txt",
         ele_cfg="configs/electrodes.txt",
         save_folder="devices",
-        file_name="test_device",
+        file_name="single_device_eps=0.1",
         ROOT=ROOT,
         WS_DIR=WS_DIR,
         BINARY=BINARY,
         SH_SCRIPT=str(ROOT / "scripts" / "slurm" / "helix_single.sh")
+    ) """
+
+    """ slurm_single_batch_with_dist_param(
+        batch_size=1_000,
+        min_V=-1.5,
+        max_V=1.5,
+        input_idx=1,
+        output_idx=0,
+        eq_steps=10_000,
+        sim_steps=1_000_000,
+        num_of_tasks=100,
+        LHCSeed=np.random.randint(low=0, high=2**20 - 1),
+        threadBaseSeed=np.random.randint(low=0, high=2**20 - 1),
+        dist_type="mixed",
+        cfg="configs/config.txt",
+        acc_cfg="configs/acceptors.txt",
+        don_cfg="configs/donors.txt",
+        ele_cfg="configs/electrodes.txt",
+        save_folder="batches_with_dist_param",
+        file_name=f"batch_1e6_dist_param",
+        ROOT=ROOT,
+        WS_DIR = WS_DIR,
+        BINARY = BINARY,
+        SH_SCRIPT = str(ROOT / "scripts" / "slurm" / "batch_script.sh")
+    ) """
+
+    slurm_single_batch(
+        batch_size=100,
+        min_V=-1.5,
+        max_V=1.5,
+        input_idx=1,
+        output_idx=0,
+        eq_steps=10_000,
+        sim_steps=1_000_000,
+        num_of_tasks=100,
+        LHCSeed=np.random.randint(low=0, high=2**20 - 1),
+        threadBaseSeed=np.random.randint(low=0, high=2**20 - 1),
+        cfg="configs/config.txt",
+        acc_cfg="configs/acceptors.txt",
+        don_cfg="configs/donors.txt",
+        ele_cfg="configs/electrodes.txt",
+        save_folder="test_batches",
+        file_name=f"test_batch",
+        ROOT=ROOT,
+        WS_DIR = WS_DIR,
+        BINARY = BINARY,
+        SH_SCRIPT = str(ROOT / "scripts" / "slurm" / "batch_script.sh")
     )

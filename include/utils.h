@@ -121,6 +121,26 @@ void singleIVCurve(
     const std::string& fileName
 );
 
+void batchOfIVPointsWithDistParam(
+    int batchSize,
+    double minVoltage,
+    double maxVoltage,
+    int inputIdx,
+    int outputIdx,
+    int eqSteps,
+    int simSteps,
+    int numOfTasks,
+    int LHCSeed,
+    int threadBaseSeed,
+    const std::string& distType,
+    const std::string& cfg,
+    const std::string& accCfg,
+    const std::string& donCfg,
+    const std::string& eleCfg,
+    const std::string& saveFolder,
+    const std::string& fileName
+);
+
 void batchOfIVPoints(
     int batchSize,
     double minVoltage,
