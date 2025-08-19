@@ -179,7 +179,7 @@ def slurm_single_batch(
         f"--output={output_file_name}",
         str(SH_SCRIPT),
         str(BINARY),
-        "batch",
+        "createBatch",
         f"--batchSize={batch_size}",
         f"--minVoltage={min_V}",
         f"--maxVoltage={max_V}",
@@ -346,38 +346,14 @@ if __name__ == "__main__":
         don_cfg="configs/donors.txt",
         ele_cfg="configs/electrodes.txt",
         save_folder="devices",
-        file_name="single_device_eps=0.1",
+        file_name="single_device_0",
         ROOT=ROOT,
         WS_DIR=WS_DIR,
         BINARY=BINARY,
         SH_SCRIPT=str(ROOT / "scripts" / "slurm" / "helix_single.sh")
     ) """
 
-    slurm_single_batch_with_dist_param(
-        batch_size=100,
-        min_V=-1.5,
-        max_V=1.5,
-        input_idx=1,
-        output_idx=0,
-        eq_steps=10_000,
-        sim_steps=1_000_000,
-        num_of_tasks=100,
-        LHCSeed=np.random.randint(low=0, high=2**20 - 1),
-        threadBaseSeed=np.random.randint(low=0, high=2**20 - 1),
-        dist_type="mixed",
-        cfg="configs/config.txt",
-        acc_cfg="configs/acceptors.txt",
-        don_cfg="configs/donors.txt",
-        ele_cfg="configs/electrodes.txt",
-        save_folder="batches_with_dist_param",
-        file_name=f"batch_1e6_dist_param",
-        ROOT=ROOT,
-        WS_DIR = WS_DIR,
-        BINARY = BINARY,
-        SH_SCRIPT = str(ROOT / "scripts" / "slurm" / "batch_script.sh")
-    )
-
-    """ slurm_single_batch(
+    slurm_single_batch(
         batch_size=100,
         min_V=-1.5,
         max_V=1.5,
@@ -398,4 +374,4 @@ if __name__ == "__main__":
         WS_DIR = WS_DIR,
         BINARY = BINARY,
         SH_SCRIPT = str(ROOT / "scripts" / "slurm" / "batch_script.sh")
-    ) """
+    )

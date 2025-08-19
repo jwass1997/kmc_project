@@ -174,7 +174,7 @@ void functionTestBody(
     int nAcceptors,
     int nDonors,
     int nElectrodes,
-    double radius = 150.0,
+    double radius,
     double nu0,
     double a,
     double T,

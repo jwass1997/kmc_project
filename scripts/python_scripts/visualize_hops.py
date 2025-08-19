@@ -1,11 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
+import matplotlib.patches as patches
+
 from pathlib import Path
 from matplotlib.cm import ScalarMappable
 from matplotlib.colors import ListedColormap
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-import matplotlib.patches as patches
 
 PYTHON_SCRIPT_DIR = Path(__file__).resolve().parent
 ROOT = PYTHON_SCRIPT_DIR.parents[1]
@@ -64,8 +65,10 @@ def visualizeCurrent(hopping_counts, acceptor_pos, donor_pos, total_time):
     ax.add_patch(device_boundary)
 
     # Scatter plot of donor, acceptor, and electrode positions
-    ax.scatter(donor_pos[:, 0], donor_pos[:, 1], s=50, c="black", zorder=3, label="Donors")
-    ax.scatter(acceptor_pos[:, 0], acceptor_pos[:, 1], s=50, c="green", zorder=3, label="Acceptors")
+    acc_face_color = (0, 0.6, 0, 0.8)
+    acc_edge_color = (0, 0.6, 0, 1.0)
+    ax.scatter(donor_pos[:, 0], donor_pos[:, 1], s=50, c="k", zorder=3, label="Donors")
+    ax.scatter(acceptor_pos[:, 0], acceptor_pos[:, 1], s=50, facecolor=acc_face_color, edgecolors=acc_edge_color, zorder=3, label="Acceptors")
 
     # Create a colorbar to indicate net current intensity
     divider = make_axes_locatable(ax)
@@ -90,8 +93,8 @@ def visualizeCurrent(hopping_counts, acceptor_pos, donor_pos, total_time):
 
 if __name__ == "__main__":
     # Change the device name as needed.
-    device = "eps=0.9"
-    filename = f"/gpfs/bwfor/work/ws/hd_gy283-my_data/devices/single_device_{device}.npz"
+    device = "6969"
+    filename = f"/gpfs/bwfor/work/ws/hd_gy283-my_data/devices/single_device_0.npz"
     data = np.load(filename)
 
     # Load saved arrays
@@ -113,5 +116,5 @@ if __name__ == "__main__":
     visualizeCurrent(hopping_counts, acceptor_pos, donor_pos, total_time)
 
     # Optionally, to save the figure uncomment the line below and place it before plt.show() in visualizeCurrent
-    plt.savefig(ROOT / "data" /f"device_{device}.png", dpi=300)
+    plt.savefig(ROOT / "data" / "pngs" /f"single_device_0.png", dpi=300)
     #plt.show()

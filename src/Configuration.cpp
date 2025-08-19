@@ -13,7 +13,7 @@
 
 Configuration::Configuration() 
 {
-    std::cout << "Configuration(): Empty constructor called: Specfify parameters manually" << "\n";
+    std::cout << "[Configuration]: Empty constructor called: Specfify parameters manually" << "\n";
 }
 
 Configuration::Configuration(
@@ -57,23 +57,82 @@ Configuration::Configuration(
         maxHopDistance = maxHopDistance / R;        
     }
 
-    
+    distType = params.distType;
+    epsilon = params.epsilon;
+
+    if (distType == "uniform") {
+
+        auto now = std::chrono::high_resolution_clock::now();
+        auto now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
+        setRandomSeed(static_cast<long int>(now_ns));
+
+        for (int i = 0; i < nAcceptors; ++i) {
+            double randomPhi = 2.0*M_PI*randomDouble01();
+            double randomR = radius*std::sqrt(randomDouble01());
+            acceptorCoords.push_back(randomR*std::cos(randomPhi));
+            acceptorCoords.push_back(randomR*std::sin(randomPhi));
+        }
+
+        for (int i = 0; i < nDonors; ++i) {
+            double randomPhi = 2.0*M_PI*randomDouble01();
+            double randomR = radius*std::sqrt(randomDouble01());
+            donorCoords.push_back(randomR*std::cos(randomPhi));
+            donorCoords.push_back(randomR*std::sin(randomPhi));
+        }
+    }
+
+    else if (distType == "mixed") {
+
+        if (epsilon < 0.0 || epsilon > 1.0) {
+            throw std::invalid_argument("[Configuration]: invalid epsilon value");
+        }
+
+        auto now = std::chrono::high_resolution_clock::now();
+        auto now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
+        setRandomSeed(static_cast<long int>(now_ns)); 
+
+        for (int i = 0; i < nAcceptors; ++i) {
+            
+            double u01 = randomDouble01();
+
+            if (u01 < (1 - epsilon)) {
+                double randomPhi = 2.0*M_PI*randomDouble01();
+                double randomR = radius*std::sqrt(randomDouble01());
+                acceptorCoords.push_back(randomR*std::cos(randomPhi));
+                acceptorCoords.push_back(randomR*std::sin(randomPhi));
+            }
+            else {
+                double stdScaled = radius / 2.5;
+                std::vector<double> coords = sample_truncated_gaussian_reject(stdScaled, radius);
+
+                double _r = std::sqrt(coords[0]*coords[0] + coords[1]*coords[1]);
+                double randomPhi = 2.0*M_PI*randomDouble01();
+
+                acceptorCoords.push_back(coords[0]);
+                acceptorCoords.push_back(coords[1]);
+            }
+        }
+
+        for (int i = 0; i < nDonors; ++i) {
+            double randomPhi = 2.0*M_PI*randomDouble01();
+            double randomR = radius*std::sqrt(randomDouble01());
+            donorCoords.push_back(randomR*std::cos(randomPhi));
+            donorCoords.push_back(randomR*std::sin(randomPhi));
+        }
+    }
 }
 
 Configuration::Configuration(
     const std::string& cfg, 
     const std::string& acceptorCfg,
     const std::string& donorCfg,
-    const std::string& electrodeCfg,
-    bool randomCoordinates,
-    const std::string type,
-    double epsilon
+    const std::string& electrodeCfg
 ) {
 
-    auto config = cfg;//(configPath, "config.txt");
-    auto acceptorConfig = acceptorCfg;//getConfigFilePath(configPath, "acceptor_normal.txt");
-    auto donorConfig = donorCfg;//getConfigFilePath(configPath, "donors.txt");
-    auto electrodeConfig = electrodeCfg;//getConfigFilePath(configPath, "electrodes.txt");
+    auto config = cfg;
+    auto acceptorConfig = acceptorCfg;
+    auto donorConfig = donorCfg;
+    auto electrodeConfig = electrodeCfg;
     /* std::cout
     << "  CWD:    " << std::filesystem::current_path() << "\n"
     << "  Target: " << std::filesystem::absolute(config) << "\n"
@@ -84,8 +143,8 @@ Configuration::Configuration(
     std::ifstream electrodeFile(electrodeConfig);
     //std::cout << config << "\n";
     if (!configFile.is_open()) {
-    std::cerr << "[FATAL] Could not open config file: " << config << "\n";
-    std::exit(1);
+        std::cerr << "[FATAL] Could not open config file: " << config << "\n";
+        std::exit(1);
     }
     if (!acceptorFile.is_open()) {
         std::cerr << "[FATAL] Could not open acceptor config: " << acceptorConfig << "\n";
@@ -183,7 +242,7 @@ Configuration::Configuration(
         maxHopDistance = maxHopDistance / R;
     }
 
-    // Electrodes
+    /* Electrodes */
     if (!electrodeFile.is_open()) {
             std::cerr << "No such file: " << electrodeConfig<< "\n";
     }
@@ -219,132 +278,60 @@ Configuration::Configuration(
         }
         electrodeFile.close();
     }
-    // Coordinates
-    if (!randomCoordinates) {
-        if (!acceptorFile.is_open()) {
-            std::cerr << "No such file: " << acceptorConfig << "\n";
+    /* Coordinates */
+    if (!acceptorFile.is_open()) {
+        std::cerr << "No such file: " << acceptorConfig << "\n";
+    }
+    else {
+        std::string line;
+
+        while (getline(acceptorFile, line)) {
+            if (line.empty() || line[0] == '#') {
+                continue;
+            }
+            else {
+                std::stringstream ss(line);
+
+                double coordX, coordY;
+                ss >> coordX >> coordY;
+                
+                if (noDimension) {
+                    coordX = coordX / R;
+                    coordY = coordY / R;
+                }
+
+                acceptorCoords.push_back(coordX);
+                acceptorCoords.push_back(coordY);
+            }
         }
-        else {
+        acceptorFile.close();
+    }
+
+    if (!donorFile.is_open()) {
+        std::cerr << "No such file: " << donorConfig << "\n";
+    }
+    else {
             std::string line;
 
-            while (getline(acceptorFile, line)) {
-                if (line.empty() || line[0] == '#') {
-                    continue;
-                }
-                else {
-                    std::stringstream ss(line);
-
-                    double coordX, coordY;
-                    ss >> coordX >> coordY;
-                    
-                    if (noDimension) {
-                        coordX = coordX / R;
-                        coordY = coordY / R;
-                    }
-
-                    acceptorCoords.push_back(coordX);
-                    acceptorCoords.push_back(coordY);
-                }
+        while (getline(donorFile, line)) {
+            if (line.empty() || line[0] == '#') {
+                continue;
             }
-            acceptorFile.close();
-        }
+            else {
+                std::stringstream ss(line);
 
-        if (!donorFile.is_open()) {
-            std::cerr << "No such file: " << donorConfig << "\n";
-        }
-        else {
-                std::string line;
+                double coordX, coordY;
+                ss >> coordX >> coordY;
 
-            while (getline(donorFile, line)) {
-                if (line.empty() || line[0] == '#') {
-                    continue;
+                if (noDimension) {
+                    coordX = coordX / R;
+                    coordY = coordY / R;
                 }
-                else {
-                    std::stringstream ss(line);
 
-                    double coordX, coordY;
-                    ss >> coordX >> coordY;
-
-                    if (noDimension) {
-                        coordX = coordX / R;
-                        coordY = coordY / R;
-                    }
-
-                    donorCoords.push_back(coordX);
-                    donorCoords.push_back(coordY);
-                }
+                donorCoords.push_back(coordX);
+                donorCoords.push_back(coordY);
             }
-            donorFile.close();
-        }  
+        }
+        donorFile.close();
     }  
-    
-    else {
-
-        if (type == "uniform") {
-
-            auto now = std::chrono::high_resolution_clock::now();
-            auto now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
-            setRandomSeed(static_cast<long int>(now_ns));
-
-            for (int i = 0; i < nAcceptors; ++i) {
-                double randomPhi = 2.0*M_PI*randomDouble01();
-                double randomR = radius*std::sqrt(randomDouble01());
-                acceptorCoords.push_back(randomR*std::cos(randomPhi));
-                acceptorCoords.push_back(randomR*std::sin(randomPhi));
-            }
-
-            for (int i = 0; i < nDonors; ++i) {
-                double randomPhi = 2.0*M_PI*randomDouble01();
-                double randomR = radius*std::sqrt(randomDouble01());
-                donorCoords.push_back(randomR*std::cos(randomPhi));
-                donorCoords.push_back(randomR*std::sin(randomPhi));
-            }
-        }
-
-        else if (type == "mixed") {
-
-            if (epsilon < 0.0 || epsilon > 1.0) {
-                throw std::invalid_argument("Configuration: epsilon must be in [0,1]");
-            }
-
-            auto now = std::chrono::high_resolution_clock::now();
-            auto now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
-            setRandomSeed(static_cast<long int>(now_ns)); 
-
-            for (int i = 0; i < nAcceptors; ++i) {
-                
-                double u01 = randomDouble01();
-
-                if (u01 < (1 - epsilon)) {
-                    double randomPhi = 2.0*M_PI*randomDouble01();
-                    double randomR = radius*std::sqrt(randomDouble01());
-                    acceptorCoords.push_back(randomR*std::cos(randomPhi));
-                    acceptorCoords.push_back(randomR*std::sin(randomPhi));
-                }
-                else {
-                    double stdScaled = radius / 2.5;
-                    std::vector<double> coords = sample_truncated_gaussian_reject(stdScaled, radius);
-
-                    double _r = std::sqrt(coords[0]*coords[0] + coords[1]*coords[1]);
-                    double randomPhi = 2.0*M_PI*randomDouble01();
-
-                    acceptorCoords.push_back(coords[0]);
-                    acceptorCoords.push_back(coords[1]);
-                }
-            }
-
-            for (int i = 0; i < nDonors; ++i) {
-                double randomPhi = 2.0*M_PI*randomDouble01();
-                double randomR = radius*std::sqrt(randomDouble01());
-                donorCoords.push_back(randomR*std::cos(randomPhi));
-                donorCoords.push_back(randomR*std::sin(randomPhi));
-            }
-        }
-    }
-}
-
-std::filesystem::path Configuration::getConfigFilePath(const std::string& folder, const std::string& file) {
-
-    return std::filesystem::path(folder) / file;
-
 }

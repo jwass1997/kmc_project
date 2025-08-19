@@ -5,6 +5,7 @@
 #include "utils.h"
 
 struct ConfigurationParams {
+
     int nAcceptors = 200;
     int nDonors = 3;
     int nElectrodes = 8;
@@ -22,7 +23,7 @@ struct ConfigurationParams {
 
     int noDimension = 1;
 
-    int femRes = 10_000;
+    int femRes = 1e4;
 
     std::vector<Electrode> electrodeData = {
         {0.0, 0.0},
@@ -34,7 +35,11 @@ struct ConfigurationParams {
         {270.0, 0.0},
         {315.0, 0.0}
     };
-}
+
+    std::string distType = "uniform";
+    /* Only used if mixed */
+    double epsilon = 0.5;
+};
 
 class Configuration {
 
@@ -50,10 +55,7 @@ class Configuration {
             const std::string& cfg, 
             const std::string& acceptorCfg,
             const std::string& donorCfg,
-            const std::string& electrodeCfg,
-            bool randomCoordinates,
-            const std::string type,
-            double epsilon
+            const std::string& electrodeCfg
         );
 
         int nAcceptors;
@@ -79,9 +81,13 @@ class Configuration {
         double minHopDistance;
         double maxHopDistance;
 
-        bool noDimension = true;
+        bool noDimension;
 
         int femRes;
+
+        std::string distType;
+
+        double epsilon;
 
         std::vector<int> occupiedSites;
 
@@ -94,8 +100,4 @@ class Configuration {
         std::vector<int> siteOccupation;
 
         std::vector<Electrode> electrodeData; 
-
-    private:
-    
-        std::filesystem::path getConfigFilePath(const std::string& folder, const std::string& file);
 };

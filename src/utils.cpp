@@ -75,22 +75,17 @@ void singleRun(
 ) {
 
     if(saveFolderPath.empty()) {
-        throw std::invalid_argument("singleRun: No save folder specified !");
+        throw std::invalid_argument("[singleRun]: No save folder specified !");
     }
 
-    //int seed0 = seed;
-    //auto now = std::chrono::high_resolution_clock::now();
-    //auto now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
     setRandomSeed(seed);
 
     Configuration config(
         cfg, 
         acceptorCfg, 
         donorCfg, 
-        electrodeCfg, 
-        true, 
-        "mixed", 
-        0.1);
+        electrodeCfg
+    );
 
     State state(config);
     KMCSimulator kmc(state);
@@ -211,7 +206,7 @@ void singleIVCurve(
     const std::string& fileName
 ) {
     if (saveFolder.empty()) {
-        throw std::invalid_argument("singleIVCurve(): Save folder not found");
+        throw std::invalid_argument("[singleIVCurve]: Save folder not found");
     }
 
     std::string file = saveFolder + "/" + fileName + ".npz";
@@ -235,10 +230,7 @@ void singleIVCurve(
         cfg,
         accCfg,
         donCfg,
-        eleCfg,
-        false,
-        "uniform",
-        0.5
+        eleCfg
     );
     State state(config);
     KMCSimulator kmc(state);
@@ -300,33 +292,31 @@ void batchOfIVPoints(
         throw std::invalid_argument("[batchOfIVPoints]: Save folder not found");
     }
 
+    Configuration config(
+        cfg, 
+        accCfg, 
+        donCfg, 
+        eleCfg
+    );
+
     std::string file = saveFolder + "/" + fileName + ".npz";
-    /*output is only current right now (1D since only one output electrode)*/
+    /* Output is only current right now (1D since only one output electrode) */
     std::vector<double> currentData(batchSize, 0.0);
     std::vector<size_t> currentDataShape = {static_cast<size_t>(batchSize)};
-    /*input 8D (8 electrode voltages with input_electrode set to ground)*/
-    std::vector<double> inputData(batchSize*8, 0.0);
-    std::vector<size_t> inputDataShape = {static_cast<size_t>(batchSize), 8};
+    /* Input 8D (8 electrode voltages with input_electrode set to ground) */
+    std::vector<double> inputData(batchSize*config.nElectrodes, 0.0);
+    std::vector<size_t> inputDataShape = {static_cast<size_t>(batchSize), config.nElectrodes};
 
-    std::vector<double> mins(8, minVoltage);
-    std::vector<double> maxs(8, maxVoltage);
+    std::vector<double> mins(config.nElectrodes, minVoltage);
+    std::vector<double> maxs(config.nElectrodes, maxVoltage);
     std::vector<std::vector<double>> samples = scaledLHC(
         batchSize,
-        8,
+        config.nElectrodes,
         mins,
         maxs,
         LHCSeed 
     );
 
-    Configuration config(
-        cfg, 
-        accCfg, 
-        donCfg, 
-        eleCfg, 
-        false,
-        "uniform",
-        1.0
-    );
     State equilState(config);
     KMCSimulator kmc(equilState);
     kmc.simulate(equilState, eqSteps, false, false);
@@ -354,8 +344,8 @@ void batchOfIVPoints(
             );
 
             currentData[ivPoint] = averagedCurrent;
-            for (int k = 0; k < 8; ++k) {
-                inputData[k + ivPoint*8] = voltages[k];
+            for (int k = 0; k < config.nElectrodes; ++k) {
+                inputData[k + ivPoint*config.nElectrodes] = voltages[k];
             }
         }
     }
@@ -365,135 +355,25 @@ void batchOfIVPoints(
     cnpy::npz_save(file, "currents", currentData.data(), currentDataShape, "a");
     cnpy::npz_save(file, "inputs", inputData.data(), inputDataShape, "a");
 
-    /*save coords of equilState*/
+    /* Save coords of equilState */
     std::vector<size_t> accCoordsShape = {static_cast<size_t>(equilState.nAcceptors), 2};
     std::vector<size_t> donCoordsShape = {static_cast<size_t>(equilState.nDonors), 2};
     cnpy::npz_save(file, "acc_xy", equilState.acceptorCoordinates.data(), accCoordsShape, "a");
     cnpy::npz_save(file, "don_xy", equilState.donorCoordinates.data(), donCoordsShape, "a");
-}
 
-void batchOfIVPointsWithDistParam(
-    int batchSize,
-    double minVoltage,
-    double maxVoltage,
-    int inputIdx,
-    int outputIdx,
-    int eqSteps,
-    int simSteps,
-    int numOfTasks,
-    int LHCSeed,
-    int threadBaseSeed,
-    const std::string& distType,
-    const std::string& cfg,
-    const std::string& accCfg,
-    const std::string& donCfg,
-    const std::string& eleCfg,
-    const std::string& saveFolder,
-    const std::string& fileName
-) {
-    if (saveFolder.empty()) {
-        throw std::invalid_argument("[batchOfIVPointsWithDistParam]: Save folder not found");
-    }
-    int nAcceptors = 200;
-    int nDonors = 3;
-    std::string file = saveFolder + "/" + fileName + ".npz";
+    /* Neighbouring */
+    std::vector<size_t> jaggedArrayLengthsShape = {static_cast<size_t>(equilState.jaggedArrayLengths.size())};
+    std::vector<size_t> neighbourIndicesShape = {static_cast<size_t>(equilState.neighbourIndices.size())};
+    cnpy::npz_save(file, "jagged_lengths", equilState.jaggedArrayLengths.data(), jaggedArrayLengthsShape, "a");
+    cnpy::npz_save(file, "neighbour_indices", equilState.neighbourIndices.data(), neighbourIndicesShape, "a");
 
-    std::vector<double> currentData(batchSize, 0.0);
-    std::vector<size_t> currentDataShape = {static_cast<size_t>(batchSize)};
-    /*8 electrode params + 1 (eps)*/
-    int numParams = 9;
+    /* Initial_site_energies */
+    std::vector<size_t> initialSiteEnergiesShape = {static_cast<size_t>(equilState.numOfSites)};
+    cnpy::npz_save(file, "init_energies", equilState.initialSiteEnergies.data(), initialSiteEnergiesShape, "a");
 
-    std::vector<double> inputData(batchSize*numParams, 0.0);
-    std::vector<size_t> inputDataShape = {static_cast<size_t>(batchSize), static_cast<size_t>(numParams)};
-
-    /*coordinate data*/
-    std::vector<double> accCoords(batchSize*nAcceptors*2);
-    std::vector<size_t> accCoordsShape = {static_cast<size_t>(batchSize), static_cast<size_t>(nAcceptors), 2};
-
-    std::vector<double> donCoords(batchSize*nDonors*2);
-    std::vector<size_t> donCoordsShape = {static_cast<size_t>(batchSize), static_cast<size_t>(nDonors), 2};
-
-    /*boundary vls are now for voltages + eps*/
-    std::vector<double> minParamValues(numParams, -1.5);
-    std::vector<double> maxParamValues(numParams, 1.5);
-    /*sets boundary vls for eps*/
-    minParamValues[8] = 0.0;
-    maxParamValues[8] = 1.0;
-
-    std::vector<std::vector<double>> paramSamples = scaledLHC(
-        batchSize,
-        numParams,
-        minParamValues,
-        maxParamValues,
-        LHCSeed
-    );
-
-    #pragma omp parallel
-    {
-        int threadID = omp_get_thread_num();
-
-        #pragma omp for
-        for (int _p = 0; _p < batchSize; ++_p) {
-
-            int threadSeed = threadID * 100000 + threadBaseSeed + _p;
-            setRandomSeed(threadSeed);
-
-            std::vector<double> params = paramSamples[_p];
-            double epsParam = params[numParams-1];
-
-            Configuration config(
-                cfg,
-                accCfg,
-                donCfg,
-                eleCfg, 
-                true,
-                "mixed",
-                params[8]
-            );
-
-            State equilState(config);
-            KMCSimulator kmc(equilState);
-            kmc.simulate(equilState, eqSteps, false, false);
-
-            equilState.resetEventCounter();
-            equilState.stateTime = 0.0;
-
-            std::vector<double> voltages = std::vector<double>(params.begin(), params.end() - 1);
-
-            voltages[outputIdx] = 0.0;
-
-            double averagedCurrent = singleIVPoint(
-                equilState,
-                outputIdx,
-                numOfTasks,
-                simSteps,
-                voltages
-            );
-
-            currentData[_p] = averagedCurrent;
-            for (int k = 0; k < numParams; ++k) {
-                inputData[k + _p*numParams] = params[k];
-            }     
-            
-            for (int l = 0; l < equilState.nAcceptors; ++l) {
-                accCoords[2*l + _p*equilState.nAcceptors*2] = equilState.acceptorCoordinates[l*2];
-                accCoords[2*l + _p*equilState.nAcceptors*2 + 1] = equilState.acceptorCoordinates[l*2 + 1];
-            }
-
-            for (int m = 0; m < equilState.nDonors; ++m) {
-                donCoords[2*m + _p*equilState.nDonors*2] = equilState.donorCoordinates[m*2];
-                donCoords[2*m + _p*equilState.nDonors*2 + 1] = equilState.donorCoordinates[m*2 + 1];
-            }
-        }
-    }
-    /*input-output data*/
-    cnpy::npz_save(file, "inputIdx", &inputIdx, {1}, "w");
-    cnpy::npz_save(file, "outputIdx", &outputIdx, {1}, "a");
-    cnpy::npz_save(file, "currents", currentData.data(), currentDataShape, "a");
-    cnpy::npz_save(file, "inputs", inputData.data(), inputDataShape, "a");
-    /*coordinate data*/
-    cnpy::npz_save(file, "acc_xy", accCoords.data(), accCoordsShape, "a");
-    cnpy::npz_save(file, "don_xy", donCoords.data(), donCoordsShape, "a");
+    /* Constant rate part */
+    std::vector<double> ratePrefactors(equilState.numOfSites*equilState.numOfSites);
+    std::vector<size_t> ratePrefactorsShape = {static_cast<size_t>(equilState.numOfSites), static_cast<size_t>(equilState.numOfSites)};
 }
 
 int argParser(int argc, char* argv[]) {
@@ -641,7 +521,7 @@ int argParser(int argc, char* argv[]) {
         return 1;
     }
 
-    if (firstCommand == "batch") {
+    if (firstCommand == "createBatch") {
 
         boost::program_options::options_description options("Batch run options");
         options.add_options()
@@ -681,59 +561,6 @@ int argParser(int argc, char* argv[]) {
             vm["numOfTasks"].as<int>(),
             vm["LHCSeed"].as<int>(),
             vm["threadBaseSeed"].as<int>(),
-            vm["cfg"].as<std::string>(),
-            vm["accCfg"].as<std::string>(),
-            vm["donCfg"].as<std::string>(),
-            vm["eleCfg"].as<std::string>(),
-            vm["saveFolder"].as<std::string>(),
-            vm["fileName"].as<std::string>()
-        );
-
-        return 1;
-    }
-
-    if (firstCommand == "batch_with_dist_param") {
-
-        boost::program_options::options_description options("Batch run options");
-        options.add_options()
-            ("batchSize", boost::program_options::value<int>()->required())
-            ("minVoltage", boost::program_options::value<double>()->required())
-            ("maxVoltage", boost::program_options::value<double>()->required())
-            ("inputIdx", boost::program_options::value<int>()->required())
-            ("outputIdx", boost::program_options::value<int>()->required())
-            ("eqSteps", boost::program_options::value<int>()->default_value(1e4))
-            ("simSteps", boost::program_options::value<int>()->required())
-            ("numOfTasks", boost::program_options::value<int>()->default_value(100))
-            ("LHCSeed", boost::program_options::value<int>()->required())
-            ("threadBaseSeed", boost::program_options::value<int>()->required())
-            ("distType", boost::program_options::value<std::string>()->required())
-            ("cfg", boost::program_options::value<std::string>()->required())
-            ("accCfg", boost::program_options::value<std::string>()->required())
-            ("donCfg", boost::program_options::value<std::string>()->required())
-            ("eleCfg", boost::program_options::value<std::string>()->required())
-            ("saveFolder", boost::program_options::value<std::string>()->required())        
-            ("fileName", boost::program_options::value<std::string>()->required())
-        ;
-        
-        boost::program_options::variables_map vm;
-        boost::program_options::store(
-            boost::program_options::command_line_parser(
-                remainingCommand).options(options).run(),
-                vm);
-        boost::program_options::notify(vm);
-
-        batchOfIVPointsWithDistParam(
-            vm["batchSize"].as<int>(),
-            vm["minVoltage"].as<double>(),
-            vm["maxVoltage"].as<double>(),
-            vm["inputIdx"].as<int>(),
-            vm["outputIdx"].as<int>(),
-            vm["eqSteps"].as<int>(),
-            vm["simSteps"].as<int>(),
-            vm["numOfTasks"].as<int>(),
-            vm["LHCSeed"].as<int>(),
-            vm["threadBaseSeed"].as<int>(),
-            vm["distType"].as<std::string>(),
             vm["cfg"].as<std::string>(),
             vm["accCfg"].as<std::string>(),
             vm["donCfg"].as<std::string>(),
