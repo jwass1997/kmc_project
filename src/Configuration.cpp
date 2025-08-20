@@ -46,6 +46,8 @@ Configuration::Configuration(
 
     noDimension = params.noDimension;
 
+    femRes = params.femRes;
+
     A0 = (e*e) / (4.0*kb*T*PI*eps0*epsr*1e-9);
     R = std::sqrt(M_PI*radius*radius / static_cast<double>(nAcceptors));
 
@@ -64,7 +66,7 @@ Configuration::Configuration(
 
         auto now = std::chrono::high_resolution_clock::now();
         auto now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
-        setRandomSeed(static_cast<long int>(now_ns));
+        setRandomSeed((int)now_ns);
 
         for (int i = 0; i < nAcceptors; ++i) {
             double randomPhi = 2.0*M_PI*randomDouble01();
@@ -119,6 +121,17 @@ Configuration::Configuration(
             donorCoords.push_back(randomR*std::cos(randomPhi));
             donorCoords.push_back(randomR*std::sin(randomPhi));
         }
+    }
+
+
+    electrodeData = params.electrodeData;
+    electrodeCoords.reserve(2*nElectrodes);
+    for (const auto& el : electrodeData) {
+        double phi = (2.0 * M_PI * el.angularPosition) / 360.0;
+        double x = radius * std::cos(phi);
+        double y = radius * std::sin(phi);
+        electrodeCoords.push_back(x);
+        electrodeCoords.push_back(y);
     }
 }
 

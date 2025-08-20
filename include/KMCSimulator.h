@@ -37,11 +37,11 @@ class KMCSimulator {
 
         double cumulativeSumOfRates;
 
-        std::vector<int> numOfNeighbors;
+        std::vector<int> numOfNeighbours;
 
         std::vector<int> jaggedArrayLengths;
 
-        std::vector<int> neighborIndices;
+        std::vector<int> neighbourIndices;
 
         int totalNumOfEvents;
 

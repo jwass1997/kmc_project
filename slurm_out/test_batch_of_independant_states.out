@@ -1,0 +1,141 @@
+Hi main.cpp
+Hello world
+6491
+79
+works after creating configuration_params
+12
+94
+70
+works after creating configuration
+4works after creating configuration_params
+16
+88
+works after creating configuration_params
+works after creating configuration_params
+works after creating configuration
+works after creating configuration
+61
+52
+19works after creating configuration_params
+43
+works after creating configuration_params
+works after creating configuration73
+22works after creating configuration_params
+58
+works after creating configuration_params
+67
+76
+works after creating configuration_params
+works after creating configuration_params
+works after creating configuration_params
+works after creating configuration
+works after creating configuration
+37
+85
+97
+
+46
+55
+works after creating configuration_params
+
+31
+works after creating configuration_params
+
+works after creating configuration_params
+works after creating configuration_params
+works after creating configuration
+works after creating configuration
+49
+works after creating configuration_params
+40
+works after creating configuration_params
+82
+works after creating configuration_params
+0
+works after creating configuration_params
+works after creating configuration
+8
+works after creating configuration_params
+works after creating configuration
+works after creating configuration_params
+works after creating configuration
+
+28
+works after creating configuration
+works after creating configuration_params
+34
+works after creating configuration
+works after creating configuration_params
+works after creating configuration
+works after creating configurationworks after creating configuration
+works after creating configuration
+works after creating configuration
+works after creating configuration_params
+works after creating configuration
+works after creating configuration_params
+works after creating configuration
+works after creating configuration_params
+25
+works after creating configuration_params
+works after creating configuration_params
+works after creating configuration
+works after creating configuration
+works after creating configurationworks after creating configuration
+works after creating configuration_params
+works after creating configuration_params
+works after creating configuration
+works after creating configuration
+works after creating configuration
+works after creating configuration
+
+
+
+works after creating configuration
+works after creating configuration_params
+works after creating configuration_params
+works after creating configuration
+works after creating configuration
+works after creating configuration
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+works until creating State
+work after creating kmc_simulator
+init_energies loop works
+energy contributions loop works
+acc_corrds loop works
+don_corrds loop works
+work after creating kmc_simulator
+init_energies loop works
+energy contributions loop works
+acc_corrds loop works
+don_corrds loop works
+/var/spool/slurm/job9805357/slurm_script: line 10: 2154278 Segmentation fault      (core dumped) "$@"

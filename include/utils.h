@@ -121,27 +121,7 @@ void singleIVCurve(
     const std::string& fileName
 );
 
-void batchOfIVPointsWithDistParam(
-    int batchSize,
-    double minVoltage,
-    double maxVoltage,
-    int inputIdx,
-    int outputIdx,
-    int eqSteps,
-    int simSteps,
-    int numOfTasks,
-    int LHCSeed,
-    int threadBaseSeed,
-    const std::string& distType,
-    const std::string& cfg,
-    const std::string& accCfg,
-    const std::string& donCfg,
-    const std::string& eleCfg,
-    const std::string& saveFolder,
-    const std::string& fileName
-);
-
-void batchOfIVPoints(
+void batchFromSingleState(
     int batchSize,
     double minVoltage,
     double maxVoltage,
@@ -160,20 +140,13 @@ void batchOfIVPoints(
     const std::string& fileName
 );
 
-void functionTestBody(
+void batchOfIndependantStates(
     int batchSize,
     double minVoltage,
     double maxVoltage,
-    int inputIdx,
-    int outputIdx,
-    int eqSteps,
-    int simSteps,
-    int numOfTasks,
-    int LHCSeed,
-    int threadBaseSeed,
     int nAcceptors,
-    int nDonors,
     int nElectrodes,
+    int nDonors,
     double radius,
     double nu0,
     double a,
@@ -183,6 +156,15 @@ void functionTestBody(
     double minHopDistance,
     double maxHopDistance,
     int femRes,
+    std::string distType,
+    double epsilon,
+    int inputIdx,
+    int outputIdx,
+    int eqSteps,
+    int simSteps,
+    int numOfTasks,
+    int LHCSeed,
+    int threadBaseSeed,
     const std::string& saveFolder,
     const std::string& fileName
 );

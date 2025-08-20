@@ -141,7 +141,7 @@ def slurm_single_IV(
     else:
         print("sbatch submission output:\n", result.stdout)
 
-def slurm_single_batch(
+def slurm_batch_from_single_state(
         batch_size,
         min_V,
         max_V,
@@ -179,7 +179,7 @@ def slurm_single_batch(
         f"--output={output_file_name}",
         str(SH_SCRIPT),
         str(BINARY),
-        "createBatch",
+        "batchFromSingleState",
         f"--batchSize={batch_size}",
         f"--minVoltage={min_V}",
         f"--maxVoltage={max_V}",
@@ -205,10 +205,24 @@ def slurm_single_batch(
     else:
         print("sbatch submission output:\n", result.stdout)
 
-def slurm_single_batch_with_dist_param(
+def slurm_batch_of_independant_states(
         batch_size,
         min_V,
         max_V,
+        n_acceptors,
+        n_electrodes,
+        n_donors,
+        radius,
+        nu0,
+        a,
+        T,
+        energy_disorder,
+        electrode_width,
+        min_hop_distance,
+        max_hop_distance,
+        fem_res,
+        dist_type,
+        eps,
         input_idx,
         output_idx,
         eq_steps,
@@ -216,11 +230,6 @@ def slurm_single_batch_with_dist_param(
         num_of_tasks,
         LHCSeed,
         threadBaseSeed,
-        dist_type,
-        cfg,
-        acc_cfg,
-        don_cfg,
-        ele_cfg,
         save_folder,
         file_name,
         ROOT,
@@ -228,10 +237,7 @@ def slurm_single_batch_with_dist_param(
         BINARY,
         SH_SCRIPT
 ):
-    CFG_DIR = Path(ROOT) / f"{cfg}"
-    ACC_DIR = Path(ROOT) / f"{acc_cfg}"
-    DON_DIR = Path(ROOT) / f"{don_cfg}"
-    ELE_DIR = Path(ROOT) / f"{ele_cfg}"
+
     DATA_DIR = Path(WS_DIR) / f"{save_folder}"
     DATA_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -244,10 +250,24 @@ def slurm_single_batch_with_dist_param(
         f"--output={output_file_name}",
         str(SH_SCRIPT),
         str(BINARY),
-        "batch_with_dist_param",
+        "batchOfIndependantStates",
         f"--batchSize={batch_size}",
         f"--minVoltage={min_V}",
         f"--maxVoltage={max_V}",
+        f"--nAcceptors={n_acceptors}",
+        f"--nElectrodes={n_electrodes}",
+        f"--nDonors={n_donors}",
+        f"--radius={radius}",
+        f"--nu0={nu0}",
+        f"--a={a}",
+        f"--T={T}",
+        f"--energyDisorder={energy_disorder}",
+        f"--electrodeWidth={electrode_width}",
+        f"--minHopDistance={min_hop_distance}",
+        f"--maxHopDistance={max_hop_distance}",
+        f"--femRes={fem_res}",
+        f"--distType={dist_type}",
+        f"--eps={eps}",
         f"--inputIdx={input_idx}",
         f"--outputIdx={output_idx}",
         f"--eqSteps={eq_steps}",
@@ -255,11 +275,6 @@ def slurm_single_batch_with_dist_param(
         f"--numOfTasks={num_of_tasks}",
         f"--LHCSeed={LHCSeed}",
         f"--threadBaseSeed={threadBaseSeed}",
-        f"--distType={dist_type}",
-        f"--cfg={str(CFG_DIR)}",
-        f"--accCfg={str(ACC_DIR)}",
-        f"--donCfg={str(DON_DIR)}",
-        f"--eleCfg={str(ELE_DIR)}",
         f"--saveFolder={str(DATA_DIR)}",
         f"--fileName={file_name}"
     ]
@@ -353,8 +368,8 @@ if __name__ == "__main__":
         SH_SCRIPT=str(ROOT / "scripts" / "slurm" / "helix_single.sh")
     ) """
 
-    slurm_single_batch(
-        batch_size=100,
+    """ slurm_batch_from_single_state(
+        batch_size=500,
         min_V=-1.5,
         max_V=1.5,
         input_idx=1,
@@ -374,4 +389,37 @@ if __name__ == "__main__":
         WS_DIR = WS_DIR,
         BINARY = BINARY,
         SH_SCRIPT = str(ROOT / "scripts" / "slurm" / "batch_script.sh")
-    )
+    ) """
+
+slurm_batch_of_independant_states(
+    batch_size=100,
+    min_V=-1.5,
+    max_V=1.5,
+    n_acceptors=200,
+    n_electrodes=8,
+    n_donors=3,
+    radius=150.0,
+    nu0=1.0,
+    a=20.0,
+    T=77.0,
+    energy_disorder=0.01,
+    electrode_width=60.0,
+    min_hop_distance=1.5,
+    max_hop_distance=60.0,
+    fem_res=10000,
+    dist_type="uniform",
+    eps=0.6,
+    input_idx=1,
+    output_idx=0,
+    eq_steps=10_000,
+    sim_steps=1_000_000,
+    num_of_tasks=100,
+    LHCSeed=np.random.randint(low=0, high=2**20 - 1),
+    threadBaseSeed=np.random.randint(low=0, high=2**20 - 1),
+    save_folder="independant_state_batches",
+    file_name="test_batch_of_independant_states",
+    ROOT=ROOT,
+    WS_DIR=WS_DIR,
+    BINARY=BINARY,
+    SH_SCRIPT=str(ROOT / "scripts" / "slurm" / "batch_script.sh")
+)

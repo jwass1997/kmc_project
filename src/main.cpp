@@ -12,6 +12,7 @@
 #include "Random.h"
 
 int main(int argc, char* argv[]) {
+    std::cerr << "Hi main.cpp" << "\n";
     argParser(argc, argv);
 
     /* std::string cfg = "/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/configs/config.txt";

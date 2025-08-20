@@ -18,9 +18,9 @@ KMCSimulator::KMCSimulator()
 
 KMCSimulator::KMCSimulator(State& state)
 {
-    numOfNeighbors = state.numOfNeighbours;
+    numOfNeighbours = state.numOfNeighbours;
     jaggedArrayLengths = state.jaggedArrayLengths;
-    neighborIndices = state.neighbourIndices;
+    neighbourIndices = state.neighbourIndices;
     totalNumOfEvents = state.totalNumOfEvents;
     lastHopIndices.resize(2, 0);
 
@@ -55,7 +55,7 @@ void KMCSimulator::updateTransitionRates(State& state) {
 
     for (int i = 0; i < state.numOfSites; ++i) {
 		for (int k = jaggedArrayLengths[i]; k < jaggedArrayLengths[i+1]; ++k) {
-            int partner = neighborIndices[k];
+            int partner = neighbourIndices[k];
 			// Electrode - Acceptor
 			if (i >= state.nAcceptors && partner < state.nAcceptors) {
 				if(state.currentOccupation[partner] == 1) {
@@ -118,7 +118,7 @@ void KMCSimulator::sampleEvent(State& state) {
             double rate = aggregatedTransitionRates[k];
             cumulativeSumOfRates+=rate;
             if (cumulativeSumOfRates >= _r) {
-                int j = neighborIndices[k];
+                int j = neighbourIndices[k];
                 lastHopIndices[0] = i;
                 lastHopIndices[1] = j;
                 return;
