@@ -298,55 +298,45 @@ if __name__ == "__main__":
     #control_volts = [1.0, 0, 0, -1.0, 0, 0]
     control_indices = [2, 3, 4, 5, 6, 7]
 
-    """ slurm_single_IV(
-        numOfPoints=100,
-        inputIdx=1,
-        outputIdx=0,
-        control_indices=control_indices,
-        control_volts=control_volts,
-        minVoltage=-1.5,
-        maxVoltage=1.5,
-        eq_steps=10_000,
-        sim_steps=1_000_000,
-        num_intervals=100,
-        seed=4214124,
-        cfg="configs/config.txt",
-        acc_cfg="configs/vonMises_beta_SM.txt",
-        don_cfg="configs/donors.txt",
-        ele_cfg="configs/electrodes.txt",
-        save_folder="example_curves",
-        file_name="test_sine",
-        ROOT=ROOT,
-        WS_DIR=WS_DIR,
-        BINARY=BINARY,
-        SH_SCRIPT=SH_SCRIPT
-    ) """
+    thetas = [0.1, 0.2, 0.3, 0.4, 0.5, 1.0, 1.5]
+    for theta in thetas:
+        slurm_single_IV(
+            numOfPoints=100,
+            inputIdx=1,
+            outputIdx=0,
+            control_indices=control_indices,
+            control_volts=control_volts,
+            minVoltage=-1.5,
+            maxVoltage=1.5,
+            eq_steps=10_000,
+            sim_steps=1_000_000,
+            num_intervals=100,
+            seed=3123123,
+            cfg="configs/config.txt",
+            acc_cfg=f"configs/jiggled_acc_uniform_{theta}.txt",
+            don_cfg="configs/don_uniform.txt",
+            ele_cfg="configs/electrodes.txt",
+            save_folder="example_curves",
+            file_name=f"jiggled_acc_uniform_{theta}",
+            ROOT=ROOT,
+            WS_DIR=WS_DIR,
+            BINARY=BINARY,
+            SH_SCRIPT=SH_SCRIPT
+        )
 
     num_batches = 200
     batch_size = 1_000
     """ for i in range(0, 150):
         time.sleep(0.1)
-        slurm_single_batch(
+        slurm_batch_from_single_state(
             batch_size=batch_size,
-            min_V=-1.5,
-            max_V=1.5,
-            input_idx=1,
-            output_idx=0,
-            eq_steps=10_000,
-            sim_steps=1_000_000,
-            num_of_tasks=100,
-            LHCSeed=np.random.randint(low=0, high=2**20 - 1),
-            threadBaseSeed=np.random.randint(low=0, high=2**20 - 1),
-            cfg="configs/config.txt",
-            acc_cfg="configs/vonMises_beta_SM.txt",
-            don_cfg="configs/donors.txt",
-            ele_cfg="configs/electrodes.txt",
-            save_folder="sm_batches_1e6_vonMises_beta",
-            file_name=f"batch_1e6_{i}",
-            ROOT=ROOT,
-            WS_DIR = WS_DIR,
-            BINARY = BINARY,
-            SH_SCRIPT = str(ROOT / "scripts" / "slurm" / "batch_script.sh")
+            min_V=-1.5, max_V=1.5,
+            input_idx=1, output_idx=0,
+            eq_steps=10_000, sim_steps=1_000_000, num_of_tasks=100,
+            LHCSeed=np.random.randint(low=0, high=2**20 - 1), threadBaseSeed=np.random.randint(low=0, high=2**20 - 1),
+            cfg="configs/config.txt", acc_cfg="configs/vonMises_beta_SM.txt", don_cfg="configs/donors.txt", ele_cfg="configs/electrodes.txt",
+            save_folder="sm_batches_1e6_vonMises_beta", file_name=f"batch_1e6_{i}",
+            ROOT=ROOT, WS_DIR = WS_DIR, BINARY = BINARY, SH_SCRIPT = str(ROOT / "scripts" / "slurm" / "batch_script.sh")
         ) """
     voltages = [0.1, -0.2, 1.2, 0.8, 0.6, -0.9, 0.5, 0.5]
     voltage_indices = [0, 1, 2, 3, 4, 5, 6, 7]
@@ -391,7 +381,7 @@ if __name__ == "__main__":
         SH_SCRIPT = str(ROOT / "scripts" / "slurm" / "batch_script.sh")
     ) """
 
-slurm_batch_of_independant_states(
+""" slurm_batch_of_independant_states(
     batch_size=100,
     min_V=-1.5,
     max_V=1.5,
@@ -422,4 +412,4 @@ slurm_batch_of_independant_states(
     WS_DIR=WS_DIR,
     BINARY=BINARY,
     SH_SCRIPT=str(ROOT / "scripts" / "slurm" / "batch_script.sh")
-)
+) """

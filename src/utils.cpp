@@ -11,6 +11,11 @@
 #include "Configuration.h"
 #include "KMCSimulator.h"
 
+struct Measurement {
+    State stateToMeasure;
+
+};
+
 double calculateDistance(
     double coordinateX1, 
     double coordinateX2, 
@@ -189,21 +194,13 @@ double singleIVPoint(
 
 void singleIVCurve(
     int numOfPoints,
-    int inputIdx,
-    int outputIdx,
-    double minVoltage,
-    double maxVoltage,
-    int eqSteps,
-    int simSteps,
-    int numOfTasks,
+    int inputIdx, int outputIdx,
+    double minVoltage, double maxVoltage,
+    int eqSteps, int simSteps, int numOfTasks,
     int seed,
     std::vector<double> controlVoltages,
-    const std::string& cfg,
-    const std::string& accCfg,
-    const std::string& donCfg,
-    const std::string& eleCfg,
-    const std::string& saveFolder,
-    const std::string& fileName
+    const std::string& cfg, const std::string& accCfg, const std::string& donCfg, const std::string& eleCfg,
+    const std::string& saveFolder, const std::string& fileName
 ) {
     if (saveFolder.empty()) {
         throw std::invalid_argument("[singleIVCurve]: Save folder not found");
@@ -433,36 +430,23 @@ void batchFromSingleState(
 
 void batchOfIndependantStates(
     int batchSize,
-    double minVoltage,
-    double maxVoltage,
-    int nAcceptors,
-    int nElectrodes,
-    int nDonors,
-    double radius,
-    double nu0,
-    double a,
-    double T,
+    double minVoltage, double maxVoltage,
+    int nAcceptors, int nElectrodes, int nDonors,
+    double radius, double nu0, double a, double T,
     double energyDisorder,
     double electrodeWidth,
-    double minHopDistance,
-    double maxHopDistance,
+    double minHopDistance, double maxHopDistance,
     int femRes,
-    std::string distType,
-    double epsilon,
-    int inputIdx,
-    int outputIdx,
-    int eqSteps,
-    int simSteps,
-    int numOfTasks,
-    int LHCSeed,
-    int threadBaseSeed,
-    const std::string& saveFolder,
-    const std::string& fileName
+    std::string distType, double epsilon,
+    int inputIdx, int outputIdx,
+    int eqSteps, int simSteps, int numOfTasks,
+    int LHCSeed, int threadBaseSeed,
+    const std::string& saveFolder, const std::string& fileName
 ) {
     if (saveFolder.empty()) {
         throw std::invalid_argument("[batchOfIndependantStates]: Save folder not found");
     }
-    std::cerr << "Hello world" << "\n";
+
     int numOfSites = nAcceptors + nElectrodes;
 
     std::string file = saveFolder + "/" + fileName + ".npz";
@@ -496,9 +480,19 @@ void batchOfIndependantStates(
     /* Vectors for coordinates */
     std::vector<double> accCoords(batchSize*nAcceptors*2, 0.0);
     std::vector<double> donCoords(batchSize*nDonors*2, 0.0);
-    std::vector<double> eleCoords(nElectrodes*2, 0.0);
     std::vector<size_t> accCoordsShape = {(size_t)batchSize, (size_t)nAcceptors, 2};
     std::vector<size_t> donCoordsShape = {(size_t)batchSize, (size_t)nDonors, 2};
+
+    /* Dummy params to get electrode coordinates */
+    std::vector<double> eleCoords(nElectrodes*2, 0.0);
+    ConfigurationParams dummyParams;
+    Configuration dummyConfig(dummyParams);
+    for (int _e = 0; _e < dummyParams.electrodeData.size(); ++_e) {
+        double deg = dummyConfig.electrodeData[_e].angularPosition;
+        double phi = 2.0*M_PI*deg / 360.0;
+        eleCoords[2*_e] =  dummyConfig.radius*std::cos(phi);                                
+        eleCoords[2*_e + 1] =  dummyConfig.radius*std::sin(phi); 
+    }
     std::vector<size_t> eleCoordsShape = {(size_t)nElectrodes, 2};
 
     /* Vector for rate prefactors */
@@ -515,7 +509,6 @@ void batchOfIndependantStates(
 
         #pragma omp for
         for (int _p = 0; _p < batchSize; ++_p) {
-            std::cerr << _p << "\n";
 
             int threadSeed = threadID * 100000 + threadBaseSeed + _p;
             setRandomSeed(threadSeed);
@@ -537,37 +530,32 @@ void batchOfIndependantStates(
             params.femRes = femRes;
             params.distType = distType;
             params.epsilon = epsilon;
-            std::cerr << "works after creating configuration_params" << "\n";
+
             Configuration config(params);
-            std::cerr << "works after creating configuration" << "\n";
+
             State tempState(config);
-            std::cerr << "works until creating State" << "\n";
+
             tempState.updateBoundaries(voltages);
             KMCSimulator kmc(tempState);
-            std::cerr << "work after creating kmc_simulator" << "\n";
             /* Saving initial energies */
             for (int _s = 0; _s < tempState.numOfSites; ++_s) {
                 initialEnergies[_s + _p*tempState.numOfSites] = tempState.siteEnergies[_s];
             }
-            std::cerr << "init_energies loop works" << "\n";
             /* Saving initial energy contributions */
             for (int _t = 0; _t < tempState.nAcceptors; ++_t) {
                 accDonInteraction[_t + _p*tempState.nAcceptors] = tempState.acceptorDonorInteraction[_t];
                 accInteraction[_t + _p*tempState.nAcceptors] = tempState.acceptorInteraction[_t];
                 randEnergies[_t + _p*tempState.nAcceptors] = tempState.randomEnergies[_t];
             }
-            std::cerr << "energy contributions loop works" << "\n";
             /* Saving coords */
             for (int _u = 0; _u < nAcceptors; ++_u) {
                 accCoords[(_u + _p*nAcceptors)*2] = tempState.acceptorCoordinates[_u*2];
                 accCoords[(_u + _p*nAcceptors)*2 + 1] = tempState.acceptorCoordinates[_u*2 + 1];
             }
-            std::cerr << "acc_corrds loop works" << "\n";
             for (int _u = 0; _u < nDonors; ++_u) {
                 donCoords[(_u + _p*nDonors)*2] = tempState.donorCoordinates[_u*2];
                 donCoords[(_u + _p*nDonors)*2 + 1] = tempState.donorCoordinates[_u*2 + 1];
             }
-            std::cerr << "don_corrds loop works" << "\n";
             /* Saving rate prefactors into NxN again */
             for (int l = 0; l < tempState.jaggedArrayLengths.size()-1; ++l) {
 
@@ -622,7 +610,6 @@ void batchOfIndependantStates(
             }
         }
     }
-    std::cerr << "Left the batch loop" << "\n";
     /* Input-Output data */
     cnpy::npz_save(file, "inputIdx", &inputIdx, {1}, "w");
     cnpy::npz_save(file, "outputIdx", &outputIdx, {1}, "a");
@@ -632,7 +619,7 @@ void batchOfIndependantStates(
     /* Save coords of equilState */
     cnpy::npz_save(file, "acc_xy", accCoords.data(), accCoordsShape, "a");
     cnpy::npz_save(file, "don_xy", donCoords.data(), donCoordsShape, "a");
-    //cnpy::npz_save(file, "ele_xy", eleCoords.data(), eleCoordsShape, "a");
+    cnpy::npz_save(file, "ele_xy", eleCoords.data(), eleCoordsShape, "a");
 
     /* Initial site energies and different energy parts */
     cnpy::npz_save(file, "init_energies", initialEnergies.data(), initialEnergiesShape, "a");

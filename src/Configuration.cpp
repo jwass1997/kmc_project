@@ -223,7 +223,6 @@ Configuration::Configuration(
                 else if (key == "noDimension") {
                     noDimension = std::stoi(value);
                 }
-
                 else if (key == "femRes") {
                     femRes = std::stoi(value);
                 }

@@ -1,0 +1,89 @@
+[I 2025-08-21 14:48:13.776 ServerApp] jupyter_lsp | extension was successfully linked.
+[I 2025-08-21 14:48:13.811 ServerApp] jupyter_server_terminals | extension was successfully linked.
+[I 2025-08-21 14:48:13.815 ServerApp] jupyterlab | extension was successfully linked.
+[I 2025-08-21 14:48:13.847 ServerApp] notebook | extension was successfully linked.
+[I 2025-08-21 14:48:32.174 ServerApp] notebook_shim | extension was successfully linked.
+[I 2025-08-21 14:48:34.384 ServerApp] notebook_shim | extension was successfully loaded.
+[I 2025-08-21 14:48:34.475 ServerApp] jupyter_lsp | extension was successfully loaded.
+[I 2025-08-21 14:48:34.476 ServerApp] jupyter_server_terminals | extension was successfully loaded.
+[I 2025-08-21 14:48:34.678 LabApp] JupyterLab extension loaded from /home/hd/hd_hd/hd_gy283/.conda/envs/py311/lib/python3.11/site-packages/jupyterlab
+[I 2025-08-21 14:48:34.678 LabApp] JupyterLab application directory is /gpfs/bwfor/home/hd/hd_hd/hd_gy283/.conda/envs/py311/share/jupyter/lab
+[I 2025-08-21 14:48:34.699 LabApp] Extension Manager is 'pypi'.
+[I 2025-08-21 14:48:41.343 ServerApp] jupyterlab | extension was successfully loaded.
+[I 2025-08-21 14:48:41.371 ServerApp] notebook | extension was successfully loaded.
+[I 2025-08-21 14:48:41.371 ServerApp] Serving notebooks from local directory: /gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project
+[I 2025-08-21 14:48:41.371 ServerApp] Jupyter Server 2.16.0 is running at:
+[I 2025-08-21 14:48:41.371 ServerApp] http://o04c05:9599/lab
+[I 2025-08-21 14:48:41.371 ServerApp]     http://127.0.0.1:9599/lab
+[I 2025-08-21 14:48:41.371 ServerApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[I 2025-08-21 14:48:41.607 ServerApp] Skipped non-installed server(s): bash-language-server, dockerfile-language-server-nodejs, javascript-typescript-langserver, jedi-language-server, julia-language-server, pyright, python-language-server, python-lsp-server, r-languageserver, sql-language-server, texlab, typescript-language-server, unified-language-server, vscode-css-languageserver-bin, vscode-html-languageserver-bin, vscode-json-languageserver-bin, yaml-language-server
+[I 2025-08-21 14:49:11.051 LabApp] 302 GET /lab (@10.20.10.75) 0.54ms
+[I 2025-08-21 14:49:15.474 ServerApp] User 6b91d48cff4b42c49681e1cd0bfac815 logged in.
+[I 2025-08-21 14:49:15.475 ServerApp] 302 POST /login?next=%2Flab (6b91d48cff4b42c49681e1cd0bfac815@10.20.10.75) 509.46ms
+[W 2025-08-21 14:49:20.845 LabApp] Could not determine jupyterlab build status without nodejs
+[W 2025-08-21 14:49:21.417 ServerApp] 404 GET /api/contents/kmc_project/scripts/python_scripts?content=0&hash=0&1755780569177 (6b91d48cff4b42c49681e1cd0bfac815@10.20.10.75) 0.74ms referer=http://127.0.0.1:9599/lab
+[W 2025-08-21 14:49:21.418 ServerApp] 404 GET /api/contents/kmc_project/scripts/python_scripts?content=0&hash=0&1755780569177 (10.20.10.75): No such file or directory: kmc_project/scripts/python_scripts
+[W 2025-08-21 14:49:21.421 ServerApp] 404 GET /api/contents/kmc_project/scripts/python_scripts/visualize.ipynb?content=0&hash=0&1755780569177 (6b91d48cff4b42c49681e1cd0bfac815@10.20.10.75) 0.53ms referer=http://127.0.0.1:9599/lab
+[W 2025-08-21 14:49:21.421 ServerApp] 404 GET /api/contents/kmc_project/scripts/python_scripts/visualize.ipynb?content=0&hash=0&1755780569177 (10.20.10.75): No such file or directory: kmc_project/scripts/python_scripts/visualize.ipynb
+[W 2025-08-21 14:49:21.422 ServerApp] 404 GET /api/contents/kmc_project/scripts/python_scripts/optuna.ipynb?content=0&hash=0&1755780569177 (6b91d48cff4b42c49681e1cd0bfac815@10.20.10.75) 0.46ms referer=http://127.0.0.1:9599/lab
+[W 2025-08-21 14:49:21.422 ServerApp] 404 GET /api/contents/kmc_project/scripts/python_scripts/optuna.ipynb?content=0&hash=0&1755780569177 (10.20.10.75): No such file or directory: kmc_project/scripts/python_scripts/optuna.ipynb
+[W 2025-08-21 14:49:21.423 ServerApp] 404 GET /api/contents/kmc_project/scripts/python_scripts/surrogate_model.ipynb?content=0&hash=0&1755780569177 (6b91d48cff4b42c49681e1cd0bfac815@10.20.10.75) 0.45ms referer=http://127.0.0.1:9599/lab
+[W 2025-08-21 14:49:21.435 ServerApp] 404 GET /api/contents/kmc_project/scripts/python_scripts/surrogate_model.ipynb?content=0&hash=0&1755780569177 (10.20.10.75): No such file or directory: kmc_project/scripts/python_scripts/surrogate_model.ipynb
+[W 2025-08-21 14:49:21.442 ServerApp] 404 GET /api/contents/kmc_project/scripts/python_scripts/surrogate_model.ipynb?content=0&hash=0&1755780569177 (6b91d48cff4b42c49681e1cd0bfac815@10.20.10.75) 0.46ms referer=http://127.0.0.1:9599/lab
+[W 2025-08-21 14:49:21.442 ServerApp] 404 GET /api/contents/kmc_project/scripts/python_scripts/surrogate_model.ipynb?content=0&hash=0&1755780569177 (10.20.10.75): No such file or directory: kmc_project/scripts/python_scripts/surrogate_model.ipynb
+[W 2025-08-21 14:49:21.457 ServerApp] 404 GET /api/contents/kmc_project/scripts/python_scripts/visualize.ipynb?content=0&hash=0&1755780569178 (6b91d48cff4b42c49681e1cd0bfac815@10.20.10.75) 0.47ms referer=http://127.0.0.1:9599/lab
+[W 2025-08-21 14:49:21.457 ServerApp] 404 GET /api/contents/kmc_project/scripts/python_scripts/visualize.ipynb?content=0&hash=0&1755780569178 (10.20.10.75): No such file or directory: kmc_project/scripts/python_scripts/visualize.ipynb
+[W 2025-08-21 14:49:21.458 ServerApp] 404 GET /api/contents/kmc_project/scripts/python_scripts/optuna.ipynb?content=0&hash=0&1755780569178 (6b91d48cff4b42c49681e1cd0bfac815@10.20.10.75) 0.43ms referer=http://127.0.0.1:9599/lab
+[W 2025-08-21 14:49:21.458 ServerApp] 404 GET /api/contents/kmc_project/scripts/python_scripts/optuna.ipynb?content=0&hash=0&1755780569178 (10.20.10.75): No such file or directory: kmc_project/scripts/python_scripts/optuna.ipynb
+[W 2025-08-21 14:49:22.617 ServerApp] 404 GET /api/contents/kmc_project/scripts/python_scripts?1755780570376 (6b91d48cff4b42c49681e1cd0bfac815@10.20.10.75) 0.49ms referer=http://127.0.0.1:9599/lab
+[W 2025-08-21 14:49:22.618 ServerApp] 404 GET /api/contents/kmc_project/scripts/python_scripts?1755780570376 (10.20.10.75): No such file or directory: kmc_project/scripts/python_scripts
+[W 2025-08-21 14:49:48.974 ServerApp] Notebook scripts/python_scripts/visualize.ipynb is not trusted
+[W 2025-08-21 14:49:49.327 ServerApp] 404 GET /api/data/100_sweep/row_?content=0&hash=0&1755780597064 (6b91d48cff4b42c49681e1cd0bfac815@10.20.10.75) 24.53ms referer=http://127.0.0.1:9599/lab/tree/scripts/python_scripts/visualize.ipynb
+[W 2025-08-21 14:49:49.330 ServerApp] 404 GET /api/data/100_sweep/row_18.npz?content=0&hash=0&1755780597065 (6b91d48cff4b42c49681e1cd0bfac815@10.20.10.75) 1.49ms referer=http://127.0.0.1:9599/lab/tree/scripts/python_scripts/visualize.ipynb
+[I 2025-08-21 14:49:49.892 ServerApp] Kernel started: c6331246-718f-43a1-9f28-93ef0fb5fc0e
+[I 2025-08-21 14:49:58.279 ServerApp] Connecting to kernel c6331246-718f-43a1-9f28-93ef0fb5fc0e.
+[W 2025-08-21 14:49:58.280 ServerApp] The websocket_ping_timeout (90000) cannot be longer than the websocket_ping_interval (30000).
+    Setting websocket_ping_timeout=30000
+[I 2025-08-21 14:51:57.580 ServerApp] Connecting to kernel c6331246-718f-43a1-9f28-93ef0fb5fc0e.
+[I 2025-08-21 14:53:51.327 ServerApp] Saving file at /scripts/python_scripts/visualize.ipynb
+[W 2025-08-21 14:53:51.338 ServerApp] Notebook scripts/python_scripts/visualize.ipynb is not trusted
+[I 2025-08-21 14:55:52.508 ServerApp] Saving file at /scripts/python_scripts/visualize.ipynb
+[W 2025-08-21 14:55:52.508 ServerApp] Notebook scripts/python_scripts/visualize.ipynb is not trusted
+[W 2025-08-21 14:55:52.611 ServerApp] /gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/scripts/python_scripts/.~visualize.ipynb doesn't exist
+[I 2025-08-21 14:57:53.869 ServerApp] Saving file at /scripts/python_scripts/visualize.ipynb
+[W 2025-08-21 14:57:53.869 ServerApp] Notebook scripts/python_scripts/visualize.ipynb is not trusted
+[I 2025-08-21 14:59:55.208 ServerApp] Saving file at /scripts/python_scripts/visualize.ipynb
+[W 2025-08-21 14:59:55.208 ServerApp] Notebook scripts/python_scripts/visualize.ipynb is not trusted
+[I 2025-08-21 15:01:56.790 ServerApp] Saving file at /scripts/python_scripts/visualize.ipynb
+[W 2025-08-21 15:01:56.811 ServerApp] Notebook scripts/python_scripts/visualize.ipynb is not trusted
+[I 2025-08-21 15:12:01.880 ServerApp] Saving file at /scripts/python_scripts/visualize.ipynb
+[W 2025-08-21 15:12:01.880 ServerApp] Notebook scripts/python_scripts/visualize.ipynb is not trusted
+[I 2025-08-21 15:12:25.088 ServerApp] Saving file at /scripts/python_scripts/visualize.ipynb
+[W 2025-08-21 15:12:25.088 ServerApp] Notebook scripts/python_scripts/visualize.ipynb is not trusted
+[I 2025-08-21 15:14:26.563 ServerApp] Saving file at /scripts/python_scripts/visualize.ipynb
+[W 2025-08-21 15:14:26.563 ServerApp] Notebook scripts/python_scripts/visualize.ipynb is not trusted
+[I 2025-08-21 15:21:36.613 ServerApp] Saving file at /scripts/python_scripts/visualize.ipynb
+[W 2025-08-21 15:21:36.615 ServerApp] Notebook scripts/python_scripts/visualize.ipynb is not trusted
+[I 2025-08-21 15:23:36.305 ServerApp] Saving file at /scripts/python_scripts/visualize.ipynb
+[W 2025-08-21 15:23:36.305 ServerApp] Notebook scripts/python_scripts/visualize.ipynb is not trusted
+[I 2025-08-21 15:25:37.949 ServerApp] Saving file at /scripts/python_scripts/visualize.ipynb
+[W 2025-08-21 15:25:37.949 ServerApp] Notebook scripts/python_scripts/visualize.ipynb is not trusted
+[I 2025-08-21 18:02:55.295 ServerApp] Starting buffering for c6331246-718f-43a1-9f28-93ef0fb5fc0e:5e1efa06-f3f4-4809-85a8-a53920ec985e
+[I 2025-08-21 18:02:58.243 ServerApp] Connecting to kernel c6331246-718f-43a1-9f28-93ef0fb5fc0e.
+[W 2025-08-21 18:02:58.248 LabApp] Could not determine jupyterlab build status without nodejs
+[I 2025-08-21 18:02:58.349 ServerApp] Starting buffering for c6331246-718f-43a1-9f28-93ef0fb5fc0e:6baadea3-64e9-46b2-bf40-6f2ad65639fb
+[W 2025-08-21 18:02:58.676 ServerApp] Notebook scripts/python_scripts/visualize.ipynb is not trusted
+[W 2025-08-21 18:02:59.104 ServerApp] 404 GET /api/data/100_sweep/row_?content=0&hash=0&1755792187235 (6b91d48cff4b42c49681e1cd0bfac815@10.20.10.75) 34.53ms referer=http://127.0.0.1:9599/lab/tree/scripts/python_scripts/visualize.ipynb
+[W 2025-08-21 18:02:59.106 ServerApp] 404 GET /api/data/100_sweep/row_18.npz?content=0&hash=0&1755792187235 (6b91d48cff4b42c49681e1cd0bfac815@10.20.10.75) 0.58ms referer=http://127.0.0.1:9599/lab/tree/scripts/python_scripts/visualize.ipynb
+[I 2025-08-21 18:02:59.472 ServerApp] Connecting to kernel c6331246-718f-43a1-9f28-93ef0fb5fc0e.
+[I 2025-08-21 18:05:01.238 ServerApp] Saving file at /scripts/python_scripts/visualize.ipynb
+[W 2025-08-21 18:05:01.238 ServerApp] Notebook scripts/python_scripts/visualize.ipynb is not trusted
+[I 2025-08-21 18:39:41.687 ServerApp] Saving file at /scripts/python_scripts/visualize.ipynb
+[W 2025-08-21 18:39:41.689 ServerApp] Notebook scripts/python_scripts/visualize.ipynb is not trusted
+[I 2025-08-21 18:41:43.188 ServerApp] Saving file at /scripts/python_scripts/visualize.ipynb
+[W 2025-08-21 18:41:43.189 ServerApp] Notebook scripts/python_scripts/visualize.ipynb is not trusted
+[I 2025-08-21 18:41:50.996 ServerApp] Saving file at /scripts/python_scripts/visualize.ipynb
+[W 2025-08-21 18:41:50.996 ServerApp] Notebook scripts/python_scripts/visualize.ipynb is not trusted
+[I 2025-08-21 18:43:53.474 ServerApp] Saving file at /scripts/python_scripts/visualize.ipynb
+[W 2025-08-21 18:43:53.475 ServerApp] Notebook scripts/python_scripts/visualize.ipynb is not trusted
+slurmstepd: error: *** JOB 9811511 ON o04c05 CANCELLED AT 2025-08-21T18:47:30 DUE TO TIME LIMIT ***

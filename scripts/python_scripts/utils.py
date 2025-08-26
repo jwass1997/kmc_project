@@ -5,27 +5,51 @@ import subprocess
 
 from pathlib import Path
 
-def create_dopant_configuration(radius, n_a, n_d, name_a, name_d):
-    
-    acc_pos, don_pos = np.zeros(shape=(n_a, 2)), np.zeros(shape=(n_d, 2))
+def create_dopant_configuration(radius, n_a, n_d, name_a, name_d, mode):
 
-    angles_acc = np.random.uniform(low=0, high=2*np.pi, size=n_a)
-    angles_don = np.random.uniform(low=0, high=2*np.pi, size=n_d)
+    acc_pos, don_pos = np.zeros((n_a, 2)), np.zeros((n_d, 2))
+    angles_acc, angles_don = np.zeros(n_a), np.zeros(n_d)
+    r_acc, r_don = np.zeros(n_a), np.zeros(n_d)
 
-    r_acc = radius * np.sqrt(np.random.uniform(low=0, high=1, size=n_a))
-    r_don = radius * np.sqrt(np.random.uniform(low=0, high=1, size=n_d))
+    if mode == "uniform":
 
-    with open(f"configs/{name_a}.txt", "w") as f:
-        for i in range(n_a):
-            acc_pos[i][0] = r_acc[i]*np.cos(angles_acc[i])
-            acc_pos[i][1] = r_acc[i]*np.sin(angles_acc[i])
-            f.write(f"{acc_pos[i][0]}\t{acc_pos[i][1]}\n")
+        angles_acc = np.random.uniform(0, 2*np.pi, size=n_a)
+        angles_don = np.random.uniform(0, 2*np.pi, size=n_d)
+        r_acc = radius * np.sqrt(np.random.uniform(0, 1, size=n_a))
+        r_don = radius * np.sqrt(np.random.uniform(0, 1, size=n_d))
 
-    with open(f"configs/{name_d}.txt", "w") as f:
-        for i in range(n_d):
-            don_pos[i][0] = r_don[i]*np.cos(angles_don[i])
-            don_pos[i][1] = r_don[i]*np.sin(angles_don[i])
-            f.write(f"{don_pos[i][0]}\t{don_pos[i][1]}\n")
+        acc_pos[:, 0] = r_acc * np.cos(angles_acc)
+        acc_pos[:, 1] = r_acc * np.sin(angles_acc)
+        don_pos[:, 0] = r_don * np.cos(angles_don)
+        don_pos[:, 1] = r_don * np.sin(angles_don)
+
+    elif mode == "normal_truncated":
+
+        mean = np.array([0.0, 0.0])
+        cov = np.eye(2) * (radius / 3.0)**2
+
+        i = 0
+        while i < n_a:
+            sample = np.random.multivariate_normal(mean=mean, cov=cov)
+            r = np.linalg.norm(sample)
+            if r <= radius:
+                acc_pos[i] = sample
+                r_acc[i] = r
+                angles_acc[i] = np.arctan2(sample[1], sample[0])
+                i += 1
+
+        j = 0
+        while j < n_d:
+            sample = np.random.multivariate_normal(mean=mean, cov=cov)
+            r = np.linalg.norm(sample)
+            if r <= radius:
+                don_pos[j] = sample
+                r_don[j] = r
+                angles_don[j] = np.arctan2(sample[1], sample[0])
+                j += 1
+
+    np.savetxt(f"configs/{name_a}.txt", acc_pos, fmt="%.6f", delimiter="\t")
+    np.savetxt(f"configs/{name_d}.txt", don_pos, fmt="%.6f", delimiter="\t")
 
     return angles_acc, angles_don, r_acc, r_don
 
@@ -49,5 +73,7 @@ def jiggle_configuration(angles, radii, dtheta_max, radial_sigma, name):
 
 if __name__ == "__main__":
 
-    angles_acc, angles_don, r_acc, r_don = create_dopant_configuration(150.0, 200, 3, "acc_0", "don_0")
-    jiggle_configuration(angles_acc, r_acc, radius=150.0, dtheta_max=0.25, radial_sigma=0.0, name="jiggled_acc_0")
+    angles_acc, angles_don, r_acc, r_don = create_dopant_configuration(150.0, 200, 3, "acc_uniform", "don_uniform", "uniform")
+    thetas = [0.1, 0.2, 0.3, 0.4, 0.5, 1.0, 1.5]
+    for theta in thetas:
+        jiggle_configuration(angles_acc, r_acc, dtheta_max=theta, radial_sigma=0.0, name=f"jiggled_acc_uniform_{theta}")
