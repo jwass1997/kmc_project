@@ -294,12 +294,64 @@ if __name__ == "__main__":
     BINARY = ROOT / "build" / "kmc_project"
     SH_SCRIPT = ROOT / "scripts" / "slurm" / "single_curve.sh"
 
-    control_volts = [1.4268, -0.5445, -1.1118, -1.4234, -0.4153,  1.4797]
+    control_volts = [-0.9331,  1.0766,  0.1923, -0.2020,  0.9212,  0.2802]
+    
     #control_volts = [1.0, 0, 0, -1.0, 0, 0]
     control_indices = [2, 3, 4, 5, 6, 7]
+    seed=np.random.randint(low=0, high=2**30 - 1)
+    ns = [0.5, 1.0, 2.0, 5.0, 10.0]#[0.5, 1.0, 1.5, 2.0, 3.0]
+
+    slurm_single_IV(
+        numOfPoints=100,
+        inputIdx=1,
+        outputIdx=0,
+        control_indices=control_indices,
+        control_volts=control_volts,
+        minVoltage=-1.5,
+        maxVoltage=1.5,
+        eq_steps=10_000,
+        sim_steps=1_000_000,
+        num_intervals=100,
+        seed=seed,
+        cfg="data/sm_batches_1e6_vonMises_beta/config.txt",
+        acc_cfg=f"data/sm_batches_1e6_vonMises_beta/vonMises_beta_SM.txt",
+        don_cfg="data/sm_batches_1e6_vonMises_beta/donors.txt",
+        ele_cfg="data/sm_batches_1e6_vonMises_beta/electrodes.txt",
+        save_folder="robustness_experiment_sigmoid",
+        file_name=f"opt_sim",
+        ROOT=ROOT,
+        WS_DIR=WS_DIR,
+        BINARY=BINARY,
+        SH_SCRIPT=SH_SCRIPT
+    )
+
+    for _n in ns:
+        slurm_single_IV(
+            numOfPoints=100,
+            inputIdx=1,
+            outputIdx=0,
+            control_indices=control_indices,
+            control_volts=control_volts,
+            minVoltage=-1.5,
+            maxVoltage=1.5,
+            eq_steps=10_000,
+            sim_steps=1_000_000,
+            num_intervals=100,
+            seed=seed,
+            cfg="data/sm_batches_1e6_vonMises_beta/config.txt",
+            acc_cfg=f"configs/vonMises_beta_SM_pert_ns={_n}.txt",
+            don_cfg="data/sm_batches_1e6_vonMises_beta/donors.txt",
+            ele_cfg="data/sm_batches_1e6_vonMises_beta/electrodes.txt",
+            save_folder="robustness_experiment_sigmoid",
+            file_name=f"opt_sim_pert={_n}",
+            ROOT=ROOT,
+            WS_DIR=WS_DIR,
+            BINARY=BINARY,
+            SH_SCRIPT=SH_SCRIPT
+        )
 
     thetas = [0.1, 0.2, 0.3, 0.4, 0.5, 1.0, 1.5]
-    for theta in thetas:
+    """ for theta in thetas:
         slurm_single_IV(
             numOfPoints=100,
             inputIdx=1,
@@ -322,7 +374,7 @@ if __name__ == "__main__":
             WS_DIR=WS_DIR,
             BINARY=BINARY,
             SH_SCRIPT=SH_SCRIPT
-        )
+        ) """
 
     num_batches = 200
     batch_size = 1_000
