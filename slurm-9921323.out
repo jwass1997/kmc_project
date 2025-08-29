@@ -1,0 +1,11 @@
+Python: /opt/bwhpc/common/devel/miniforge/24.9.2-0/bin/python
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ModuleNotFoundError: No module named 'torch'
+
+CondaError: Run 'conda init' before 'conda activate'
+
+Traceback (most recent call last):
+  File "/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/scripts/python_scripts/surrogate_model.py", line 1, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'

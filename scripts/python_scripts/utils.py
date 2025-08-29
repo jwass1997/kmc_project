@@ -5,7 +5,7 @@ import subprocess
 
 from pathlib import Path
 
-def create_dopant_configuration(radius, n_a, n_d, name_a, name_d, mode):
+def create_dopant_configuration(radius, n_a, n_d, name_a, name_d, mode, eps):
 
     acc_pos, don_pos = np.zeros((n_a, 2)), np.zeros((n_d, 2))
     angles_acc, angles_don = np.zeros(n_a), np.zeros(n_d)
@@ -48,6 +48,55 @@ def create_dopant_configuration(radius, n_a, n_d, name_a, name_d, mode):
                 angles_don[j] = np.arctan2(sample[1], sample[0])
                 j += 1
 
+    elif mode == "mixed":
+
+        assert 0.0 <= eps <= 1.0, "eps must be between 0 and 1"
+
+        mean = np.array([0.0, 0.0])
+        cov = np.eye(2) * (radius / 3.5) ** 2
+        
+        i = 0
+        while i < n_a:
+            u = np.random.uniform(0.0, 1.0)
+            if u < (1-eps):
+                r_acc[i] = radius*np.sqrt(np.random.uniform(0.0, 1.0))
+                angles_acc[i] = np.random.uniform(0.0, 2*np.pi)
+
+                
+
+                acc_pos[i, 0] = r_acc[i]*np.cos(angles_acc[i])
+                acc_pos[i, 1] = r_acc[i]*np.sin(angles_acc[i])
+                i += 1
+            else:
+                sample = np.random.multivariate_normal(mean=mean, cov=cov)
+                r = np.linalg.norm(sample)
+
+                if r <= radius:
+                    acc_pos[i] = sample
+                    r_acc[i] = r
+                    angles_acc[i] = np.arctan2(sample[1], sample[0])
+                    i += 1
+        j = 0
+        while j < n_d:
+            u = np.random.uniform(0.0, 1.0)
+            if u < (1-eps):
+                r_don[j] = radius*np.sqrt(np.random.uniform(0.0, 1.0))
+                angles_don[j] = np.random.uniform(0.0, 2*np.pi)
+
+                don_pos[j, 0] = r_don[j]*np.cos(angles_don[j])
+                don_pos[j, 1] = r_don[j]*np.sin(angles_don[j])
+                j += 1
+            else:
+                sample = np.random.multivariate_normal(mean=mean, cov=cov)
+                r = np.linalg.norm(sample)
+
+                if r <= radius:
+                    don_pos[j] = sample
+                    r_don[j] = r
+                    angles_don[j] = np.arctan2(sample[1], sample[0])
+                    j += 1
+                                
+
     np.savetxt(f"configs/{name_a}.txt", acc_pos, fmt="%.6f", delimiter="\t")
     np.savetxt(f"configs/{name_d}.txt", don_pos, fmt="%.6f", delimiter="\t")
 
@@ -72,8 +121,9 @@ def jiggle_configuration(angles, radii, dtheta_max, radial_sigma, name):
             f.write(f"{new_positions[i][0]}\t{new_positions[i][1]}\n")
 
 if __name__ == "__main__":
-
-    angles_acc, angles_don, r_acc, r_don = create_dopant_configuration(150.0, 200, 3, "acc_uniform", "don_uniform", "uniform")
-    thetas = [0.1, 0.2, 0.3, 0.4, 0.5, 1.0, 1.5]
+    type = "mixed"
+    eps = 0.2
+    angles_acc, angles_don, r_acc, r_don = create_dopant_configuration(150.0, 200, 3, f"test_acc_{type}_eps={eps}", f"test_don_{type}_eps={eps}", type, eps)
+    """ thetas = [0.1, 0.2, 0.3, 0.4, 0.5, 1.0, 1.5]
     for theta in thetas:
-        jiggle_configuration(angles_acc, r_acc, dtheta_max=theta, radial_sigma=0.0, name=f"jiggled_acc_uniform_{theta}")
+        jiggle_configuration(angles_acc, r_acc, dtheta_max=theta, radial_sigma=0.0, name=f"jiggled_acc_uniform_{theta}") """

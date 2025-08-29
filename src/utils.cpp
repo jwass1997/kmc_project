@@ -11,11 +11,6 @@
 #include "Configuration.h"
 #include "KMCSimulator.h"
 
-struct Measurement {
-    State stateToMeasure;
-
-};
-
 double calculateDistance(
     double coordinateX1, 
     double coordinateX2, 

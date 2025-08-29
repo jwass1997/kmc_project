@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 import numpy as np
-import matplotlib.pyplot as plt
+import argparse
 
 from sklearn.model_selection import train_test_split
 
@@ -96,62 +96,83 @@ class NeuralNet(nn.Module):
 
         return layer_list
     
-if __name__ == "__main__":
+def create_data_loaders(data_dir, num_batches, batch_size, normalize=False, eps=1e-8, train_size=0.8, test_size=0.2, random_state=42, num_workers=10):
 
     input_list = []
     output_list = []
 
-    num_batches = 300
     for i in range(num_batches):
-        batch = np.load(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/sm_batches_1e7/batch_1e7_{i}.npz")
+        batch = np.load(f"{data_dir}/batch_1e7_{i}.npz")
         _input = batch["inputs"]
         _output = batch["currents"]
         input_list.append(_input)
         output_list.append(_output)
 
-    
     raw_inputs = np.concatenate(input_list)
     outputs = np.concatenate(output_list)
     inputs = raw_inputs[:, 1:]
+
     print(f"raw_inputs shape: {raw_inputs.shape}")
     print(f"outputs shape: {outputs.shape}")
     print(f"inputs shape: {inputs.shape}")
 
-    X_train, X_test, y_train, y_test = train_test_split(inputs, outputs, test_size=0.2, random_state=42, shuffle=True)
-    """ train_set = MakeDataset(X_train, y_train)
-    test_set = MakeDataset(X_test, y_test) """
+    X_train, X_test, y_train, y_test = train_test_split(
+        inputs, 
+        outputs, 
+        test_size=test_size, 
+        random_state=random_state, 
+        shuffle=True
+    )
 
-    eps = 1e-8
-    X_train_mean = X_train.mean(0)
-    X_train_std = X_train.std(0) + eps
+    if normalize:
+        X_train_mean = X_train.mean(0)
+        X_train_std = X_train.std(0) + eps
 
-    y_train_mean = y_train.mean(0)
-    y_train_std = y_train.std(0) + eps
+        y_train_mean = y_train.mean(0)
+        y_train_std = y_train.std(0) + eps
 
-    X_train_norm = (X_train - X_train_mean) / X_train_std
-    X_test_norm = (X_test - X_train_mean) / X_train_std
+        X_train = (X_train - X_train_mean) / X_train_std
+        X_test = (X_test - X_train_mean) / X_train_std
+        y_train = (y_train - y_train_mean) / y_train_std
+        y_test= (y_test - y_train_mean) / y_train_std
+    
+    train_set = MakeDataset(X_train, y_train)
+    test_set = MakeDataset(X_test, y_test)
 
-    y_train_norm = (y_train - y_train_mean) / y_train_std
-    y_test_norm = (y_test - y_train_mean) / y_train_std
+    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=True)
+    test_loader  = DataLoader(test_set,  batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
 
-    train_set = MakeDataset(X_train_norm, y_train_norm)
-    test_set = MakeDataset(X_test_norm, y_test_norm)
+    return train_loader, test_loader          
+    
+if __name__ == "__main__":
 
-    batch_size = 1024
+    parser = argparse.ArgumentParser("")
 
-    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=10, pin_memory=True)
-    test_loader  = DataLoader(test_set,  batch_size=batch_size, shuffle=False, num_workers=10, pin_memory=True)
+    parser.add_argument("--data_dir", type=str, required=False)
+    parser.add_argument("--num_batches", type=int, required=True)
+    parser.add_argument("--batch_size", type=int, required=True)
+    parser.add_argument("--normalize", type=int, required=True)
+    parser.add_argument("--hd", type=int, required=True)
+    parser.add_argument("--num_layers", type=int, required=True)
+    parser.add_argument("--num_epochs", type=int, required=True)
+    parser.add_argument("--lr", type=float, required=True)
+    parser.add_argument("--save_name", type=str, required=True)
 
-    learning_rate = 1e-4
-    num_epochs = 2000
+    args = parser.parse_args()
 
-    model = NeuralNet(in_features=7, out_features=1, hidden_dim=90, num_layers=10).to(device)
+    train_loader, test_loader = create_data_loaders(data_dir=args.data_dir, num_batches=args.num_batches, batch_size=args.batch_size, normalize=bool(args.normalize))
+    print(args)
+
+    model = NeuralNet(in_features=7, out_features=1, hidden_dim=args.hd, num_layers=args.num_layers).to(device)
     criterion = nn.MSELoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     #scheduler = torch.optim.lr_scheduler.StepLR(optimizer=optimizer, step_size=200, gamma=0.1)
     #scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=100, T_mult=2, eta_min=1e-6)
 
-    for epoch in range(1, num_epochs+1):
+    train_losses = []
+    val_losses = []
+
+    for epoch in range(1, args.num_epochs+1):
 
         model.train()
         running_loss = 0.0
@@ -183,11 +204,18 @@ if __name__ == "__main__":
         epoch_val_loss = val_loss / len(test_loader.dataset)
         #scheduler.step()
 
+        train_losses.append(epoch_train_loss)
+        val_losses.append(epoch_val_loss)
         current_lr = optimizer.param_groups[0]['lr']
 
-        print(f"Epoch {epoch:2d}/{num_epochs} "
+        print(f"Epoch {epoch:2d}/{args.num_epochs} "
               f"Train Loss: {epoch_train_loss:.10f}"
               f"Val Loss: {epoch_val_loss:.10f}"
               f"   LR: {current_lr:.2e}", flush=True)
     
-    torch.save(model.state_dict(), "SM_1e7_2_normed_data.pth")
+    torch.save({
+        "model_state_dict": model.state_dict(),
+        "args": vars(args),
+        "train_losses": train_losses,
+        "val_losses": val_losses
+    }, f"{args.save_name}.pth")
