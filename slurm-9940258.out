@@ -1,0 +1,23 @@
+/usr/bin/which: no bin in (/home/hd/hd_hd/hd_gy283/.conda/envs/py311)
+/var/spool/slurm/job9940258/slurm_script: line 16: /home/hd/hd_hd/hd_gy283/.conda/envs/py311/bin: Is a directory
+Mon Sep  1 11:47:01 2025       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.65.06              Driver Version: 580.65.06      CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA A100-SXM4-40GB          On  |   00000000:81:00.0 Off |                    0 |
+| N/A   31C    P0             51W /  400W |       0MiB /  40960MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+/var/spool/slurm/job9940258/slurm_script: line 19: /home/hd/hd_hd/hd_gy283/.conda/envs/py311/bin: Is a directory

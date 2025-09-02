@@ -378,7 +378,7 @@ if __name__ == "__main__":
 
     num_batches = 150
     batch_size = 1_000
-    eps = 0.8
+    eps = 0.2
     for i in range(num_batches):
         time.sleep(0.1)
         slurm_batch_from_single_state(
