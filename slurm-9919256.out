@@ -1,5 +1,0 @@
-Error: no such workspace
-Traceback (most recent call last):
-  File "/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/scripts/python_scripts/surrogate_model.py", line 1, in <module>
-    import torch
-ModuleNotFoundError: No module named 'torch'

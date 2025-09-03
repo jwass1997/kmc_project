@@ -5,7 +5,7 @@ import subprocess
 
 from pathlib import Path
 
-def create_dopant_configuration(radius, n_a, n_d, name_a, name_d, mode, eps):
+def create_dopant_configuration(radius, n_a, n_d, name_a, name_d, mode, eps, save_dir):
 
     acc_pos, don_pos = np.zeros((n_a, 2)), np.zeros((n_d, 2))
     angles_acc, angles_don = np.zeros(n_a), np.zeros(n_d)
@@ -97,8 +97,8 @@ def create_dopant_configuration(radius, n_a, n_d, name_a, name_d, mode, eps):
                     j += 1
                                 
 
-    np.savetxt(f"configs/{name_a}.txt", acc_pos, fmt="%.6f", delimiter="\t")
-    np.savetxt(f"configs/{name_d}.txt", don_pos, fmt="%.6f", delimiter="\t")
+    np.savetxt(f"{save_dir}/{name_a}.txt", acc_pos, fmt="%.6f", delimiter="\t")
+    np.savetxt(f"{save_dir}/{name_d}.txt", don_pos, fmt="%.6f", delimiter="\t")
 
     return angles_acc, angles_don, r_acc, r_don
 

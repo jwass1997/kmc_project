@@ -376,7 +376,7 @@ if __name__ == "__main__":
             SH_SCRIPT=SH_SCRIPT
         ) """
 
-    num_batches = 150
+    """ num_batches = 150
     batch_size = 1_000
     eps = 0.2
     for i in range(num_batches):
@@ -390,7 +390,7 @@ if __name__ == "__main__":
             cfg="configs/config.txt", acc_cfg=f"configs/test_acc_mixed_eps={eps}.txt", don_cfg=f"configs/test_don_mixed_eps={eps}.txt", ele_cfg="configs/electrodes.txt",
             save_folder=f"sm_batches_1e6_mixed_eps={eps}", file_name=f"batch_1e6_{i}",
             ROOT=ROOT, WS_DIR = WS_DIR, BINARY = BINARY, SH_SCRIPT = str(ROOT / "scripts" / "slurm" / "batch_script.sh")
-        )
+        ) """
     voltages = [0.1, -0.2, 1.2, 0.8, 0.6, -0.9, 0.5, 0.5]
     voltage_indices = [0, 1, 2, 3, 4, 5, 6, 7]
     """ slurm_single_device(
@@ -433,3 +433,58 @@ if __name__ == "__main__":
         BINARY = BINARY,
         SH_SCRIPT = str(ROOT / "scripts" / "slurm" / "batch_script.sh")
     ) """
+
+    c_indices = [2, 3, 4, 5, 6, 7]
+    c_volts = [-0.9, 0.6, 0.3, -1.1, -0.7, 1.2]
+
+    seed = np.random.randint(low=0, high=12341312312)
+    nrands = [3, 5, 10, 20]
+
+    slurm_single_IV(
+            numOfPoints=100,
+            inputIdx=1,
+            outputIdx=0,
+            control_indices=c_indices,
+            control_volts=c_volts,
+            minVoltage=-1.5,
+            maxVoltage=1.5,
+            eq_steps=10_000,
+            sim_steps=1_000_000,
+            num_intervals=100,
+            seed=np.random.randint(low=0, high=12341312312),
+            cfg="configs/config.txt",
+            acc_cfg=f"configs/robustness_to_acc/robustness_acc.txt",
+            don_cfg="configs/donors.txt",
+            ele_cfg="configs/electrodes.txt",
+            save_folder="robustness_acceptor_changes",
+            file_name=f"acc_unchanged",
+            ROOT=ROOT,
+            WS_DIR=WS_DIR,
+            BINARY=BINARY,
+            SH_SCRIPT=SH_SCRIPT
+    )
+
+    for nrand in nrands:
+        slurm_single_IV(
+            numOfPoints=100,
+            inputIdx=1,
+            outputIdx=0,
+            control_indices=c_indices,
+            control_volts=c_volts,
+            minVoltage=-1.5,
+            maxVoltage=1.5,
+            eq_steps=10_000,
+            sim_steps=1_000_000,
+            num_intervals=100,
+            seed=np.random.randint(low=0, high=12341312312),
+            cfg="configs/config.txt",
+            acc_cfg=f"configs/robustness_to_acc/robustness_acc_nrand={nrand}.txt",
+            don_cfg="configs/donors.txt",
+            ele_cfg="configs/electrodes.txt",
+            save_folder="robustness_acceptor_changes",
+            file_name=f"acc_changed_nrand={nrand}",
+            ROOT=ROOT,
+            WS_DIR=WS_DIR,
+            BINARY=BINARY,
+            SH_SCRIPT=SH_SCRIPT
+        )
