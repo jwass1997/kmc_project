@@ -201,6 +201,8 @@ void singleIVCurve(
         throw std::invalid_argument("[singleIVCurve]: Save folder not found");
     }
 
+    setRandomSeed(seed);
+
     std::string file = saveFolder + "/" + fileName + ".npz";
 
     std::vector<double> currentData(numOfPoints, 0.0);
@@ -216,7 +218,7 @@ void singleIVCurve(
     controlData[outputIdx] = -999.999;
 
     double range = maxVoltage - minVoltage;
-    double vStep = range / static_cast<double>(numOfPoints);
+    double vStep = range / static_cast<double>(numOfPoints-1);
 
     Configuration config(
         cfg,
@@ -744,8 +746,13 @@ int argParser(int argc, char* argv[]) {
             for (auto &s : vm["c_v"].as<std::vector<std::string>>()) {
                 auto eq = s.find('=');
                 int idx = std::stoi(s.substr(0, eq));
-                double v = std::stod(s.substr(eq+1));
-                voltages[idx] = v;
+                if (idx == vm["outputIdx"].as<int>() || idx == vm["inputIdx"].as<int>()) {
+                    std::cerr << "argParser(): Warning, c_v for input/output will be ignored";
+                }
+                else {
+                    double v = std::stod(s.substr(eq+1));
+                    voltages[idx] = v;
+                }
             }
         }
 

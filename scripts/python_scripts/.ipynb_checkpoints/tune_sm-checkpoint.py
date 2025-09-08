@@ -15,7 +15,7 @@ def find_control_voltages_1D(model, target, N, input_idx, min_voltage, max_volta
     
     model.eval()
 
-    PRINT_EVERY = 10
+    PRINT_EVERY = 100
 
     def mse_loss(x: torch.Tensor, y: torch.Tensor):
 

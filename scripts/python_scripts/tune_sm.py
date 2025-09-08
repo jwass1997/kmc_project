@@ -11,11 +11,9 @@ optuna.logging.set_verbosity(optuna.logging.WARNING)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
 
-def find_control_voltages_1D(model, target, N, input_idx, min_voltage, max_voltage, n_startup_trials=500, n_trials=1000):
+def find_control_voltages_1D(model, target, N, input_idx, min_voltage, max_voltage, n_startup_trials=1000, n_trials=2000, PRINT_EVERY=100):
     
     model.eval()
-
-    PRINT_EVERY = 10
 
     def mse_loss(x: torch.Tensor, y: torch.Tensor):
 
@@ -57,7 +55,7 @@ def find_control_voltages_1D(model, target, N, input_idx, min_voltage, max_volta
 
     return study
 
-def find_control_voltages_2D(model, target_flat, N, input_indices, min_voltage, max_voltage, n_startup_trials=500, n_trials=1000):
+def find_control_voltages_2D(model, target_flat, N, input_indices, min_voltage, max_voltage, n_startup_trials=500, n_trials=1000, PRINT_EVERY=1000):
     
     model.eval()
     device = next(model.parameters()).device
@@ -66,7 +64,6 @@ def find_control_voltages_2D(model, target_flat, N, input_indices, min_voltage, 
     i1, i2 = sorted(input_indices)
     target_flat = target_flat.to(device).float()
 
-    PRINT_EVERY = 100
     v = torch.linspace(min_voltage, max_voltage, N, device=device)
     v1, v2 = torch.meshgrid(v, v, indexing="ij")
     v1_input = v1.ravel()

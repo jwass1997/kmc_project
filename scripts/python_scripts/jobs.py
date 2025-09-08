@@ -341,7 +341,7 @@ if __name__ == "__main__":
         ) """
 
     c_indices = [2, 3, 4, 5, 6, 7]
-    c_volts = [-1.496828399286754, -0.773345722971119, -1.0038206960696492, 0.13320106953666214, -1.4435129086936542, 0.686864273233392]
+    c_volts = [-1.4962374834526107, -1.475426536296481, -0.947778084932544, 0.5938290599036549, -0.9337312498957281, 0.5894644757290364]
     slurm_single_IV(
         numOfPoints=100,
         inputIdx=1,
@@ -359,7 +359,7 @@ if __name__ == "__main__":
         don_cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/data/sm_batches_1e6_vonMises_beta/donors.txt"),
         ele_cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/data/sm_batches_1e6_vonMises_beta/electrodes.txt"),
         save_folder=Path("/home/hd/hd_hd/hd_gy283/kmc_project"),
-        file_name=Path(f"simulated_curve_vonMises_beta"),
+        file_name=Path(f"simulated_curve_vonMises_beta_no_noise"),
         BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
         SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
         OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
