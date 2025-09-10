@@ -125,7 +125,6 @@ void batchFromSingleState(
     int batchSize,
     double minVoltage,
     double maxVoltage,
-    int inputIdx,
     int outputIdx,
     int eqSteps,
     int simSteps,

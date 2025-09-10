@@ -16,7 +16,7 @@ which "$PYTHON" || true
 "$PYTHON" -V || true
 nvidia-smi || true
 
-$PYTHON scripts/python_scripts/surrogate_model.py \
+$PYTHON scripts/python_scripts/train_sm.py \
 --data_dir=/gpfs/bwfor/work/ws/hd_gy283-my_data/sm_batches_1e6_mixed_eps=0.8 \
 --num_batches=150 \
 --batch_size=128 \

@@ -268,7 +268,6 @@ void batchFromSingleState(
     int batchSize,
     double minVoltage,
     double maxVoltage,
-    int inputIdx,
     int outputIdx,
     int eqSteps,
     int simSteps,
@@ -379,7 +378,6 @@ void batchFromSingleState(
         }
     }
     /* Input-Output data */
-    cnpy::npz_save(file, "inputIdx", &inputIdx, {1}, "w");
     cnpy::npz_save(file, "outputIdx", &outputIdx, {1}, "a");
     cnpy::npz_save(file, "currents", currentData.data(), currentDataShape, "a");
     cnpy::npz_save(file, "inputs", inputData.data(), inputDataShape, "a");
@@ -788,7 +786,6 @@ int argParser(int argc, char* argv[]) {
             ("batchSize", boost::program_options::value<int>()->required())
             ("minVoltage", boost::program_options::value<double>()->required())
             ("maxVoltage", boost::program_options::value<double>()->required())
-            ("inputIdx", boost::program_options::value<int>()->required())
             ("outputIdx", boost::program_options::value<int>()->required())
             ("eqSteps", boost::program_options::value<int>()->default_value(1e4))
             ("simSteps", boost::program_options::value<int>()->required())
@@ -814,7 +811,6 @@ int argParser(int argc, char* argv[]) {
             vm["batchSize"].as<int>(),
             vm["minVoltage"].as<double>(),
             vm["maxVoltage"].as<double>(),
-            vm["inputIdx"].as<int>(),
             vm["outputIdx"].as<int>(),
             vm["eqSteps"].as<int>(),
             vm["simSteps"].as<int>(),
