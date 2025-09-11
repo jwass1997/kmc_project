@@ -208,6 +208,12 @@ void singleIVCurve(
     std::vector<double> currentData(numOfPoints, 0.0);
     std::vector<size_t> currentDataShape = {static_cast<size_t>(numOfPoints)};
 
+    std::vector<double> currentStd(numOfPoints, 0.0);
+    std::vector<size_t> currentStdShape = {static_cast<size_t>(numOfPoints)};
+
+    std::vector<double> currentSem(numOfPoints, 0.0);
+    std::vector<size_t> currentSemShape = {static_cast<size_t>(numOfPoints)};
+
     std::vector<double> controlData(controlVoltages.size(), 0.0);
     std::vector<size_t> controlDataShape = {controlVoltages.size()};
 
@@ -227,8 +233,8 @@ void singleIVCurve(
         eleCfg
     );
     State state(config);
-    KMCSimulator kmc(state);
-    kmc.simulate(state, eqSteps, false, false);
+    KMCSimulator kmcEq(state);
+    kmcEq.simulate(state, eqSteps, false, false);
     state.resetEventCounter();
     state.stateTime = 0.0;
 
@@ -246,19 +252,81 @@ void singleIVCurve(
             }
             voltages[outputIdx] = 0.0;
             voltages[inputIdx] = minVoltage + v*vStep;
-            double currentOutput = singleIVPoint(
+            /* double currentOutput = singleIVPoint(
                 state, 
                 outputIdx, 
                 numOfTasks, 
                 simSteps, 
                 voltages
-            );
+            ); */
 
-            currentData[v] = currentOutput;
+            State equilState(state);
+            equilState.updateBoundaries(voltages);
+
+            KMCSimulator kmc(equilState);
+
+            equilState.resetEventCounter();
+
+            double averagedCurrent = 0.0;
+            double totalTime = 0.0;
+            int intervalSteps = simSteps / numOfTasks;
+            int netEvents = 0;
+
+            double meanW = 0.0;
+            double M2w = 0.0;
+            double wSum = 0.0;
+            double w2Sum = 0.0;
+
+            int intervalCount = 0;
+            while (intervalCount < numOfTasks) {
+
+                double startClock = equilState.stateTime;
+                kmc.simulate(equilState, intervalSteps, false, true);
+                double endClock = equilState.stateTime; 
+
+                double elapsedTime = endClock - startClock;
+                int inEvents = 0;
+                int outEvents = 0;
+                for (int i = 0; i < equilState.numOfSites; ++i) {
+                    outEvents += equilState.eventCounter[(outputIdx + equilState.nAcceptors)*equilState.numOfSites + i];
+                    inEvents += equilState.eventCounter[equilState.numOfSites*i + (outputIdx + equilState.nAcceptors)];
+                }
+                totalTime += elapsedTime;
+                netEvents += inEvents-outEvents;
+
+                double Ii = static_cast<double>(inEvents-outEvents) / elapsedTime;
+                averagedCurrent += Ii*elapsedTime;
+                
+                /**
+                 * weighted Welford update
+                 */
+                double w = elapsedTime;
+                double prevMean = meanW;
+                wSum += w;
+                meanW += w * (Ii - meanW) / wSum;
+                M2w += w * (Ii - prevMean) * (Ii - meanW);
+                w2Sum += w * w;
+
+                equilState.resetEventCounter();
+
+                intervalCount++;
+            }
+
+            averagedCurrent /= totalTime;
+
+            double weightedVar = (wSum > 0.0) ? (M2w / wSum) : 0.0;
+            double sampleStd = std::sqrt(weightedVar);
+            double sem = (wSum > 0.0) ? (sampleStd * std::sqrt(w2Sum) / wSum) : 0.0;
+
+            currentData[v] = averagedCurrent;
+            currentStd[v] = sampleStd;
+            currentSem[v] = sem;
         }
     }
 
     cnpy::npz_save(file, "current", currentData.data(), currentDataShape, "w");
+    cnpy::npz_save(file, "currentStd", currentStd.data(), currentStdShape, "a");
+    cnpy::npz_save(file, "sem", currentSem.data(), currentSemShape, "a");
     cnpy::npz_save(file, "control", controlData.data(), controlDataShape, "a");
     cnpy::npz_save(file, "inputIdx", &inputIdx, {1}, "a");
     cnpy::npz_save(file, "outputIdx", &outputIdx, {1}, "a");
@@ -296,6 +364,13 @@ void batchFromSingleState(
     /* Output is only current right now (1D since only one output electrode) */
     std::vector<double> currentData(batchSize, 0.0);
     std::vector<size_t> currentDataShape = {static_cast<size_t>(batchSize)};
+
+    std::vector<double> currentStd(batchSize, 0.0);
+    std::vector<size_t> currentStdShape = {static_cast<size_t>(batchSize)};
+
+    std::vector<double> currentSem(batchSize, 0.0);
+    std::vector<size_t> currentSemShape = {static_cast<size_t>(batchSize)};
+
     /* Input 8D (8 electrode voltages with input_electrode set to ground) */
     std::vector<double> inputData(batchSize*config.nElectrodes, 0.0);
     std::vector<size_t> inputDataShape = {static_cast<size_t>(batchSize), static_cast<size_t>(config.nElectrodes)};
@@ -347,6 +422,11 @@ void batchFromSingleState(
             int intervalSteps = simSteps / numOfTasks;
             int netEvents = 0;
 
+            double meanW = 0.0;
+            double M2w = 0.0;
+            double wSum = 0.0;
+            double w2Sum = 0.0;
+
             int intervalCount = 0;
             while (intervalCount < numOfTasks) {
 
@@ -364,23 +444,42 @@ void batchFromSingleState(
                 totalTime += elapsedTime;
                 netEvents += inEvents-outEvents;
 
+                double Ii = static_cast<double>(inEvents-outEvents) / elapsedTime;
+                averagedCurrent += Ii*elapsedTime;
+                
+                /**
+                 * weighted Welford update
+                 */
+                double w = elapsedTime;
+                double prevMean = meanW;
+                wSum += w;
+                meanW += w * (Ii - meanW) / wSum;
+                M2w += w * (Ii - prevMean) * (Ii - meanW);
+                w2Sum += w * w;
+                
                 equilState.resetEventCounter();
-
-                intervalCount++;
+                ++intervalCount;
             }
 
-            averagedCurrent = static_cast<double>(netEvents) / totalTime;
+            averagedCurrent  /= totalTime;
+            double weightedVar = (wSum > 0.0) ? (M2w / wSum) : 0.0;
+            double sampleStd = std::sqrt(weightedVar);
+            double sem = (wSum > 0.0) ? (sampleStd * std::sqrt(w2Sum) / wSum) : 0.0;
 
             currentData[ivPoint] = averagedCurrent;
+            currentStd[ivPoint] = sampleStd;
+            currentSem[ivPoint] = sem;
             for (int k = 0; k < config.nElectrodes; ++k) {
                 inputData[k + ivPoint*config.nElectrodes] = voltages[k];
             }
         }
     }
     /* Input-Output data */
-    cnpy::npz_save(file, "outputIdx", &outputIdx, {1}, "a");
+    cnpy::npz_save(file, "outputIdx", &outputIdx, {1}, "w");
     cnpy::npz_save(file, "currents", currentData.data(), currentDataShape, "a");
     cnpy::npz_save(file, "inputs", inputData.data(), inputDataShape, "a");
+    cnpy::npz_save(file, "sampleStd", currentStd.data(), currentStdShape, "a");
+    cnpy::npz_save(file, "sem", currentSem.data(), currentSemShape, "a");
 
     /* Save coords of equilState */
     std::vector<size_t> accCoordsShape = {static_cast<size_t>(initState.nAcceptors), 2};

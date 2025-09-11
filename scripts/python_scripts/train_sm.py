@@ -52,7 +52,7 @@ def create_data_loaders(data_dir, num_batches, batch_size, normalize=False, eps=
     output_list = []
 
     for i in range(num_batches):
-        batch = np.load(data_dir/f"batch_1e6_{i}.npz")
+        batch = np.load(data_dir/f"batch_{i}.npz")
         _input = batch["inputs"]
         _output = batch["currents"]
         input_list.append(_input)

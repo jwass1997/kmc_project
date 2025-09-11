@@ -199,16 +199,12 @@ if __name__ == "__main__":
     BINARY = ROOT / "build" / "kmc_project"
     SH_SCRIPT = ROOT / "scripts" / "slurm" / "single_curve.sh"
 
-    control_volts = [-0.9331,  1.0766,  0.1923, -0.2020,  0.9212,  0.2802]
-    
-    #control_volts = [1.0, 0, 0, -1.0, 0, 0]
-    control_indices = [2, 3, 4, 5, 6, 7]
     seed=np.random.randint(low=0, high=2**30 - 1)
 
     num_batches = 100
     batch_size = 1_000
 
-    for i in range(100, 200):
+    """ for i in range(100, 200):
         time.sleep(0.1)
         slurm_batch_from_single_state(
             batch_size=batch_size,
@@ -225,7 +221,7 @@ if __name__ == "__main__":
             BINARY = Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"), 
             SH_SCRIPT =Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/batch_script.sh"), 
             SLURM_OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
-        )
+        ) """
 
     #c_indices = [2, 3, 4, 5, 6, 7]
     #c_volts = [ 0.2066,  0.6799, -0.1204, -0.6649,  0.1976,  0.9915]
@@ -258,8 +254,33 @@ if __name__ == "__main__":
         ) """
 
     c_indices = [2, 3, 4, 5, 6, 7]
-    c_volts = [-1.4962374834526107, -1.475426536296481, -0.947778084932544, 0.5938290599036549, -0.9337312498957281, 0.5894644757290364]
-    """ slurm_single_IV(
+    c_volts = [-1.4069160476974905, -1.450338915907334, -1.4215249940323482, -0.7840634646105147, 1.019759726709028, -0.9242694280575453]
+
+    """ for i in range(20):
+        slurm_single_IV(
+            numOfPoints=100,
+            inputIdx=1,
+            outputIdx=0,
+            control_indices=c_indices,
+            control_volts=c_volts,
+            minVoltage=-1.5,
+            maxVoltage=1.5,
+            eq_steps=10_000,
+            sim_steps=1_000_000,
+            num_intervals=100,
+            seed=np.random.randint(low=1, high=2**15),
+            cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/data/sm_batches_1e6_vonMises_beta/config.txt"),
+            acc_cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/data/sm_batches_1e6_vonMises_beta/acceptors.txt"),
+            don_cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/data/sm_batches_1e6_vonMises_beta/donors.txt"),
+            ele_cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/data/sm_batches_1e6_vonMises_beta/electrodes.txt"),
+            save_folder=Path("/home/hd/hd_hd/hd_gy283/kmc_project/data/relu"),
+            file_name=Path(f"sim_vMB_best_params_{i}"),
+            BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
+            SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
+            OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
+        ) """
+
+    slurm_single_IV(
         numOfPoints=100,
         inputIdx=1,
         outputIdx=0,
@@ -268,19 +289,41 @@ if __name__ == "__main__":
         minVoltage=-1.5,
         maxVoltage=1.5,
         eq_steps=10_000,
-        sim_steps=1_000_000,
+        sim_steps=10_000_000,
         num_intervals=100,
-        seed=np.random.randint(low=1, high=142341),
+        seed=np.random.randint(low=1, high=2**15),
         cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/data/sm_batches_1e6_vonMises_beta/config.txt"),
         acc_cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/data/sm_batches_1e6_vonMises_beta/acceptors.txt"),
         don_cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/data/sm_batches_1e6_vonMises_beta/donors.txt"),
         ele_cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/data/sm_batches_1e6_vonMises_beta/electrodes.txt"),
         save_folder=Path("/home/hd/hd_hd/hd_gy283/kmc_project"),
-        file_name=Path(f"simulated_curve_vonMises_beta_no_noise"),
+        file_name=Path(f"sim_vMB_test_1e7"),
         BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
         SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
         OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
-    ) """
+    )
 
-    #noise = np.linspace(0.5, 10, 100)
-    #for n in noise:
+    noise = np.linspace(0.5, 10, 50)
+    """ for n in noise:
+        slurm_single_IV(
+            numOfPoints=100,
+            inputIdx=1,
+            outputIdx=0,
+            control_indices=c_indices,
+            control_volts=c_volts,
+            minVoltage=-1.5,
+            maxVoltage=1.5,
+            eq_steps=10_000,
+            sim_steps=10_000_000,
+            num_intervals=100,
+            seed=np.random.randint(low=1, high=142341),
+            cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/data/sm_batches_1e6_vonMises_beta/config.txt"),
+            acc_cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/configs/perturbated_acceptors/eps={n}.txt"),
+            don_cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/data/sm_batches_1e6_vonMises_beta/donors.txt"),
+            ele_cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/data/sm_batches_1e6_vonMises_beta/electrodes.txt"),
+            save_folder=Path("/home/hd/hd_hd/hd_gy283/kmc_project"),
+            file_name=Path(f"simulated_curve_vonMises_beta_no_noise"),
+            BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
+            SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
+            OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
+        )     """    
