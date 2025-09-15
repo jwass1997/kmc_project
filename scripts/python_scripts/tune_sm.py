@@ -11,7 +11,7 @@ optuna.logging.set_verbosity(optuna.logging.WARNING)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
 
-def find_control_voltages_1D(model, target, N, input_idx, min_voltage, max_voltage, n_startup_trials=1000, n_trials=2000, PRINT_EVERY=100):
+def find_control_voltages_1D(model, target, N, input_idx, c_volt_min, c_volt_max, in_volt_min, in_volt_max, n_startup_trials=1000, n_trials=2000, PRINT_EVERY=100):
     
     model.eval()
 
@@ -27,11 +27,11 @@ def find_control_voltages_1D(model, target, N, input_idx, min_voltage, max_volta
 
         return mse
 
-    v_input = torch.linspace(min_voltage, max_voltage, N).unsqueeze(1)
+    v_input = torch.linspace(in_volt_min, in_volt_max, N).unsqueeze(1)
 
     def objective(trial):
 
-        cv_list = [trial.suggest_float(f"x_{i}", min_voltage, max_voltage) for i in range(6)]
+        cv_list = [trial.suggest_float(f"x_{i}", c_volt_min, c_volt_max) for i in range(6)]
         cv_tensor = torch.tensor(cv_list, dtype=torch.float32)
         cv_input = cv_tensor.expand(N, -1)
         
@@ -55,7 +55,13 @@ def find_control_voltages_1D(model, target, N, input_idx, min_voltage, max_volta
 
     return study
 
-def find_control_voltages_2D(model, target_flat, N, input_indices, min_voltage, max_voltage, n_startup_trials=500, n_trials=1000, PRINT_EVERY=1000):
+def refine_control_voltages(
+    model, v, best_params, target, input_idx,
+    steps=500, lr=5e-2, in_features=7
+):
+    pass
+
+def find_control_voltages_2D(model, target_flat, N, input_indices, c_volt_min, c_volt_max, in_volt_min, in_volt_max, n_startup_trials=500, n_trials=1000, PRINT_EVERY=1000):
     
     model.eval()
     device = next(model.parameters()).device
@@ -64,7 +70,7 @@ def find_control_voltages_2D(model, target_flat, N, input_indices, min_voltage, 
     i1, i2 = sorted(input_indices)
     target_flat = target_flat.to(device).float()
 
-    v = torch.linspace(min_voltage, max_voltage, N, device=device)
+    v = torch.linspace(in_volt_min, in_volt_max, N, device=device)
     v1, v2 = torch.meshgrid(v, v, indexing="ij")
     v1_input = v1.ravel()
     v2_input = v2.ravel()
@@ -81,7 +87,7 @@ def find_control_voltages_2D(model, target_flat, N, input_indices, min_voltage, 
     
     def objective(trial):
 
-        cv_list = [trial.suggest_float(f"x_{i}", min_voltage, max_voltage) for i in range(in_features - 2)]
+        cv_list = [trial.suggest_float(f"x_{i}", c_volt_min, c_volt_max) for i in range(in_features - 2)]
         cv_tensor = torch.tensor(cv_list, dtype=torch.float32, device=device)
         
         input_tensor = torch.empty(N*N, in_features, dtype=torch.float32, device=device)

@@ -139,33 +139,20 @@ void batchFromSingleState(
     const std::string& fileName
 );
 
-void batchOfIndependantStates(
+void batchOfMultipleStates(
     int batchSize,
-    double minVoltage,
-    double maxVoltage,
-    int nAcceptors,
-    int nElectrodes,
-    int nDonors,
-    double radius,
-    double nu0,
-    double a,
-    double T,
+    double minVoltage, double maxVoltage,
+    int nAcceptors, int nElectrodes, int nDonors,
+    double radius, double nu0, double a, double T,
     double energyDisorder,
     double electrodeWidth,
-    double minHopDistance,
-    double maxHopDistance,
+    double minHopDistance, double maxHopDistance,
     int femRes,
-    std::string distType,
-    double epsilon,
-    int inputIdx,
-    int outputIdx,
-    int eqSteps,
-    int simSteps,
-    int numOfTasks,
-    int LHCSeed,
-    int threadBaseSeed,
-    const std::string& saveFolder,
-    const std::string& fileName
+    std::string distType, double epsilon,
+    int inputIdx, int outputIdx,
+    int eqSteps, int simSteps, int numOfTasks,
+    int LHCSeed, int threadBaseSeed,
+    const std::string& saveFolder, const std::string& fileName
 );
 
 int argParser(int argc, char* argv[]);
