@@ -18,6 +18,10 @@ void setRandomSeed(int seed);
 
 double randomDouble01();
 
+double randomUniform01();
+
+double randomNormal(double mean, double stdDev); 
+
 int randomInt(int low, int high);
 
 double normalDist(double mean, double stdDev);

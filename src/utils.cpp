@@ -386,8 +386,8 @@ void batchFromSingleState(
     );
     /* Shared initial state */
     State initState(config);
-    KMCSimulator kmc(initState);
-    kmc.simulate(initState, eqSteps, false, false);
+    KMCSimulator init_kmc(initState);
+    init_kmc.simulate(initState, eqSteps, false, false);
     initState.resetEventCounter();
     initState.stateTime = 0.0;
 
@@ -568,12 +568,7 @@ void batchOfMultipleStates(
     );
     /* Vectors for coordinates */
     std::vector<double> accCoords(batchSize*nAcceptors*2, 0.0);
-    std::vector<double> donCoords(batchSize*nDonors*2, 0.0);
     std::vector<size_t> accCoordsShape = {(size_t)batchSize, (size_t)nAcceptors, 2};
-    std::vector<size_t> donCoordsShape = {(size_t)batchSize, (size_t)nDonors, 2};
-    /* Neighbours */
-    std::vector<int> neighbourArray(batchSize*numOfSites*numOfSites, 0);
-    std::vector<size_t> neighbourArrayShape = {(size_t)batchSize, (size_t)numOfSites, (size_t)numOfSites};
 
     #pragma omp parallel
     {
@@ -582,7 +577,7 @@ void batchOfMultipleStates(
         #pragma omp for
         for (int _p = 0; _p < batchSize; ++_p) {
 
-            int threadSeed = threadID * 100000 + threadBaseSeed + _p;
+            int threadSeed = threadID + threadBaseSeed + _p;
             setRandomSeed(threadSeed);
             /* Configuring state and simulator */
             std::vector<double> voltages = samples[_p];
@@ -673,7 +668,6 @@ void batchOfMultipleStates(
             currentData[_p] = averagedCurrent;
             currentStd[_p] = sampleStd;
             currentSem[_p] = sem;
-            currentData[_p] = averagedCurrent;
             for (int k = 0; k < nElectrodes; ++k) {
                 inputData[k + _p*nElectrodes] = voltages[k];
             }
@@ -689,7 +683,6 @@ void batchOfMultipleStates(
 
     /* Save coords of equilState */
     cnpy::npz_save(file, "acc_xy", accCoords.data(), accCoordsShape, "a");
-    cnpy::npz_save(file, "don_xy", donCoords.data(), donCoordsShape, "a");
 }
 
 int argParser(int argc, char* argv[]) {
