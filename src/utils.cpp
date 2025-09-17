@@ -5,7 +5,6 @@
 #include <boost/program_options.hpp>
 
 #include "utils.h"
-#include "Random.h"
 #include "State.h"
 #include "FEMmethods.h"
 #include "Configuration.h"
@@ -23,6 +22,15 @@ double calculateDistance(
     double distance = std::sqrt(Dx*Dx + Dy*Dy);
     
     return distance;
+}
+
+uint64_t mix(uint64_t x) {
+    x ^= x >> 33;
+    x *= 0xff51afd7ed558ccdULL;
+    x ^= x >> 33;
+    x *= 0xc4ceb9fe1a85ec53ULL;
+    x ^= x >> 33;
+    return x;
 }
 
 std::vector<std::vector<double>> scaledLHC(
@@ -78,8 +86,6 @@ void singleRun(
         throw std::invalid_argument("[singleRun]: No save folder specified !");
     }
 
-    setRandomSeed(seed);
-
     Configuration config(
         cfg, 
         acceptorCfg, 
@@ -87,8 +93,8 @@ void singleRun(
         electrodeCfg
     );
 
-    State state(config);
-    KMCSimulator kmc(state);
+    State state(config, seed);
+    KMCSimulator kmc(state, seed);
     kmc.simulate(state, eqSteps, false, false);
     state.resetEventCounter();
     state.stateTime = 0.0;
@@ -151,7 +157,14 @@ double singleIVPoint(
     State equilState(initState);
     equilState.updateBoundaries(voltages);
 
-    KMCSimulator kmc(equilState);
+    uint64_t kmc_seed = mix(
+        uint64_t(0x9e3779b97f4a7c15ULL) ^
+        uint64_t(outputIdx) ^
+        uint64_t(simSteps) ^
+        uint64_t(numOfTasks)
+    );
+
+    KMCSimulator kmc(equilState, kmc_seed);
 
     equilState.resetEventCounter();
 
@@ -201,8 +214,6 @@ void singleIVCurve(
         throw std::invalid_argument("[singleIVCurve]: Save folder not found");
     }
 
-    setRandomSeed(seed);
-
     std::string file = saveFolder + "/" + fileName + ".npz";
 
     std::vector<double> currentData(numOfPoints, 0.0);
@@ -232,9 +243,23 @@ void singleIVCurve(
         donCfg,
         eleCfg
     );
-    State state(config);
-    KMCSimulator kmcEq(state);
-    kmcEq.simulate(state, eqSteps, false, false);
+
+    uint64_t stateSeed = mix(
+        uint64_t(0x9e3779b97f4a7c15ULL) ^
+        uint64_t(seed) ^
+        uint64_t(simSteps) ^
+        uint64_t(numOfTasks)
+    );
+    State state(config, stateSeed);
+
+    uint64_t kmc_init_seed = mix(
+        uint64_t(0x9e3779b97f4a7c15ULL) ^
+        uint64_t(stateSeed) ^
+        uint64_t(simSteps) ^
+        uint64_t(numOfTasks)
+    );
+    KMCSimulator kmc_init(state, kmc_init_seed);
+    kmc_init.simulate(state, eqSteps, false, false);
     state.resetEventCounter();
     state.stateTime = 0.0;
 
@@ -263,7 +288,15 @@ void singleIVCurve(
             State equilState(state);
             equilState.updateBoundaries(voltages);
 
-            KMCSimulator kmc(equilState);
+            uint64_t kmc_seed = mix(
+                uint64_t(0x9e3779b97f4a7c15ULL) ^
+                uint64_t(outputIdx) ^
+                uint64_t(simSteps) ^
+                uint64_t(numOfTasks) ^
+                uint64_t(threadID)
+            );
+
+            KMCSimulator kmc(equilState, kmc_seed);
 
             equilState.resetEventCounter();
 
@@ -385,8 +418,12 @@ void batchFromSingleState(
         LHCSeed 
     );
     /* Shared initial state */
-    State initState(config);
-    KMCSimulator init_kmc(initState);
+    uint64_t init_state_seed = mix(uint64_t(threadBaseSeed) ^ 0xA54FF53A5F1D36F1ULL);
+    State initState(config, init_state_seed);
+
+    uint64_t init_kmc_seed = mix(init_state_seed ^ 0x9E3779B97F4A7C15ULL);
+    KMCSimulator init_kmc(initState, init_kmc_seed);
+
     init_kmc.simulate(initState, eqSteps, false, false);
     initState.resetEventCounter();
     initState.stateTime = 0.0;
@@ -401,19 +438,27 @@ void batchFromSingleState(
         #pragma omp for
         for (int ivPoint = 0; ivPoint < batchSize; ++ivPoint) {
 
-            int threadSeed = threadID * 100000 + threadBaseSeed + ivPoint;
-            setRandomSeed(threadSeed);
+            uint64_t kmcSeed = mix(
+                uint64_t(threadBaseSeed) ^
+                (uint64_t(threadID) << 32) ^
+                uint64_t(ivPoint) ^
+                0xD1B54A32D192ED03ULL
+            );
+
             std::vector<double> voltages = samples[ivPoint];
             voltages[outputIdx] = 0.0;
             
             State equilState(initState);
-            equilState.updateBoundaries(voltages);
+            #pragma omp critical(fem_update)
+            {
+                equilState.updateBoundaries(voltages);
+            }
 
             for (int _s = 0; _s < equilState.numOfSites; ++_s) {
                 initialEnergies[_s + ivPoint*equilState.numOfSites] = equilState.siteEnergies[_s];
             }
 
-            KMCSimulator kmc(equilState);
+            KMCSimulator kmc(equilState, kmcSeed);
 
             equilState.resetEventCounter();
 
@@ -515,7 +560,7 @@ void batchFromSingleState(
 
         for (int m = initState.jaggedArrayLengths[l]; m < initState.jaggedArrayLengths[l+1]; ++m) {
 
-            ratePrefactors[initState.neighbourIndices[m] + l*initState.numOfSites] = kmc.constantTransitionRates[m];
+            ratePrefactors[initState.neighbourIndices[m] + l*initState.numOfSites] = init_kmc.constantTransitionRates[m];
 
         }
     }
@@ -576,9 +621,15 @@ void batchOfMultipleStates(
 
         #pragma omp for
         for (int _p = 0; _p < batchSize; ++_p) {
+            
+            uint64_t stateSeed = mix(
+                uint64_t(threadBaseSeed) ^
+                (uint64_t(threadID) << 32) ^
+                uint64_t(_p) ^
+                0xD1B54A32D192ED03ULL
+            );
+            uint64_t kmcSeed = mix(stateSeed ^ 0x94D049BB133111EBULL);
 
-            int threadSeed = threadID + threadBaseSeed + _p;
-            setRandomSeed(threadSeed);
             /* Configuring state and simulator */
             std::vector<double> voltages = samples[_p];
             voltages[outputIdx] = 0.0;
@@ -598,12 +649,16 @@ void batchOfMultipleStates(
             params.distType = distType;
             params.epsilon = epsilon;
 
-            Configuration config(params);
+            uint64_t cfgSeed = mix(
+                stateSeed ^ 0x94D049BB133111EBULL                
+            );
 
-            State tempState(config);
+            Configuration config(params, cfgSeed);
 
+            State tempState(config, stateSeed);
+            std::cout << "Update boundaries" << "\n";
             tempState.updateBoundaries(voltages);
-            KMCSimulator kmc(tempState);
+            KMCSimulator kmc(tempState, kmcSeed);
             /* Saving coords */
             for (int _u = 0; _u < nAcceptors; ++_u) {
                 accCoords[(_u + _p*nAcceptors)*2] = tempState.acceptorCoordinates[_u*2];

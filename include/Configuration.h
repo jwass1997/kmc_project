@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <random>
 
 #include "utils.h"
 
@@ -48,7 +49,8 @@ class Configuration {
         Configuration();
 
         Configuration(
-            const ConfigurationParams& params            
+            const ConfigurationParams& params,
+            uint64_t seed      
         );
 
         Configuration(
@@ -100,4 +102,8 @@ class Configuration {
         std::vector<int> siteOccupation;
 
         std::vector<Electrode> electrodeData; 
+
+        double uniform01();
+
+        std::mt19937_64 _rng;
 };

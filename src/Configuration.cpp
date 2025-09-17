@@ -9,16 +9,12 @@
 #include <cmath>
 
 #include "Configuration.h"
-#include "Random.h"
 
-Configuration::Configuration() 
+Configuration::Configuration() {}
+
+Configuration::Configuration(const ConfigurationParams& params, uint64_t seed)
+    : _rng(seed)
 {
-    std::cout << "[Configuration]: Empty constructor called: Specfify parameters manually" << "\n";
-}
-
-Configuration::Configuration(
-    const ConfigurationParams& params
-) {
 
     if (params.nElectrodes != params.electrodeData.size()) {
         throw std::invalid_argument("[Configuration]: electrodeData.size() is not equal to nElectrodes");
@@ -64,26 +60,22 @@ Configuration::Configuration(
 
     if (distType == "uniform") {
 
-        auto now = std::chrono::high_resolution_clock::now();
-        auto now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
-        setRandomSeed((int)now_ns);
-
         for (int i = 0; i < nAcceptors; ++i) {
-            double randomPhi = 2.0*M_PI*randomDouble01();
-            double randomR = radius*std::sqrt(randomDouble01());
+            double randomPhi = 2.0*M_PI*uniform01();
+            double randomR = radius*std::sqrt(uniform01());
             acceptorCoords.push_back(randomR*std::cos(randomPhi));
             acceptorCoords.push_back(randomR*std::sin(randomPhi));
         }
 
         for (int i = 0; i < nDonors; ++i) {
-            double randomPhi = 2.0*M_PI*randomDouble01();
-            double randomR = radius*std::sqrt(randomDouble01());
+            double randomPhi = 2.0*M_PI*uniform01();
+            double randomR = radius*std::sqrt(uniform01());
             donorCoords.push_back(randomR*std::cos(randomPhi));
             donorCoords.push_back(randomR*std::sin(randomPhi));
         }
     }
 
-    else if (distType == "mixed") {
+    /* else if (distType == "mixed") {
 
         if (epsilon < 0.0 || epsilon > 1.0) {
             throw std::invalid_argument("[Configuration]: invalid epsilon value");
@@ -121,7 +113,7 @@ Configuration::Configuration(
             donorCoords.push_back(randomR*std::cos(randomPhi));
             donorCoords.push_back(randomR*std::sin(randomPhi));
         }
-    }
+    } */
 
 
     electrodeData = params.electrodeData;
@@ -346,4 +338,9 @@ Configuration::Configuration(
         }
         donorFile.close();
     }  
+}
+
+double Configuration::uniform01() {
+    std::uniform_real_distribution<double> U(0.0, 1.0);
+    return U(_rng);
 }

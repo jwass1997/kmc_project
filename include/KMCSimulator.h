@@ -13,7 +13,7 @@ class KMCSimulator {
 
         KMCSimulator();
 
-        KMCSimulator(State& state);
+        KMCSimulator(State& state, uint64_t seed);
 
         void initKMCSimulator(State& state);
         
@@ -26,6 +26,8 @@ class KMCSimulator {
         void simulate(State& state, int steps, bool reset, bool writeData);
 
         void resetSimulator();
+
+        double uniform01();
 
         std::vector<double> constantTransitionRates;
 
@@ -46,4 +48,6 @@ class KMCSimulator {
         int totalNumOfEvents;
 
         std::vector<int> lastHopIndices;
+
+        std::mt19937_64 _rng;
 };

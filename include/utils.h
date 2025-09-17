@@ -52,6 +52,8 @@ inline double fastExp(double x) {
     return x;
 };
 
+uint64_t mix(uint64_t x);
+
 double calculateDistance(
     double coordinateX1, 
     double coordinateX2, 

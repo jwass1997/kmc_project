@@ -4,6 +4,7 @@
 #include <string>
 #include <cmath>
 #include <memory>
+#include <random>
 
 #include "utils.h"
 #include "mfem.hpp"
@@ -19,7 +20,7 @@ class State {
 
         State(State const& other);
 
-        State(Configuration& config);
+        State(Configuration& config, uint64_t seed);
 
         void initContainers();
 
@@ -42,6 +43,10 @@ class State {
         void resetEventCounter();
 
         void resetState();
+
+        double uniform01();
+
+        double normal(double mu, double sigma);
 
         int nAcceptors;
 
@@ -113,4 +118,6 @@ class State {
         int femRes;
 
         std::unique_ptr<FiniteElementeCircle> femSolver;
+
+        std::mt19937_64 _rng;
 };

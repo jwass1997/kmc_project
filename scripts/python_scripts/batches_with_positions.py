@@ -7,10 +7,10 @@ if __name__ == "__main__":
     batch_size = 50
     num_batches = 100
 
-    """ for i in range(num_batches):
+    for i in range(num_batches):
         
-        lhc_seed = np.random.randint(low=0, high=2**10)
-        thread_base_seed = np.random.randint(low=0, high=2**10)
+        lhc_seed = np.random.randint(low=0, high=2**30)
+        thread_base_seed = np.random.randint(low=0, high=2**30)
 
         slurm_batch_of_independant_states(
             batch_size=batch_size,
@@ -42,9 +42,9 @@ if __name__ == "__main__":
             BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
             SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/batch_script.sh"),
             SLURM_OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
-        ) """
+        )
     
-    slurm_batch_of_independant_states(
+    """ slurm_batch_of_independant_states(
         batch_size=batch_size,
         min_V=-1.5,
         max_V=1.5,
@@ -75,3 +75,4 @@ if __name__ == "__main__":
         SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/batch_script.sh"),
         SLURM_OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
     )
+ """

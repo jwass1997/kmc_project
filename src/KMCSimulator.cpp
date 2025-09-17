@@ -3,7 +3,6 @@
 
 #include "KMCParameters.h"
 #include "KMCSimulator.h"
-#include "Random.h"
 #include "State.h"
 #include "utils.h"
 
@@ -11,12 +10,10 @@ struct Results {
     
 };
 
-KMCSimulator::KMCSimulator()
-{
-    std::cout << "KMCSimulator(): Empty constructor should not be called" << "\n";
-}
+KMCSimulator::KMCSimulator() {}
 
-KMCSimulator::KMCSimulator(State& state)
+KMCSimulator::KMCSimulator(State& state, uint64_t seed)
+    : _rng(seed)
 {
     numOfNeighbours = state.numOfNeighbours;
     jaggedArrayLengths = state.jaggedArrayLengths;
@@ -109,7 +106,7 @@ void KMCSimulator::updateTransitionRates(State& state) {
 
 void KMCSimulator::sampleEvent(State& state) {
     
-    double _r = totalSumOfRates*randomDouble01();
+    double _r = totalSumOfRates*uniform01();
     cumulativeSumOfRates = 0.0;
     for (int i = 0; i < state.numOfSites; ++i) {
         int L = jaggedArrayLengths[i];
@@ -154,4 +151,9 @@ void KMCSimulator::simulate(State& state, int steps, bool reset, bool writeData)
 void KMCSimulator::resetSimulator() {
 
     
+}
+
+double KMCSimulator::uniform01() {
+    std::uniform_real_distribution<double> U(0.0, 1.0);
+    return U(_rng);
 }

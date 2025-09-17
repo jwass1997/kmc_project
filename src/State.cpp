@@ -1,15 +1,12 @@
 #include <algorithm>
 #include <cmath>
+#include <random>
 
-#include "Random.h"
 #include "State.h"
 #include "FEMmethods.h"
 #include "Configuration.h"
 
-State::State() 
-{
-    std::cout << "State(): Empty constructor should not be called!" << "\n";
-}
+State::State() {};
 
 State::State(State const& other)
     : acceptorCoordinates(other.acceptorCoordinates)
@@ -49,6 +46,7 @@ State::State(State const& other)
     , totalNumOfEvents(other.totalNumOfEvents)
     , stateTime(other.stateTime)
     , femRes(other.femRes)
+    , _rng(other._rng)
 {   
     auto femCircle = std::make_unique<FiniteElementeCircle>(
         other.radius,
@@ -68,7 +66,7 @@ State::State(State const& other)
     *(femSolver->solutionVector) = other.getSolutionVector();
 }
 
-State::State(Configuration& config)
+State::State(Configuration& config, uint64_t seed)
     : acceptorCoordinates(config.acceptorCoords)
     , donorCoordinates(config.donorCoords)
     , electrodeCoordinates(config.electrodeCoords)
@@ -89,6 +87,7 @@ State::State(Configuration& config)
     , maxHopDistance(config.maxHopDistance)
     , electrodeData(config.electrodeData)
     , femRes(config.femRes)
+    , _rng(seed)
 {
     distanceMatrix.resize(numOfSites*numOfSites, 0.0);
     inverseAcceptorDistances.resize(nAcceptors*nAcceptors, 0.0);
@@ -227,7 +226,7 @@ void State::initSiteEnergies() {
 		acceptorDonorInteraction[i] = A0*sumOfInverseDistances;
 
 		if(energyDisorder != 0.0) {
-			double randomEnergy = normalDist(0.0, energyDisorder);		
+			double randomEnergy = normal(0.0, energyDisorder);		
             //std::cout << "Random contribution:" << randomEnergy << "\n";
 			randomEnergies[i] = randomEnergy;	
             //std::cout << "Random energy: " << randomEnergy << "for site " << i << "\n";
@@ -270,7 +269,7 @@ void State::initOccupiedSites() {
     for(int i = 0; i < nAcceptors; ++i) {
         randomVector[i] = i;
     }
-    std::shuffle(randomVector.begin(), randomVector.end(), rng_mt);
+    std::shuffle(randomVector.begin(), randomVector.end(), _rng);
     std::fill(currentOccupation.begin(), currentOccupation.end(), 0);
     for (int i = 0; i < nAcceptors - nDonors; ++i) {
         currentOccupation[randomVector[i]] = 1;
@@ -340,7 +339,9 @@ void State::updateBoundaries(std::vector<double> boundaryValues) {
     }
 
     for (int bdrVal = 0; bdrVal < boundaryValues.size(); ++bdrVal) {
+        std::cout << "UPDATE VOLTAGE START" << "\n";
         femSolver->updateElectrodeVoltage(bdrVal, boundaryValues[bdrVal]);
+        std::cout << "UPDATE VOLTAGE END " << "\n";
     }
 
     femSolver->run();
@@ -366,7 +367,7 @@ mfem::GridFunction State::getSolutionVector() const {
 
 void State::increaseStateTime(double rate) {
 
-    double _r = randomDouble01() + 1e-12;
+    double _r = uniform01() + 1e-12;
     double _dt = -(std::log(_r) / rate);
 
     stateTime += _dt;
@@ -385,4 +386,14 @@ void State::resetState() {
     currentPotential = initialPotential;
     currentOccupation = initialOccupation;
     std::fill(eventCounter.begin(), eventCounter.end(), 0);
+}
+
+double State::uniform01() {
+    std::uniform_real_distribution<double> U(0.0, 1.0);
+    return U(_rng);
+}
+
+double State::normal(double mu, double sigma) {
+    std::normal_distribution<double> N(mu, sigma);
+    return N(_rng);
 }

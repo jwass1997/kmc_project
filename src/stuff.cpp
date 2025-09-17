@@ -2707,3 +2707,22 @@ if (firstCommand == "batchOfIndependantStates") {
         return 1;
     }
 
+    double randomUniform01() {
+
+    static thread_local std::mt19937 generator;
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
+
+    return dist(generator);
+}
+
+double randomNormal(double mean, double stdDev) {
+
+    static thread_local std::mt19937 generator;
+    std::normal_distribution<double> dist(mean, stdDev);
+
+    return dist(generator);
+}
+
+double randomUniform01();
+
+double randomNormal(double mean, double stdDev); 
