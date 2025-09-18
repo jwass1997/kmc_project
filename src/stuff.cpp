@@ -2726,3 +2726,495 @@ double randomNormal(double mean, double stdDev) {
 double randomUniform01();
 
 double randomNormal(double mean, double stdDev); 
+
+/* else if (distType == "mixed") {
+
+        if (epsilon < 0.0 || epsilon > 1.0) {
+            throw std::invalid_argument("[Configuration]: invalid epsilon value");
+        }
+
+        auto now = std::chrono::high_resolution_clock::now();
+        auto now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
+        setRandomSeed(static_cast<long int>(now_ns)); 
+
+        for (int i = 0; i < nAcceptors; ++i) {
+            
+            double u01 = randomDouble01();
+
+            if (u01 < (1 - epsilon)) {
+                double randomPhi = 2.0*M_PI*randomDouble01();
+                double randomR = radius*std::sqrt(randomDouble01());
+                acceptorCoords.push_back(randomR*std::cos(randomPhi));
+                acceptorCoords.push_back(randomR*std::sin(randomPhi));
+            }
+            else {
+                double stdScaled = radius / 2.5;
+                std::vector<double> coords = sample_truncated_gaussian_reject(stdScaled, radius);
+
+                double _r = std::sqrt(coords[0]*coords[0] + coords[1]*coords[1]);
+                double randomPhi = 2.0*M_PI*randomDouble01();
+
+                acceptorCoords.push_back(coords[0]);
+                acceptorCoords.push_back(coords[1]);
+            }
+        }
+
+        for (int i = 0; i < nDonors; ++i) {
+            double randomPhi = 2.0*M_PI*randomDouble01();
+            double randomR = radius*std::sqrt(randomDouble01());
+            donorCoords.push_back(randomR*std::cos(randomPhi));
+            donorCoords.push_back(randomR*std::sin(randomPhi));
+        }
+    } */
+
+inline double wrap_angle(double x) {
+    x = std::fmod(x, 2.0 * PI);
+    if (x < 0) x += 2.0 * PI;
+    return x;
+}
+
+double von_mises_sample(double mu, double kappa, std::mt19937& gen) {
+    std::uniform_real_distribution<double> U(0.0, 1.0);
+
+    if (kappa < 1e-12) {
+        return wrap_angle(mu + U(gen) * 2.0 * PI);
+    }
+
+    double a = 1.0 + std::sqrt(1.0 + 4.0 * kappa * kappa);
+    double b = (a - std::sqrt(2.0 * a)) / (2.0 * kappa);
+    double r = (1.0 + b * b) / (2.0 * b);
+
+    while (true) {
+        double u1 = U(gen);
+        double u2 = U(gen);
+
+        double z  = std::cos(PI * u1);
+        double f  = (1.0 + r * z) / (r + z);
+        double c  = kappa * (r - f);
+
+        if (u2 < c * (2.0 - c) || u2 <= c * std::exp(1.0 - c)) {
+            double u3 = U(gen);
+            double theta = (u3 < 0.5 ? -1.0 : 1.0) * std::acos(f) + mu;
+            return wrap_angle(theta);
+        }
+    }
+}
+
+double beta_sample(double alpha, double beta, std::mt19937& gen) {
+    if (alpha <= 0.0 || beta <= 0.0) throw std::invalid_argument("alpha,beta > 0");
+    std::gamma_distribution<double> G1(alpha, 1.0);
+    std::gamma_distribution<double> G2(beta, 1.0);
+    double x = G1(gen);
+    double y = G2(gen);
+    return x / (x + y); // in (0,1)
+}
+
+/* int num_electrodes = 8;
+    int batch_size = 200;
+    std::vector<double> mins(num_electrodes, -1.5);
+    std::vector<double> maxs(num_electrodes, 1.5);
+    std::vector<std::vector<double>> samples = scaledLHC(
+        batch_size,
+        num_electrodes,
+        mins,
+        maxs, 
+        32
+    );
+    double radius = 150.0;
+    double electrodeWidth = 60.0;
+    int fem_res = 100000;
+    for (int i = 0; i < batch_size; ++i) {
+        
+        std::unique_ptr<FiniteElementeCircle> femSolver;
+    
+        auto femCircle = std::make_unique<FiniteElementeCircle>(
+            radius, fem_res
+        );
+        ConfigurationParams cfgParams;
+        Configuration cfg(cfgParams, 32);
+
+        auto electrodeData = cfgParams.electrodeData;
+
+        for (int k = 0; k < electrodeData.size(); ++k) {
+            femCircle->setElectrode(
+                0.0,
+                electrodeData[i].angularPosition/360.0 * 2.0*M_PI - 0.5*electrodeWidth / radius,
+                electrodeData[i].angularPosition/360.0 * 2.0*M_PI + 0.5*electrodeWidth / radius
+            );
+        }
+
+        femSolver = std::move(femCircle);
+        femSolver->initRun();
+    }
+
+    std::cout << "Hello" << "\n"; */
+
+    /* std::mt19937 rng(412412312);
+
+    std::ofstream file;
+    int n_a = 200;
+    double R = 150.0;
+    double mu = 0.0;
+    double kappa = 0.2;
+    double alpha = 4.5;
+    double beta = 4.5;
+    file.open("/home/hd/hd_hd/hd_gy283/kmc_project/cpp_vMB.txt");
+    int counter = 0;
+    while (counter < n_a) {
+        double u = beta_sample(alpha, beta, rng);
+        double r = R*std::sqrt(u);        
+        double angle = von_mises_sample(mu, kappa, rng);
+
+        double x = r*std::cos(angle);
+        double y = r*std::sin(angle);
+
+        if (std::sqrt(x*x + y*y) < R) {
+            file << x << " " << y << "\n";
+            ++counter;
+        }            
+    }
+    file.close(); */
+
+    /* std::string cfg = "/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/configs/config.txt";
+    std::string acc = "/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/configs/acceptors.txt";
+    std::string don = "/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/configs/donors.txt";
+    std::string ele = "/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/configs/electrodes.txt";
+
+    Configuration config(cfg, acc, don, ele, false);
+
+    State state(config);
+
+    std::vector<double> voltages = {1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, 1.0};
+    state.updateBoundaries(voltages);
+    KMCSimulator kmc(state);
+    kmc.simulate(state, 10000, false, true);
+    for (int i = 0; i < state.numOfSites*state.numOfSites; ++i) {
+        std::cout << state.eventCounter[i];
+    } */
+    //std::cout << state.currentPotential[200] << "\n";
+    //State state2(state);
+    //std::cout << state2.currentPotential[200] << "\n";
+    //KMCSimulator kmc(state);
+    
+    /* std::ofstream ofs("phi_0.txt");
+    if (!ofs) {
+        std::cerr << "Cannot open output file\n";
+        return 1;
+    }
+
+    const int radialSteps = 100;
+    const int angularSteps = 360;
+    for (int ir = 1; ir <= radialSteps; ++ir) {
+        double r = config.radius * ir / radialSteps;
+        for (int jt = 0; jt < angularSteps; ++jt) {
+            double theta = 2 * M_PI * jt / angularSteps;
+            double x = r * std::cos(theta);
+            double y = r * std::sin(theta);
+            double phi = fem.getPotential(x, y);
+            ofs << x << " " << y << " " << phi << "\n";
+        }
+        ofs << "\n";
+    }
+
+    std::vector<double> newBoundaries = {10.5, -9.2, 9.9, 8.2, -9.0, 8.5, 9.4, -9.1};
+    state.updateBoundaries(newBoundaries, fem);
+
+    std::ofstream ofs_1("phi_1.txt");
+    if (!ofs_1) {
+        std::cerr << "Cannot open output file\n";
+        return 1;
+    }
+    for (int ir = 1; ir <= radialSteps; ++ir) {
+        double r = config.radius * ir / radialSteps;
+        for (int jt = 0; jt < angularSteps; ++jt) {
+            double theta = 2 * M_PI * jt / angularSteps;
+            double x = r * std::cos(theta);
+            double y = r * std::sin(theta);
+            double phi = fem.getPotential(x, y);
+            ofs_1 << x << " " << y << " " << phi << "\n";
+        }
+        ofs_1 << "\n";
+    }
+
+    return 0; */
+
+
+    class LiteLaplaceCircle {
+public:
+    // Construct a polar grid on a disk of radius R.
+    // Nr: number of radial nodes (>=2), Ntheta: number of angular nodes (>=8).
+    // useSOR: if true, Successive Over-Relaxation with omega (1<omega<2).
+    explicit LiteLaplaceCircle(double R, int Nr, int Ntheta,
+                               bool useSOR = true, double omega = 1.8)
+        : R_(R), Nr_(Nr), Nt_(Ntheta),
+          useSOR_(useSOR), omega_(omega)
+    {
+        if (R_ <= 0)               throw std::invalid_argument("R must be > 0");
+        if (Nr_ < 2)               throw std::invalid_argument("Nr must be >= 2");
+        if (Nt_ < 8)               throw std::invalid_argument("Ntheta must be >= 8");
+        if (useSOR_ && (omega_ <= 1.0 || omega_ >= 2.0))
+            throw std::invalid_argument("omega in (1,2) for SOR");
+
+        dr_ = R_ / (Nr_ - 1);
+        dth_ = 2.0 * M_PI / Nt_;
+
+        phi_.assign(Nr_ * Nt_, 0.0);
+        phi_new_.assign(Nr_ * Nt_, 0.0);
+
+        // Dirichlet mask only lives on the outer ring (r=R)
+        outer_dirichlet_mask_.assign(Nt_, false);
+        outer_dirichlet_value_.assign(Nt_, 0.0);
+    }
+
+    // Resets the field to zeros (handy between tests)
+    void clearSolution(double value = 0.0) {
+        std::fill(phi_.begin(), phi_.end(), value);
+    }
+
+    // Define an electrode arc on the outer boundary with a constant voltage.
+    // begin/end are in radians; any order is allowed and wrapped to [0,2pi).
+    void setElectrode(double voltage, double begin, double end) {
+        auto wrap = [](double a) {
+            double t = std::fmod(a, 2.0*M_PI);
+            return (t < 0.0) ? t + 2.0*M_PI : t;
+        };
+        begin = wrap(begin);
+        end   = wrap(end);
+
+        auto mark_index = [&](int j) {
+            outer_dirichlet_mask_[j]  = true;
+            outer_dirichlet_value_[j] = voltage;
+        };
+
+        if (begin <= end) {
+            int j0 = thetaToIndex(begin);
+            int j1 = thetaToIndex(end);
+            // cover inclusive range on the ring
+            for (int j = j0; j <= j1; ++j) mark_index(j % Nt_);
+        } else {
+            // wrapped arc
+            int j0 = thetaToIndex(begin);
+            int j1 = thetaToIndex(end);
+            for (int j = j0; j < j0 + Nt_; ++j) {
+                int jj = j % Nt_;
+                mark_index(jj);
+                if (jj == j1) break;
+            }
+        }
+        applyOuterBoundaryToSolution();
+        electrodes_.push_back(snapshotElectrodeIndices());
+    }
+
+    // Change voltage of an existing electrode (by creation order).
+    void updateElectrodeVoltage(int electrodeIndex, double voltage) {
+        if (electrodeIndex < 0 || electrodeIndex >= (int)electrodes_.size())
+            throw std::out_of_range("Bad electrode index");
+        // Clear previous values for this electrode, then re-apply at new voltage.
+        for (int j : electrodes_[electrodeIndex]) {
+            outer_dirichlet_mask_[j]  = true;
+            outer_dirichlet_value_[j] = voltage;
+        }
+        applyOuterBoundaryToSolution();
+    }
+
+    // A convenience: set *all* masked outer nodes to a constant (e.g. ground all).
+    void setAllOuterBoundary(double voltage) {
+        for (int j = 0; j < Nt_; ++j) {
+            if (outer_dirichlet_mask_[j]) outer_dirichlet_value_[j] = voltage;
+        }
+        applyOuterBoundaryToSolution();
+    }
+
+    // Iterative solve for Laplace equation. Returns iteration count taken.
+    // Stops when L_inf residual < tol or max_iters is reached.
+    int run(int max_iters = 10'000, double tol = 1e-9) {
+        // Keep boundary nodes fixed each iteration.
+        // Center (r=0) uses symmetry: phi(0,theta) = average of first-ring neighbors.
+
+        for (int iter = 0; iter < max_iters; ++iter) {
+            double max_change = 0.0;
+
+            // Enforce outer Dirichlet each sweep
+            enforceOuterBC();
+
+            // r = 0 (index i = 0): set to mean of i=1 ring to enforce regularity
+            {
+                double mean = 0.0;
+                for (int j = 0; j < Nt_; ++j) mean += at(1, j);
+                mean /= Nt_;
+                for (int j = 0; j < Nt_; ++j) {
+                    max_change = std::max(max_change, std::abs(at(0, j) - mean));
+                    set(0, j, mean);
+                }
+            }
+
+            // interior rings: 1 .. Nr-2 (since Nr-1 is boundary)
+            for (int i = 1; i <= Nr_ - 2; ++i) {
+                double r = i * dr_;
+                double rpp = r + 0.5 * dr_;
+                double rmm = r - 0.5 * dr_;
+                double c_r = 1.0 / (dr_ * dr_);         // central radial coefficient (approximate)
+                double c_th = 1.0 / (r * r * dth_ * dth_);
+
+                for (int j = 0; j < Nt_; ++j) {
+                    // neighbors
+                    double phi_im = at(i - 1, j);
+                    double phi_ip = at(i + 1, j);
+                    double phi_jm = at(i, jm(j));
+                    double phi_jp = at(i, jp(j));
+
+                    // Conservative-ish FV/FD mix:
+                    // (1/r) d/dr (r dphi/dr) ~ (rpp(phi_ip-phi_i) - rmm(phi_i-phi_im)) / (r * dr^2)
+                    // => radial part: ((rpp * phi_ip + rmm * phi_im) - (rpp + rmm) * phi_i) / (r * dr^2)
+                    // angular part: (phi_{j+1} - 2 phi_i + phi_{j-1}) / (r^2 dth^2)
+                    double A = (rpp + rmm) / (r * dr_ * dr_) + 2.0 * c_th; // diagonal coeff
+                    double rhs = (rpp * phi_ip + rmm * phi_im) / (r * dr_ * dr_)
+                               + c_th * (phi_jp + phi_jm);
+
+                    double phi_new = rhs / A;
+
+                    if (useSOR_) {
+                        double phi_old = at(i, j);
+                        phi_new = phi_old + omega_ * (phi_new - phi_old);
+                    }
+
+                    max_change = std::max(max_change, std::abs(phi_new - at(i, j)));
+                    set(i, j, phi_new);
+                }
+            }
+
+            // re-enforce outer ring after interior update
+            enforceOuterBC();
+
+            if (max_change < tol) return iter + 1;
+        }
+        return max_iters;
+    }
+
+    // Query potential at (x,y) via bilinear interpolation in (r,theta) space.
+    double getPotential(double x, double y) const {
+        double r = std::hypot(x, y);
+        if (r > R_) {
+            // Outside: return nearest boundary value for robustness
+            double th = std::atan2(y, x);
+            int j = thetaToIndex(th);
+            return atConst(Nr_ - 1, j);
+        }
+        // map to fractional indices
+        double fr = r / dr_;
+        int    i0 = std::clamp((int)std::floor(fr), 0, Nr_ - 2);
+        double tr = fr - i0;
+
+        double th = thetaWrap(std::atan2(y, x));
+        double ft = th / dth_;
+        int    j0 = (int)std::floor(ft) % Nt_;
+        if (j0 < 0) j0 += Nt_;
+        double tt = ft - std::floor(ft);
+
+        // four neighbors (with periodic theta)
+        int j1 = (j0 + 1) % Nt_;
+        double p00 = atConst(i0,     j0);
+        double p10 = atConst(i0 + 1, j0);
+        double p01 = atConst(i0,     j1);
+        double p11 = atConst(i0 + 1, j1);
+
+        double p0 = p00 * (1 - tr) + p10 * tr;
+        double p1 = p01 * (1 - tr) + p11 * tr;
+        return p0 * (1 - tt) + p1 * tt;
+    }
+
+    // Utility: get raw grid (for debugging/printing)
+    const std::vector<double>& rawGrid() const { return phi_; }
+    int Nr() const { return Nr_; }
+    int Ntheta() const { return Nt_; }
+    double radius() const { return R_; }
+    double dr() const { return dr_; }
+    double dtheta() const { return dth_; }
+
+private:
+    // Grid & parameters
+    double R_;
+    int Nr_, Nt_;
+    double dr_, dth_;
+    bool useSOR_;
+    double omega_;
+
+    // Solution
+    std::vector<double> phi_, phi_new_;
+
+    // Outer boundary masks/values (only store outer ring, j=0..Nt-1)
+    std::vector<bool>   outer_dirichlet_mask_;
+    std::vector<double> outer_dirichlet_value_;
+
+    // Bookkeeping per-electrode (stores theta indices on the boundary)
+    std::vector<std::vector<int>> electrodes_;
+
+    // Indexing helpers
+    inline int idx(int i, int j) const { return i * Nt_ + (j % Nt_ + Nt_) % Nt_; }
+    inline int jp(int j) const { return (j + 1) % Nt_; }
+    inline int jm(int j) const { return (j - 1 + Nt_) % Nt_; }
+
+    inline double& at(int i, int j) { return phi_[idx(i, j)]; }
+    inline const double& atConst(int i, int j) const { return phi_[idx(i, j)]; }
+    inline void set(int i, int j, double v) { phi_[idx(i, j)] = v; }
+
+    inline int thetaToIndex(double theta) const {
+        double t = thetaWrap(theta);
+        int j = (int)std::round(t / dth_);
+        j %= Nt_;
+        if (j < 0) j += Nt_;
+        return j;
+    }
+    inline double thetaWrap(double theta) const {
+        double t = std::fmod(theta, 2.0*M_PI);
+        return (t < 0.0) ? t + 2.0*M_PI : t;
+        }
+
+    /* // After changing masks/values, push them to the solution’s boundary
+    void applyOuterBoundaryToSolution() {
+        for (int j = 0; j < Nt_; ++j) {
+            if (outer_dirichlet_mask_[j]) {
+                set(Nr_ - 1, j, outer_dirichlet_value_[j]);
+            }
+        }
+    }
+
+    void enforceOuterBC() {
+        for (int j = 0; j < Nt_; ++j) {
+            if (outer_dirichlet_mask_[j]) {
+                set(Nr_ - 1, j, outer_dirichlet_value_[j]);
+            }
+        }
+    } */
+
+    // After changing masks/values, push them to the solution’s boundary.
+    // Dirichlet on masked indices; Neumann (zero-flux) elsewhere.
+    void applyOuterBoundaryToSolution() {
+        for (int j = 0; j < Nt_; ++j) {
+            if (outer_dirichlet_mask_[j]) {
+                set(Nr_ - 1, j, outer_dirichlet_value_[j]);             // Dirichlet
+            } else {
+                set(Nr_ - 1, j, at(Nr_ - 2, j));                        // Neumann: ∂φ/∂r=0
+            }
+        }
+    }
+
+    // Enforce boundary conditions every iteration sweep.
+    void enforceOuterBC() {
+        for (int j = 0; j < Nt_; ++j) {
+            if (outer_dirichlet_mask_[j]) {
+                set(Nr_ - 1, j, outer_dirichlet_value_[j]);             // Dirichlet
+            } else {
+                set(Nr_ - 1, j, at(Nr_ - 2, j));                        // Neumann: ∂φ/∂r=0
+            }
+        }
+    }
+    // Snapshot current mask indices for an "electrode id"
+    std::vector<int> snapshotElectrodeIndices() const {
+        std::vector<int> js;
+        js.reserve(Nt_);
+        for (int j = 0; j < Nt_; ++j)
+            if (outer_dirichlet_mask_[j]) js.push_back(j);
+        return js;
+    }
+};

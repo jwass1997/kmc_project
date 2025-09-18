@@ -27,9 +27,9 @@ if __name__ == "__main__":
             electrode_width=60.0,
             min_hop_distance=1.5,
             max_hop_distance=60.0,
-            fem_res=100000,
+            Nr=257,
+            Nt=1440,
             dist_type="uniform",
-            eps=0.1,
             input_idx=1,
             output_idx=0,
             eq_steps=10_000,
@@ -43,36 +43,3 @@ if __name__ == "__main__":
             SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/batch_script.sh"),
             SLURM_OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
         )
-    
-    """ slurm_batch_of_independant_states(
-        batch_size=batch_size,
-        min_V=-1.5,
-        max_V=1.5,
-        n_acceptors=200,
-        n_electrodes=8,
-        n_donors=3,
-        radius=150.0,
-        nu0=1.0,
-        a=20.0,
-        T=77,
-        energy_disorder=0.01,
-        electrode_width=60.0,
-        min_hop_distance=1.5,
-        max_hop_distance=60.0,
-        fem_res=100000,
-        dist_type="uniform",
-        eps=0.1,
-        input_idx=1,
-        output_idx=0,
-        eq_steps=10_000,
-        sim_steps=1_000_000,
-        num_of_tasks=100,
-        LHCSeed=383,
-        threadBaseSeed=407,
-        save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/pos_batches_1e6"),
-        file_name=Path(f"batch_crashed"),
-        BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
-        SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/batch_script.sh"),
-        SLURM_OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
-    )
- """

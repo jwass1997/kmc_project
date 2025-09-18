@@ -34,13 +34,13 @@ void FiniteElementeBase::updateElectrodeVoltage(int const& electrodeIndex,
 {
 
     // ... your checks ...
-    std::cout << "[BC] updateElectrodeVoltage(" << electrodeIndex
+    /* std::cout << "[BC] updateElectrodeVoltage(" << electrodeIndex
               << ") V=" << voltage
               << " #verts=" << electrodeVertexIndices[electrodeIndex].size()
               << "\n";
-
+ */
     if (electrodeIndex < 0 || electrodeIndex >= static_cast<int>(electrodeVertexIndices.size())) {
-    std::cerr << "[ERROR] updateElectrodeVoltage: invalid electrodeIndex " << electrodeIndex << "\n";
+        std::cerr << "[ERROR] updateElectrodeVoltage: invalid electrodeIndex " << electrodeIndex << "\n";
     return;
     }
     if (electrodeVertexIndices[electrodeIndex].empty()) {
@@ -55,8 +55,8 @@ void FiniteElementeBase::updateElectrodeVoltage(int const& electrodeIndex,
         }
         (*solutionVector)[index] = voltage;
     }
-    std::cout << "[BC] solutionVector finite after write? "
-              << (is_finite_gf(*solutionVector) ? "yes" : "NO") << "\n";
+    /* std::cout << "[BC] solutionVector finite after write? "
+              << (is_finite_gf(*solutionVector) ? "yes" : "NO") << "\n"; */
 }
 
 void FiniteElementeBase::initRun(bool initDevice /*= false*/)
@@ -83,14 +83,14 @@ void FiniteElementeBase::initRun(bool initDevice /*= false*/)
         fespace->GetEssentialTrueDofs(ess_bdr, ess_tdof_list);
     }
 
-    // --- PROBE START ---
+    /* // --- PROBE START ---
     print_bdr_attr_stats(mesh);
     std::cout << "[BC] ess_tdof_list size = " << ess_tdof_list.Size() << "\n";
     if (ess_tdof_list.Size() == 0) {
         std::cout << "[BC][WARN] No essential DOFs found. System will be singular.\n";
     }
     // --- PROBE END ---
-
+ */
     if (saveSolution) {
         std::ofstream mesh_ofs("finEle.mesh");
         mesh_ofs.precision(8);
@@ -100,12 +100,12 @@ void FiniteElementeBase::initRun(bool initDevice /*= false*/)
 
 void FiniteElementeBase::run()
 {
-    // --- PROBE START ---
+    /* // --- PROBE START ---
     std::cout << "[RUN] begin: sol size=" << solutionVector->Size() << "\n";
     std::cout << "[RUN] solutionVector finite at entry? "
               << (is_finite_gf(*solutionVector) ? "yes" : "NO") << "\n";
     // --- PROBE END ---
-
+ */
     // 7. Set up the linear form b(.) which corresponds to the right-hand side of
     //    the FEM linear system, which in this case is (1,phi_i) where phi_i are
     //    the basis functions in the finite element fespace.
@@ -128,14 +128,14 @@ void FiniteElementeBase::run()
     a->Assemble();
     a->FormLinearSystem(ess_tdof_list, *solutionVector, *b, A, X, B);
 
-    // --- PROBE START ---
+    /* // --- PROBE START ---
     std::cout << "[RUN] formed: X.size=" << X.Size()
               << " B.size=" << B.Size()
               << " A? " << (A.Ptr() ? "yes" : "no") << "\n";
     std::cout << "[RUN] B finite? " << (is_finite_vec(B) ? "yes" : "NO") << "\n";
     std::cout << "[RUN] X finite pre-PCG? " << (is_finite_vec(X) ? "yes" : "NO") << "\n";
     // --- PROBE END ---
-
+ */
     // 11.
     M = GSSmoother((SparseMatrix&)(*A));
     PCG(*A, M, B, X, 0, 1000, 1e-12, 0.0);
@@ -143,10 +143,10 @@ void FiniteElementeBase::run()
     // 12. Recover the solution as a finite element grid function.
     a->RecoverFEMSolution(X, *b, *solutionVector);
 
-    // --- PROBE START ---
+    /* // --- PROBE START ---
     std::cout << "[RUN] recovered solution, finite? "
               << (is_finite_gf(*solutionVector) ? "yes" : "NO") << "\n";
-    // --- PROBE END ---
+    // --- PROBE END --- */
 
     // 13. Save the refined mesh and the solution. This output can be viewed later
     //    using GLVis: "glvis -m finEle.mesh -g laplace_solution.gf".
@@ -165,6 +165,7 @@ void FiniteElementeBase::run()
 
 FiniteElementeBase::~FiniteElementeBase()
 {
+    delete solutionVector;
     delete fespace;
     delete fec;
     delete mesh;
@@ -252,7 +253,7 @@ void FiniteElementeCircle::initMesh(int const& maxNumberOfElments)
     tirIndx[1] = nv - 7;
     tirIndx[2] = nv - 1;
     mesh->AddTri(tirIndx);
-
+  
     // add boundary
     int bdrIndx[2];
     for (int i = 0; i < 6 * layers - 1; i++) {
@@ -325,13 +326,13 @@ void FiniteElementeCircle::setElectrode(double const& voltage, double begin,
 double FiniteElementeCircle::getPotential(double const& x, double const& y) {
     int layer = std::sqrt(x * x + y * y) / deltaR + 0.5;
     double phi = std::atan2(y, x) / (2 * PI);
-    int idx = int(3 * (layers + 1) * layers 
+    /* int idx = int(3 * (layers + 1) * layers 
               - 3 * layer * (layer + 1) 
               + (phi < 0 ? phi + 1 : phi) * 6 * layer + 0.5);
     std::cout << "LAYER=" << layer 
           << " / layers=" << layers 
           << "  idx=" << idx 
-          << " / solSize=" << solutionVector->Size() << "\n";
+          << " / solSize=" << solutionVector->Size() << "\n"; */
     // std::cout<<"return index: "<<int(3*(layers+1)*layers-3*layer*(layer+1) +
     // (phi < 0 ? phi + 1 : phi) * 6 * layer + 0.5)<<std::endl;
     return (

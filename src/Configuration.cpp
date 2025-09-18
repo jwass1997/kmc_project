@@ -10,8 +10,6 @@
 
 #include "Configuration.h"
 
-Configuration::Configuration() {}
-
 Configuration::Configuration(const ConfigurationParams& params, uint64_t seed)
     : _rng(seed)
 {
@@ -42,7 +40,8 @@ Configuration::Configuration(const ConfigurationParams& params, uint64_t seed)
 
     noDimension = params.noDimension;
 
-    femRes = params.femRes;
+    Nr = params.Nr;
+    Nt = params.Nt;
 
     A0 = (e*e) / (4.0*kb*T*PI*eps0*epsr*1e-9);
     R = std::sqrt(M_PI*radius*radius / static_cast<double>(nAcceptors));
@@ -56,7 +55,6 @@ Configuration::Configuration(const ConfigurationParams& params, uint64_t seed)
     }
 
     distType = params.distType;
-    epsilon = params.epsilon;
 
     if (distType == "uniform") {
 
@@ -74,47 +72,6 @@ Configuration::Configuration(const ConfigurationParams& params, uint64_t seed)
             donorCoords.push_back(randomR*std::sin(randomPhi));
         }
     }
-
-    /* else if (distType == "mixed") {
-
-        if (epsilon < 0.0 || epsilon > 1.0) {
-            throw std::invalid_argument("[Configuration]: invalid epsilon value");
-        }
-
-        auto now = std::chrono::high_resolution_clock::now();
-        auto now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
-        setRandomSeed(static_cast<long int>(now_ns)); 
-
-        for (int i = 0; i < nAcceptors; ++i) {
-            
-            double u01 = randomDouble01();
-
-            if (u01 < (1 - epsilon)) {
-                double randomPhi = 2.0*M_PI*randomDouble01();
-                double randomR = radius*std::sqrt(randomDouble01());
-                acceptorCoords.push_back(randomR*std::cos(randomPhi));
-                acceptorCoords.push_back(randomR*std::sin(randomPhi));
-            }
-            else {
-                double stdScaled = radius / 2.5;
-                std::vector<double> coords = sample_truncated_gaussian_reject(stdScaled, radius);
-
-                double _r = std::sqrt(coords[0]*coords[0] + coords[1]*coords[1]);
-                double randomPhi = 2.0*M_PI*randomDouble01();
-
-                acceptorCoords.push_back(coords[0]);
-                acceptorCoords.push_back(coords[1]);
-            }
-        }
-
-        for (int i = 0; i < nDonors; ++i) {
-            double randomPhi = 2.0*M_PI*randomDouble01();
-            double randomR = radius*std::sqrt(randomDouble01());
-            donorCoords.push_back(randomR*std::cos(randomPhi));
-            donorCoords.push_back(randomR*std::sin(randomPhi));
-        }
-    } */
-
 
     electrodeData = params.electrodeData;
     electrodeCoords.reserve(2*nElectrodes);
@@ -215,8 +172,11 @@ Configuration::Configuration(
                 else if (key == "noDimension") {
                     noDimension = std::stoi(value);
                 }
-                else if (key == "femRes") {
-                    femRes = std::stoi(value);
+                else if (key == "Nr") {
+                    Nr = std::stoi(value);
+                }
+                else if (key == "Nt") {
+                    Nt = std::stoi(value);
                 }
             }
         }

@@ -10,4 +10,5 @@ electrodeWidth 60.0
 minHopDistance 1.5
 maxHopDistance 60.0
 noDimension 1
-femRes 100000
+Nr 257
+Nt 1440

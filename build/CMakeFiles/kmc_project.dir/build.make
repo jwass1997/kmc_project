@@ -142,19 +142,19 @@ CMakeFiles/kmc_project.dir/src/utils.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/kmc_project.dir/src/utils.cpp.s"
 	/opt/bwhpc/common/compiler/gnu/14.1.0/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hd/hd_hd/hd_gy283/kmc_project/src/utils.cpp -o CMakeFiles/kmc_project.dir/src/utils.cpp.s
 
-CMakeFiles/kmc_project.dir/src/FEMmethods.cpp.o: CMakeFiles/kmc_project.dir/flags.make
-CMakeFiles/kmc_project.dir/src/FEMmethods.cpp.o: /home/hd/hd_hd/hd_gy283/kmc_project/src/FEMmethods.cpp
-CMakeFiles/kmc_project.dir/src/FEMmethods.cpp.o: CMakeFiles/kmc_project.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/kmc_project.dir/src/FEMmethods.cpp.o"
-	/opt/bwhpc/common/compiler/gnu/14.1.0/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/kmc_project.dir/src/FEMmethods.cpp.o -MF CMakeFiles/kmc_project.dir/src/FEMmethods.cpp.o.d -o CMakeFiles/kmc_project.dir/src/FEMmethods.cpp.o -c /home/hd/hd_hd/hd_gy283/kmc_project/src/FEMmethods.cpp
+CMakeFiles/kmc_project.dir/src/LiteLaplaceCircle.cpp.o: CMakeFiles/kmc_project.dir/flags.make
+CMakeFiles/kmc_project.dir/src/LiteLaplaceCircle.cpp.o: /home/hd/hd_hd/hd_gy283/kmc_project/src/LiteLaplaceCircle.cpp
+CMakeFiles/kmc_project.dir/src/LiteLaplaceCircle.cpp.o: CMakeFiles/kmc_project.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/kmc_project.dir/src/LiteLaplaceCircle.cpp.o"
+	/opt/bwhpc/common/compiler/gnu/14.1.0/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/kmc_project.dir/src/LiteLaplaceCircle.cpp.o -MF CMakeFiles/kmc_project.dir/src/LiteLaplaceCircle.cpp.o.d -o CMakeFiles/kmc_project.dir/src/LiteLaplaceCircle.cpp.o -c /home/hd/hd_hd/hd_gy283/kmc_project/src/LiteLaplaceCircle.cpp
 
-CMakeFiles/kmc_project.dir/src/FEMmethods.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/kmc_project.dir/src/FEMmethods.cpp.i"
-	/opt/bwhpc/common/compiler/gnu/14.1.0/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hd/hd_hd/hd_gy283/kmc_project/src/FEMmethods.cpp > CMakeFiles/kmc_project.dir/src/FEMmethods.cpp.i
+CMakeFiles/kmc_project.dir/src/LiteLaplaceCircle.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/kmc_project.dir/src/LiteLaplaceCircle.cpp.i"
+	/opt/bwhpc/common/compiler/gnu/14.1.0/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hd/hd_hd/hd_gy283/kmc_project/src/LiteLaplaceCircle.cpp > CMakeFiles/kmc_project.dir/src/LiteLaplaceCircle.cpp.i
 
-CMakeFiles/kmc_project.dir/src/FEMmethods.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/kmc_project.dir/src/FEMmethods.cpp.s"
-	/opt/bwhpc/common/compiler/gnu/14.1.0/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hd/hd_hd/hd_gy283/kmc_project/src/FEMmethods.cpp -o CMakeFiles/kmc_project.dir/src/FEMmethods.cpp.s
+CMakeFiles/kmc_project.dir/src/LiteLaplaceCircle.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/kmc_project.dir/src/LiteLaplaceCircle.cpp.s"
+	/opt/bwhpc/common/compiler/gnu/14.1.0/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hd/hd_hd/hd_gy283/kmc_project/src/LiteLaplaceCircle.cpp -o CMakeFiles/kmc_project.dir/src/LiteLaplaceCircle.cpp.s
 
 CMakeFiles/kmc_project.dir/src/Random.cpp.o: CMakeFiles/kmc_project.dir/flags.make
 CMakeFiles/kmc_project.dir/src/Random.cpp.o: /home/hd/hd_hd/hd_gy283/kmc_project/src/Random.cpp
@@ -177,7 +177,7 @@ kmc_project_OBJECTS = \
 "CMakeFiles/kmc_project.dir/src/KMCSimulator.cpp.o" \
 "CMakeFiles/kmc_project.dir/src/Configuration.cpp.o" \
 "CMakeFiles/kmc_project.dir/src/utils.cpp.o" \
-"CMakeFiles/kmc_project.dir/src/FEMmethods.cpp.o" \
+"CMakeFiles/kmc_project.dir/src/LiteLaplaceCircle.cpp.o" \
 "CMakeFiles/kmc_project.dir/src/Random.cpp.o"
 
 # External object files for target kmc_project
@@ -188,7 +188,7 @@ kmc_project: CMakeFiles/kmc_project.dir/src/State.cpp.o
 kmc_project: CMakeFiles/kmc_project.dir/src/KMCSimulator.cpp.o
 kmc_project: CMakeFiles/kmc_project.dir/src/Configuration.cpp.o
 kmc_project: CMakeFiles/kmc_project.dir/src/utils.cpp.o
-kmc_project: CMakeFiles/kmc_project.dir/src/FEMmethods.cpp.o
+kmc_project: CMakeFiles/kmc_project.dir/src/LiteLaplaceCircle.cpp.o
 kmc_project: CMakeFiles/kmc_project.dir/src/Random.cpp.o
 kmc_project: CMakeFiles/kmc_project.dir/build.make
 kmc_project: /home/hd/hd_hd/hd_gy283/local/lib/libcnpy.so

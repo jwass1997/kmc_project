@@ -153,30 +153,6 @@ src/Configuration.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/kmc_project.dir/build.make CMakeFiles/kmc_project.dir/src/Configuration.cpp.s
 .PHONY : src/Configuration.cpp.s
 
-src/FEMmethods.o: src/FEMmethods.cpp.o
-.PHONY : src/FEMmethods.o
-
-# target to build an object file
-src/FEMmethods.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/kmc_project.dir/build.make CMakeFiles/kmc_project.dir/src/FEMmethods.cpp.o
-.PHONY : src/FEMmethods.cpp.o
-
-src/FEMmethods.i: src/FEMmethods.cpp.i
-.PHONY : src/FEMmethods.i
-
-# target to preprocess a source file
-src/FEMmethods.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/kmc_project.dir/build.make CMakeFiles/kmc_project.dir/src/FEMmethods.cpp.i
-.PHONY : src/FEMmethods.cpp.i
-
-src/FEMmethods.s: src/FEMmethods.cpp.s
-.PHONY : src/FEMmethods.s
-
-# target to generate assembly for a file
-src/FEMmethods.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/kmc_project.dir/build.make CMakeFiles/kmc_project.dir/src/FEMmethods.cpp.s
-.PHONY : src/FEMmethods.cpp.s
-
 src/KMCSimulator.o: src/KMCSimulator.cpp.o
 .PHONY : src/KMCSimulator.o
 
@@ -200,6 +176,30 @@ src/KMCSimulator.s: src/KMCSimulator.cpp.s
 src/KMCSimulator.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/kmc_project.dir/build.make CMakeFiles/kmc_project.dir/src/KMCSimulator.cpp.s
 .PHONY : src/KMCSimulator.cpp.s
+
+src/LiteLaplaceCircle.o: src/LiteLaplaceCircle.cpp.o
+.PHONY : src/LiteLaplaceCircle.o
+
+# target to build an object file
+src/LiteLaplaceCircle.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/kmc_project.dir/build.make CMakeFiles/kmc_project.dir/src/LiteLaplaceCircle.cpp.o
+.PHONY : src/LiteLaplaceCircle.cpp.o
+
+src/LiteLaplaceCircle.i: src/LiteLaplaceCircle.cpp.i
+.PHONY : src/LiteLaplaceCircle.i
+
+# target to preprocess a source file
+src/LiteLaplaceCircle.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/kmc_project.dir/build.make CMakeFiles/kmc_project.dir/src/LiteLaplaceCircle.cpp.i
+.PHONY : src/LiteLaplaceCircle.cpp.i
+
+src/LiteLaplaceCircle.s: src/LiteLaplaceCircle.cpp.s
+.PHONY : src/LiteLaplaceCircle.s
+
+# target to generate assembly for a file
+src/LiteLaplaceCircle.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/kmc_project.dir/build.make CMakeFiles/kmc_project.dir/src/LiteLaplaceCircle.cpp.s
+.PHONY : src/LiteLaplaceCircle.cpp.s
 
 src/Random.o: src/Random.cpp.o
 .PHONY : src/Random.o
@@ -309,12 +309,12 @@ help:
 	@echo "... src/Configuration.o"
 	@echo "... src/Configuration.i"
 	@echo "... src/Configuration.s"
-	@echo "... src/FEMmethods.o"
-	@echo "... src/FEMmethods.i"
-	@echo "... src/FEMmethods.s"
 	@echo "... src/KMCSimulator.o"
 	@echo "... src/KMCSimulator.i"
 	@echo "... src/KMCSimulator.s"
+	@echo "... src/LiteLaplaceCircle.o"
+	@echo "... src/LiteLaplaceCircle.i"
+	@echo "... src/LiteLaplaceCircle.s"
 	@echo "... src/Random.o"
 	@echo "... src/Random.i"
 	@echo "... src/Random.s"

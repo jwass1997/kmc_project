@@ -2,8 +2,8 @@
 #SBATCH --partition=cpu-single
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=2
-#SBATCH --time=00:10:00
-#SBATCH --mem=16gb
+#SBATCH --time=00:01:00
+#SBATCH --mem=8gb
 
 echo "$@"
 

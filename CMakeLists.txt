@@ -45,7 +45,7 @@ set(SOURCES
     src/KMCSimulator.cpp 
     src/Configuration.cpp
     src/utils.cpp 
-    src/FEMmethods.cpp 
+    src/LiteLaplaceCircle.cpp 
     src/Random.cpp 
 )
 

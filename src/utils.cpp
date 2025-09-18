@@ -6,7 +6,7 @@
 
 #include "utils.h"
 #include "State.h"
-#include "FEMmethods.h"
+#include "LiteLaplaceCircle.h"
 #include "Configuration.h"
 #include "KMCSimulator.h"
 
@@ -449,10 +449,8 @@ void batchFromSingleState(
             voltages[outputIdx] = 0.0;
             
             State equilState(initState);
-            #pragma omp critical(fem_update)
-            {
-                equilState.updateBoundaries(voltages);
-            }
+
+            equilState.updateBoundaries(voltages);
 
             for (int _s = 0; _s < equilState.numOfSites; ++_s) {
                 initialEnergies[_s + ivPoint*equilState.numOfSites] = equilState.siteEnergies[_s];
@@ -575,8 +573,8 @@ void batchOfMultipleStates(
     double energyDisorder,
     double electrodeWidth,
     double minHopDistance, double maxHopDistance,
-    int femRes,
-    std::string distType, double epsilon,
+    int Nr, int Nt,
+    std::string distType,
     int inputIdx, int outputIdx,
     int eqSteps, int simSteps, int numOfTasks,
     int LHCSeed, int threadBaseSeed,
@@ -645,9 +643,9 @@ void batchOfMultipleStates(
             params.electrodeWidth = electrodeWidth;
             params.minHopDistance = minHopDistance;
             params.maxHopDistance = maxHopDistance;
-            params.femRes = femRes;
+            params.Nr = Nr;
+            params.Nt = Nt;
             params.distType = distType;
-            params.epsilon = epsilon;
 
             uint64_t cfgSeed = mix(
                 stateSeed ^ 0x94D049BB133111EBULL                
@@ -656,8 +654,10 @@ void batchOfMultipleStates(
             Configuration config(params, cfgSeed);
 
             State tempState(config, stateSeed);
-            std::cout << "Update boundaries" << "\n";
+            //for (int n = 0; n < voltages.size(); ++n) std::cout << "V_" << n << " " << voltages[n] << "\n"; 
+
             tempState.updateBoundaries(voltages);
+
             KMCSimulator kmc(tempState, kmcSeed);
             /* Saving coords */
             for (int _u = 0; _u < nAcceptors; ++_u) {
@@ -957,9 +957,9 @@ int argParser(int argc, char* argv[]) {
             ("electrodeWidth", boost::program_options::value<double>()->required())
             ("minHopDistance", boost::program_options::value<double>()->required())
             ("maxHopDistance", boost::program_options::value<double>()->required())
-            ("femRes", boost::program_options::value<int>()->required())
+            ("Nr", boost::program_options::value<int>()->required())
+            ("Nt", boost::program_options::value<int>()->required())
             ("distType", boost::program_options::value<std::string>()->required())
-            ("eps", boost::program_options::value<double>()->required())
             ("inputIdx", boost::program_options::value<int>()->required())
             ("outputIdx", boost::program_options::value<int>()->required())
             ("eqSteps", boost::program_options::value<int>()->default_value(1e4))
@@ -993,9 +993,9 @@ int argParser(int argc, char* argv[]) {
             vm["electrodeWidth"].as<double>(),
             vm["minHopDistance"].as<double>(),
             vm["maxHopDistance"].as<double>(),
-            vm["femRes"].as<int>(),
+            vm["Nr"].as<int>(),
+            vm["Nt"].as<int>(),
             vm["distType"].as<std::string>(),
-            vm["eps"].as<double>(),
             vm["inputIdx"].as<int>(),
             vm["outputIdx"].as<int>(),
             vm["eqSteps"].as<int>(),

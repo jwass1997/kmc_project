@@ -1,12 +1,10 @@
 #include <algorithm>
 #include <cmath>
 #include <random>
+#include <array>
 
 #include "State.h"
-#include "FEMmethods.h"
 #include "Configuration.h"
-
-State::State() {};
 
 State::State(State const& other)
     : acceptorCoordinates(other.acceptorCoordinates)
@@ -38,33 +36,18 @@ State::State(State const& other)
     , initialSiteEnergies(other.initialSiteEnergies)
     , initialPotential(other.initialPotential)
     , currentPotential(other.currentPotential)
-    , siteEnergies(other.siteEnergies)
+    , siteEnergies(other.siteEnergies) 
     , eventCounter(other.eventCounter)
     , jaggedArrayLengths(other.jaggedArrayLengths)
     , neighbourIndices(other.neighbourIndices)
     , numOfNeighbours(other.numOfNeighbours)
     , totalNumOfEvents(other.totalNumOfEvents)
     , stateTime(other.stateTime)
-    , femRes(other.femRes)
+    , Nr(other.Nr)
+    , Nt(other.Nt)
+    , pdeSolver(other.pdeSolver)
     , _rng(other._rng)
-{   
-    auto femCircle = std::make_unique<FiniteElementeCircle>(
-        other.radius,
-        other.femRes
-    );
-
-    for (int i = 0; i < electrodeData.size(); ++i) {
-        femCircle->setElectrode(
-            0.0,
-            electrodeData[i].angularPosition/360.0 * 2.0*M_PI - 0.5*electrodeWidth / radius,
-            electrodeData[i].angularPosition/360.0 * 2.0*M_PI + 0.5*electrodeWidth / radius
-        );
-    }
-    this->femSolver = std::move(femCircle);
-    femSolver->initRun();
-
-    *(femSolver->solutionVector) = other.getSolutionVector();
-}
+    { }
 
 State::State(Configuration& config, uint64_t seed)
     : acceptorCoordinates(config.acceptorCoords)
@@ -86,7 +69,12 @@ State::State(Configuration& config, uint64_t seed)
     , minHopDistance(config.minHopDistance)
     , maxHopDistance(config.maxHopDistance)
     , electrodeData(config.electrodeData)
-    , femRes(config.femRes)
+    , Nr(config.Nr)
+    , Nt(config.Nt)
+    , pdeSolver(
+        config.radius, config.Nr, config.Nt,
+        /*useSOR*/true, /*omega*/1.85
+    )
     , _rng(seed)
 {
     distanceMatrix.resize(numOfSites*numOfSites, 0.0);
@@ -124,7 +112,7 @@ void State::initContainers() {
         allCoordinates[i+nAcceptors][1] = electrodeCoordinates[i*2 + 1];
     }
 
-    numOfNeighbours.resize(numOfSites);
+    numOfNeighbours.assign(numOfSites, 0);
     totalNumOfEvents = 0;
     for (int i = 0; i < numOfSites; ++i) {
         distanceMatrix[i*numOfSites + i] = 0.0;
@@ -179,26 +167,15 @@ void State::initContainers() {
 
 void State::initPotential() {
 
-    auto femCircle = std::make_unique<FiniteElementeCircle>(
-        this->radius, this->femRes
-    );
-
-    for (int i = 0; i < electrodeData.size(); ++i) {
-        femCircle->setElectrode(
+    for (int electrode_idx = 0; electrode_idx < electrodeData.size(); ++electrode_idx) {
+        double half_width_rad = 0.5 * (electrodeWidth / radius);
+        double theta_0 = electrodeData[electrode_idx].angularPosition * M_PI / 180.0;
+        pdeSolver.setElectrode(
             0.0,
-            electrodeData[i].angularPosition/360.0 * 2.0*M_PI - 0.5*electrodeWidth / radius,
-            electrodeData[i].angularPosition/360.0 * 2.0*M_PI + 0.5*electrodeWidth / radius
+            theta_0 - half_width_rad,
+            theta_0 + half_width_rad
         );
     }
-
-    this->femSolver = std::move(femCircle);
-    femSolver->initRun();
-
-    /* for (int i = 0; i < electrodeData.size(); ++i) {
-        femSolver->updateElectrodeVoltage(i, electrodeData[i].voltage);
-    }
-
-    femSolver->run(); */
 }
 
 void State::initSiteEnergies() {
@@ -207,10 +184,10 @@ void State::initSiteEnergies() {
     std::vector<double> inverseDistances(nAcceptors, 0.0);
     // Acc-Don interaction + random energy + potential energy (for acceptors only)
     for(int i = 0; i < nAcceptors; ++i) {
-        double potentialEnergy = femSolver->getPotential(
+        double potentialEnergy = pdeSolver.getPotential(
             acceptorCoordinates[i*2], 
             acceptorCoordinates[i*2 + 1]
-        )*e / kbT;
+        ) * e / kbT;
         //std::cout << "Potential energy: " << potentialEnergy << "for site " << i << "\n";
 		double sumOfInverseDistances = 0.0;
 		for(int j = 0; j <  nDonors; j++) {
@@ -240,7 +217,7 @@ void State::initSiteEnergies() {
 	}
     // Potential energy (for electrodes only)
 	for(int i = 0; i < nElectrodes; ++i) {
-        double potentialEnergy = femSolver->getPotential(electrodeCoordinates[i*2], electrodeCoordinates[i*2 + 1])*e / kbT;
+        double potentialEnergy = pdeSolver.getPotential(electrodeCoordinates[i*2], electrodeCoordinates[i*2 + 1])*e / kbT;
 		initialSiteEnergies[i + nAcceptors] += potentialEnergy;
         currentPotential[i + nAcceptors] += potentialEnergy;
         initialPotential[i + nAcceptors] += potentialEnergy;
@@ -328,41 +305,30 @@ void State::updateSiteOccupation(std::vector<int> lastHopIndices) {
 
 void State::updateBoundaries(std::vector<double> boundaryValues) {
 
-    //std::cout << "Entering updateBoundaries" << "\n";
-    if (boundaryValues.size() > nElectrodes) {
-        throw std::invalid_argument("[updateBoundaries]: Too many boundary values");
-    }
+    if (boundaryValues.size() != nElectrodes) throw std::invalid_argument("[updateBoundaries]: Wrong number of voltages applied");
 
     for (int i = 0; i < numOfSites; ++i) {
         siteEnergies[i] -= currentPotential[i];
-        //std::cout << "OLD POTENTIAL: " << currentPotential[i] << "\n";
     }
 
-    for (int bdrVal = 0; bdrVal < boundaryValues.size(); ++bdrVal) {
-        std::cout << "UPDATE VOLTAGE START" << "\n";
-        femSolver->updateElectrodeVoltage(bdrVal, boundaryValues[bdrVal]);
-        std::cout << "UPDATE VOLTAGE END " << "\n";
+    for (int bdr_value = 0; bdr_value < boundaryValues.size(); ++bdr_value) {
+        pdeSolver.updateElectrodeVoltage(bdr_value, boundaryValues[bdr_value]);
     }
 
-    femSolver->run();
+    int _ = pdeSolver.run(/*max_iters*/10000, /*tol*/1e-7);
     
     for (int i = 0; i < nAcceptors; ++i) {
-        currentPotential[i] = femSolver->getPotential(acceptorCoordinates[i*2], acceptorCoordinates[i*2 + 1])*e / kbT;
-        //std::cout << "NEW ACCEPTOR POTENTIAL: " << currentPotential[i] << "\n";
+        currentPotential[i] = 
+            pdeSolver.getPotential(acceptorCoordinates[i*2], 
+                                    acceptorCoordinates[i*2 + 1]) * e / kbT;
         siteEnergies[i] += currentPotential[i];
     }
-    for (int i = 0; i < nElectrodes; ++i) {
-        int idx = nAcceptors + i;
-        currentPotential[idx] = femSolver->getPotential(electrodeCoordinates[i*2], electrodeCoordinates[i*2 + 1])*e / kbT;
-        //std::cout << "NEW ELECTRODE POTENTIAL: " << currentPotential[idx] << "\n";
-        siteEnergies[idx] += currentPotential[idx]; 
+    for (int electrode_idx = 0; electrode_idx < nElectrodes; ++electrode_idx) {
+        const int idx = nAcceptors + electrode_idx;
+        const double V = boundaryValues[electrode_idx];
+        currentPotential[idx] = V * e / kbT;
+        siteEnergies[idx]    += currentPotential[idx]; 
     }
-    //std::cout << "Leaving updateBoundaries" << "\n";
-}
-
-mfem::GridFunction State::getSolutionVector() const {
-
-    return (*femSolver->solutionVector);
 }
 
 void State::increaseStateTime(double rate) {

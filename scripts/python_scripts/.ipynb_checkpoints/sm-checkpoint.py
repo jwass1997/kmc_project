@@ -7,22 +7,18 @@ class NeuralNet(nn.Module):
     
     def __init__(
             self,
-            in_features: int,
-            out_features: int,
-            hidden_dim: int,
-            num_layers: int,
+            layer_dims,
             dropout_p: float = 0.2
     ):
         super(NeuralNet, self).__init__()
 
-        self.in_features = in_features
-        self.out_features = out_features
-        self.hidden_dim = hidden_dim
-        self.num_layers = num_layers
+        self.layer_dims = layer_dims
+        self.in_features = layer_dims[0]
+        self.out_features = layer_dims[-1]
+        self.num_layers = len(layer_dims)
         self.dropout_p    = dropout_p
 
-        self.model_layers = self.build_model()
-        self.model = nn.Sequential(*self.model_layers)
+        self.model = self.build_model()
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         
@@ -33,7 +29,14 @@ class NeuralNet(nn.Module):
     def build_model(self):
         layer_list = []
 
-        for l in range(self.num_layers):
+        for k in range(1, len(self.layer_dims)):
+            layer_list.append(nn.Linear(self.layer_dims[k-1], self.layer_dims[k]))
+
+            if k < self.num_layers - 1:
+                layer_list.append(nn.BatchNorm1d(self.layer_dims[k]))
+                layer_list.append(nn.ReLU(inplace=True))
+
+        """for l in range(self.num_layers):
             # Determine dims for this layer
             if l == 0:
                 in_dim, out_dim = self.in_features, self.hidden_dim
@@ -49,6 +52,6 @@ class NeuralNet(nn.Module):
             if l < self.num_layers - 1:
                 layer_list.append(nn.BatchNorm1d(out_dim))
                 layer_list.append(nn.ReLU())
-                #layer_list.append(nn.Dropout(self.dropout_p))
+                #layer_list.append(nn.Dropout(self.dropout_p))"""
 
-        return layer_list
+        return nn.Sequential(*layer_list)

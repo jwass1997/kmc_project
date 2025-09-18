@@ -22,9 +22,10 @@ struct ConfigurationParams {
     double minHopDistance = 1.5;
     double maxHopDistance = 60.0;
 
-    int noDimension = 1;
+    bool noDimension = true;
 
-    int femRes = 1e4;
+    int Nr = 257;
+    int Nt = 1440;
 
     std::vector<Electrode> electrodeData = {
         {0.0, 0.0},
@@ -38,15 +39,13 @@ struct ConfigurationParams {
     };
 
     std::string distType = "uniform";
-    /* Only used if mixed */
-    double epsilon = 0.5;
 };
 
 class Configuration {
 
     public:
 
-        Configuration();
+        Configuration() = delete;
 
         Configuration(
             const ConfigurationParams& params,
@@ -85,11 +84,10 @@ class Configuration {
 
         bool noDimension;
 
-        int femRes;
+        int Nr;
+        int Nt;
 
         std::string distType;
-
-        double epsilon;
 
         std::vector<int> occupiedSites;
 

@@ -9,8 +9,8 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/hd/hd_hd/hd_gy283/kmc_project/src/Configuration.cpp" "CMakeFiles/kmc_project.dir/src/Configuration.cpp.o" "gcc" "CMakeFiles/kmc_project.dir/src/Configuration.cpp.o.d"
-  "/home/hd/hd_hd/hd_gy283/kmc_project/src/FEMmethods.cpp" "CMakeFiles/kmc_project.dir/src/FEMmethods.cpp.o" "gcc" "CMakeFiles/kmc_project.dir/src/FEMmethods.cpp.o.d"
   "/home/hd/hd_hd/hd_gy283/kmc_project/src/KMCSimulator.cpp" "CMakeFiles/kmc_project.dir/src/KMCSimulator.cpp.o" "gcc" "CMakeFiles/kmc_project.dir/src/KMCSimulator.cpp.o.d"
+  "/home/hd/hd_hd/hd_gy283/kmc_project/src/LiteLaplaceCircle.cpp" "CMakeFiles/kmc_project.dir/src/LiteLaplaceCircle.cpp.o" "gcc" "CMakeFiles/kmc_project.dir/src/LiteLaplaceCircle.cpp.o.d"
   "/home/hd/hd_hd/hd_gy283/kmc_project/src/Random.cpp" "CMakeFiles/kmc_project.dir/src/Random.cpp.o" "gcc" "CMakeFiles/kmc_project.dir/src/Random.cpp.o.d"
   "/home/hd/hd_hd/hd_gy283/kmc_project/src/State.cpp" "CMakeFiles/kmc_project.dir/src/State.cpp.o" "gcc" "CMakeFiles/kmc_project.dir/src/State.cpp.o.d"
   "/home/hd/hd_hd/hd_gy283/kmc_project/src/main.cpp" "CMakeFiles/kmc_project.dir/src/main.cpp.o" "gcc" "CMakeFiles/kmc_project.dir/src/main.cpp.o.d"

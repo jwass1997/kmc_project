@@ -7,16 +7,15 @@
 #include <random>
 
 #include "utils.h"
-#include "mfem.hpp"
+#include "LiteLaplaceCircle.h"
 
 class Configuration;
-class FiniteElementeCircle;
 
 class State {
 
     public:
 
-        State();
+        State() = delete;
 
         State(State const& other);
 
@@ -35,8 +34,6 @@ class State {
         void updateSiteOccupation(std::vector<int> lastHopIndices);
 
         void updateBoundaries(std::vector<double> boundaryValues);
-
-        mfem::GridFunction getSolutionVector() const;
 
         void increaseStateTime(double rate);
 
@@ -115,9 +112,11 @@ class State {
 
         std::vector<int> eventCounter;
 
-        int femRes;
+        int Nr;
+        
+        int Nt;
 
-        std::unique_ptr<FiniteElementeCircle> femSolver;
+        LiteLaplaceCircle pdeSolver;
 
         std::mt19937_64 _rng;
 };

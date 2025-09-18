@@ -200,9 +200,9 @@ def slurm_batch_of_independant_states(
         electrode_width,
         min_hop_distance,
         max_hop_distance,
-        fem_res,
+        Nr,
+        Nt,
         dist_type,
-        eps,
         input_idx,
         output_idx,
         eq_steps,
@@ -243,9 +243,9 @@ def slurm_batch_of_independant_states(
         f"--electrodeWidth={electrode_width}",
         f"--minHopDistance={min_hop_distance}",
         f"--maxHopDistance={max_hop_distance}",
-        f"--femRes={fem_res}",
+        f"--Nr={Nr}",
+        f"--Nt={Nt}",
         f"--distType={dist_type}",
-        f"--eps={eps}",
         f"--inputIdx={input_idx}",
         f"--outputIdx={output_idx}",
         f"--eqSteps={eq_steps}",
@@ -296,9 +296,10 @@ if __name__ == "__main__":
     
     c_indices = [2, 3, 4, 5, 6, 7]
     c_sig_volts = [0.8712577630625511, -0.5323602276247098, 0.9542597048359602, 1.3273684600791937, -0.3707830078391009, -0.726548944581742]
-    c_sine_volts = [-1.5, -0.7569970488548279, -1.3415374755859375, 0.03429163247346878, -0.8367759585380554, 0.5694783329963684]
+    c_sine_volts = [0.48431840576432994, 1.4355513682559609, 0.26524962777854855, 1.2232097957855352, 0.31940916409508846, 0.08077324262584651]
+
     slurm_single_IV(
-        numOfPoints=100,
+        numOfPoints=50,
         inputIdx=1,
         outputIdx=0,
         control_indices=c_indices,
@@ -309,12 +310,12 @@ if __name__ == "__main__":
         sim_steps=1_000_000,
         num_intervals=100,
         seed=np.random.randint(low=1, high=2**15),
-        cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/data_vMB/vMB_configs/config.txt"),
+        cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/configs/config.txt"),
         acc_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/data_vMB/vMB_configs/acceptors.txt"),
         don_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/data_vMB/vMB_configs/donors.txt"),
         ele_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/data_vMB/vMB_configs/electrodes.txt"),
-        save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/perturbation_experiment"),
-        file_name=Path(f"vMB_sine_1"),
+        save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/"),
+        file_name=Path(f"vMB_sim_222"),
         BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
         SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
         OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")

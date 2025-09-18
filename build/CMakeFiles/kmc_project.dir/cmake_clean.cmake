@@ -1,10 +1,10 @@
 file(REMOVE_RECURSE
   "CMakeFiles/kmc_project.dir/src/Configuration.cpp.o"
   "CMakeFiles/kmc_project.dir/src/Configuration.cpp.o.d"
-  "CMakeFiles/kmc_project.dir/src/FEMmethods.cpp.o"
-  "CMakeFiles/kmc_project.dir/src/FEMmethods.cpp.o.d"
   "CMakeFiles/kmc_project.dir/src/KMCSimulator.cpp.o"
   "CMakeFiles/kmc_project.dir/src/KMCSimulator.cpp.o.d"
+  "CMakeFiles/kmc_project.dir/src/LiteLaplaceCircle.cpp.o"
+  "CMakeFiles/kmc_project.dir/src/LiteLaplaceCircle.cpp.o.d"
   "CMakeFiles/kmc_project.dir/src/Random.cpp.o"
   "CMakeFiles/kmc_project.dir/src/Random.cpp.o.d"
   "CMakeFiles/kmc_project.dir/src/State.cpp.o"

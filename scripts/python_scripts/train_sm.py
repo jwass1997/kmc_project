@@ -145,33 +145,25 @@ def train_sm(model, criterion, optimizer, args, device, train_loader, test_loade
         "val_losses": val_losses
     }, f"{args.save_name}.pth")
 
-if __name__ == "__main__":
+class EarlyStopping:
+    
+    def __init__(self, patience=5, min_delta=0.0):
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.patience = patience
+        self.min_delta = min_delta
+        self.best_loss = None
+        self.counter = 0
+        self.early_stop = False
 
-    num_batch_list = [10, 20, 50, 100]
+    def __call__(self, val_loss):
 
-    criterion = nn.MSELoss()
-
-    for num_batches in num_batch_list:
-
-        args = Namespace(
-            data_dir=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/data/sm_batches_1e6_vonMises_beta"),
-            num_batches=num_batches,
-            batch_size=128,
-            normalize=False,
-            hd=90,
-            num_layers=8,
-            num_epochs=1_000,
-            lr=1e-3,
-            save_name=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/sm_vMB_num_batches={num_batches}"),
-        )
-
-        train_loader, test_loader = create_data_loaders(args.data_dir, args.num_batches, args.batch_size, args.normalize)
-
-        model = NeuralNet(in_features=7, out_features=1, hidden_dim=args.hd, num_layers=args.num_layers)
-        model = model.to(device)
-
-        optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
-
-        train_sm(model=model, criterion=criterion, optimizer=optimizer, args=args, device=device, train_loader=train_loader, test_loader=test_loader)
+        if self.best_loss is None:
+            self.best_loss = val_loss
+        elif val_loss > self.best_loss - self.min_delta:
+            self.counter += 1
+            if self.counter >= self.patience:
+                self.early_stop = True
+        else:
+            self.best_loss = val_loss
+            self.counter = 0
+            

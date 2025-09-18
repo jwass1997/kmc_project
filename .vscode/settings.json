@@ -78,7 +78,8 @@
     "shared_mutex": "cpp",
     "thread": "cpp",
     "typeindex": "cpp",
-    "variant": "cpp"
+    "variant": "cpp",
+    "filesystem": "cpp"
   },
   "cmake.cmakePath": "/opt/bwhpc/common/devel/cmake/3.31.6/bin/cmake",
   "cmake.buildDirectory": "${workspaceFolder}/build",
