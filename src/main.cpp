@@ -16,8 +16,8 @@
 #include "utils.h"
 
 int main(int argc, char* argv[]) {
-    argParser(argc, argv);
-    /* // --- shared params ---
+    //argParser(argc, argv);
+    // --- shared params ---
     const double R_nm = 150.0;                 // disk radius (nm)
     const int femRes = 100000;                   // MFEM mesh "resolution"
     const int Nr = 257;                         // lite: radial nodes
@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
 
     const std::vector<double> ang_pos_deg = {0,45,90,135,180,225,270,315};
     const std::vector<double> volts       = {-1.5,1.5,-1.5,1.5,-1.5,1.5,-1.5,1.5};
-
+    /*
     // ======================
     // MFEM solve & export
     // ======================
@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
             }
         }
     }
-    std::cout << "Wrote mfem_xy.csv\n";
+    std::cout << "Wrote mfem_xy.csv\n";*/
 
     // ======================
     // Lite solve & export
@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
         solver.setElectrode(volts[k], center_rad - half_width_rad, center_rad + half_width_rad);
     }
 
-    int iters = solver.run(50000, 1e-10);
+    int iters = solver.run(10000, 1e-7);
     std::cout << "Lite solver converged in " << iters << " iterations\n";
 
     std::ofstream out_lite("lite_xy.csv");
@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
             }
         }
     }
-    std::cout << "Wrote lite_xy.csv\n";
+    std::cout << "Wrote lite_xy_0.csv\n";
 
-    return 0; */
+    return 0;
 }

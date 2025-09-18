@@ -99,7 +99,7 @@ void LiteLaplaceCircle::applyOuterBoundaryToSolution() {
 }
 void LiteLaplaceCircle::enforceOuterBC() { applyOuterBoundaryToSolution(); }
 
-int LiteLaplaceCircle::run(int max_iters, double tol) {
+/* int LiteLaplaceCircle::run(int max_iters, double tol) {
     for (int iter = 0; iter < max_iters; ++iter) {
         double max_change = 0.0;
 
@@ -144,6 +144,87 @@ int LiteLaplaceCircle::run(int max_iters, double tol) {
         }
 
         // Re-enforce BC
+        enforceOuterBC();
+
+        if (max_change < tol) return iter + 1;
+    }
+    return max_iters;
+} */
+
+int LiteLaplaceCircle::run(int max_iters, double tol) {
+    // Precompute per-ring radial coefficients (independent of theta)
+    struct Coeff {
+        double ar, br, cth, invA;
+    };
+    std::vector<Coeff> cf(Nr_);
+    for (int i = 1; i <= Nr_ - 2; ++i) {
+        const double r   = i * dr_;
+        const double rpp = r + 0.5 * dr_;
+        const double rmm = r - 0.5 * dr_;
+
+        const double ar   = rpp / (r * dr_ * dr_);
+        const double br   = rmm / (r * dr_ * dr_);
+        const double cth  = 1.0 / (r * r * dth_ * dth_);
+        const double A    = (rpp + rmm) / (r * dr_ * dr_) + 2.0 * cth; // = ar+br+2*cth
+        const double invA = 1.0 / A;
+
+        cf[i] = { ar, br, cth, invA };
+    }
+
+    for (int iter = 0; iter < max_iters; ++iter) {
+        double max_change = 0.0;
+
+        // Enforce outer boundary (Dirichlet on electrodes; Neumann via copy) each sweep.
+        enforceOuterBC();
+
+        // Center regularity: φ(0,θ) = mean(φ(1,θ))
+        double mean_first_ring = 0.0;
+        for (int j = 0; j < Nt_; ++j) mean_first_ring += at(1, j);
+        mean_first_ring /= Nt_;
+        for (int j = 0; j < Nt_; ++j) {
+            const double old0 = at(0, j);
+            const double diff = std::abs(old0 - mean_first_ring);
+            if (diff > max_change) max_change = diff;
+            at(0, j) = mean_first_ring;
+        }
+
+        // Red–black Gauss–Seidel (in-place), optional SOR
+        for (int color = 0; color < 2; ++color) {
+            for (int i = 1; i <= Nr_ - 2; ++i) {
+                //const auto [ar, br, cth, invA] = cf[i];
+                const double ar  = cf[i].ar;
+                const double br  = cf[i].br;
+                const double cth = cf[i].cth;
+                const double invA= cf[i].invA;
+
+                for (int j = 0; j < Nt_; ++j) {
+                    if (((i + j) & 1) != color) continue;
+
+                    const double phi_im = at(i - 1, j);
+                    const double phi_ip = at(i + 1, j);     // at(i+1, j) is valid; for i=Nr_-2 this is the boundary ring already set by enforceOuterBC()
+                    const double phi_jm = at(i, jm(j));
+                    const double phi_jp = at(i, jp(j));
+
+                    const double rhs     = ar * phi_ip + br * phi_im + cth * (phi_jp + phi_jm);
+                    const double phi_old = at(i, j);
+                    double phi_new       = rhs * invA;
+
+                    if (useSOR_) {
+                        phi_new = phi_old + omega_ * (phi_new - phi_old);
+                    }
+
+                    const double delta = std::abs(phi_new - phi_old);
+                    if (delta > max_change) max_change = delta;
+
+                    at(i, j) = phi_new;
+                }
+            }
+
+            // Keep the boundary consistent between colors
+            enforceOuterBC();
+        }
+
+        // Final boundary touch this iteration
         enforceOuterBC();
 
         if (max_change < tol) return iter + 1;

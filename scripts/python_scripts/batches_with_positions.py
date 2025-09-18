@@ -4,8 +4,8 @@ from pathlib import Path
 
 if __name__ == "__main__":
 
-    batch_size = 50
-    num_batches = 100
+    batch_size = 500
+    num_batches = 200
 
     for i in range(num_batches):
         
