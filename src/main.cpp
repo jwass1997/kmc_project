@@ -16,9 +16,9 @@
 #include "utils.h"
 
 int main(int argc, char* argv[]) {
-    //argParser(argc, argv);
+    argParser(argc, argv);
     // --- shared params ---
-    const double R_nm = 150.0;                 // disk radius (nm)
+    /* const double R_nm = 150.0;                 // disk radius (nm)
     const int femRes = 100000;                   // MFEM mesh "resolution"
     const int Nr = 257;                         // lite: radial nodes
     const int Nt = 1440;                        // lite: angular nodes
@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
     const double half_width_rad = 0.5 * (width_nm / R_nm); // nm -> radians
 
     const std::vector<double> ang_pos_deg = {0,45,90,135,180,225,270,315};
-    const std::vector<double> volts       = {-1.5,1.5,-1.5,1.5,-1.5,1.5,-1.5,1.5};
+    const std::vector<double> volts       = {-1.5,1.5,-1.5,1.5,-1.5,1.5,-1.5,1.5}; */
     /*
     // ======================
     // MFEM solve & export
@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
     // ======================
     // Lite solve & export
     // ======================
-    LiteLaplaceCircle solver(R_nm, Nr, Nt, true, 1.85);
+    /* LiteLaplaceCircle solver(R_nm, Nr, Nt, true, 1.85);
 
     for (int k = 0; k < num_electrodes; ++k) {
         double center_rad = ang_pos_deg[k] * M_PI / 180.0;
@@ -86,5 +86,5 @@ int main(int argc, char* argv[]) {
     }
     std::cout << "Wrote lite_xy_0.csv\n";
 
-    return 0;
+    return 0; */
 }

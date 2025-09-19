@@ -84,7 +84,7 @@ def create_data_loaders(data_dir, num_batches, batch_size, normalize=False, eps=
         X_train = (X_train - X_train_mean) / X_train_std
         X_test = (X_test - X_train_mean) / X_train_std
         y_train = (y_train - y_train_mean) / y_train_std
-        y_test= (y_test - y_train_mean) / y_train_std
+        y_test = (y_test - y_train_mean) / y_train_std
     
     train_set = MakeDataset(X_train, y_train)
     test_set = MakeDataset(X_test, y_test)
