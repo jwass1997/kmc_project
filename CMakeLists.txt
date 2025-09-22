@@ -33,11 +33,11 @@ if(NOT CNPY_LIB)
     "Could not find cnpy library in ${EXTERNAL_ROOT}/lib")
 endif()
 
-find_library(MFEM_LIB NAMES mfem PATHS ${EXTERNAL_ROOT}/lib NO_DEFAULT_PATH)
-if(NOT MFEM_LIB)
-  message(FATAL_ERROR
-    "Could not find mfem library in ${EXTERNAL_ROOT}/lib")
-endif()
+#find_library(MFEM_LIB NAMES mfem PATHS ${EXTERNAL_ROOT}/lib NO_DEFAULT_PATH)
+#if(NOT MFEM_LIB)
+#  message(FATAL_ERROR
+#    "Could not find mfem library in ${EXTERNAL_ROOT}/lib")
+#endif()
 
 set(SOURCES
     src/main.cpp
@@ -46,7 +46,6 @@ set(SOURCES
     src/Configuration.cpp
     src/utils.cpp 
     src/LiteLaplaceCircle.cpp 
-    src/Random.cpp 
 )
 
 add_executable(kmc_project ${SOURCES})
@@ -65,7 +64,7 @@ target_compile_options(kmc_project PRIVATE
 
 target_link_libraries(kmc_project PRIVATE
     ${CNPY_LIB}
-    ${MFEM_LIB}
+#    ${MFEM_LIB}
     ${Boost_LIBRARIES}
     ${ZLIB_LIBRARIES}
     OpenMP::OpenMP_CXX

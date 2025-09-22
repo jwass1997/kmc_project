@@ -84,15 +84,24 @@ def create_data_loaders(data_dir, num_batches, batch_size, normalize=False, eps=
         X_train = (X_train - X_train_mean) / X_train_std
         X_test = (X_test - X_train_mean) / X_train_std
         y_train = (y_train - y_train_mean) / y_train_std
-        y_test= (y_test - y_train_mean) / y_train_std
+        y_test = (y_test - y_train_mean) / y_train_std
     
-    train_set = MakeDataset(X_train, y_train)
-    test_set = MakeDataset(X_test, y_test)
+        train_set = MakeDataset(X_train, y_train)
+        test_set = MakeDataset(X_test, y_test)
 
-    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=True)
-    test_loader  = DataLoader(test_set,  batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
+        train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=True)
+        test_loader  = DataLoader(test_set,  batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
 
-    return train_loader, test_loader      
+        return train_loader, test_loader, X_train_mean, X_train_std, y_train_mean, y_train_std
+
+    else:
+        train_set = MakeDataset(X_train, y_train)
+        test_set = MakeDataset(X_test, y_test)
+
+        train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=True)
+        test_loader  = DataLoader(test_set,  batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
+        
+        return train_loader, test_loader
 
 def train_sm(model, criterion, optimizer, args, device, train_loader, test_loader, print_every=100):
 

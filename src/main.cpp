@@ -1,3 +1,4 @@
+#include <unistd.h>
 #include <iostream>
 #include <vector>
 #include <ctime>
@@ -15,7 +16,7 @@
 #include "KMCSimulator.h"
 #include "utils.h"
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) {    
     argParser(argc, argv);
     // --- shared params ---
     /* const double R_nm = 150.0;                 // disk radius (nm)

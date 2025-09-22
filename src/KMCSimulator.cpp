@@ -1,7 +1,6 @@
 #include <vector>
 #include <cmath>
 
-#include "KMCParameters.h"
 #include "KMCSimulator.h"
 #include "State.h"
 #include "utils.h"
