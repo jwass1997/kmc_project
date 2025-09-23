@@ -8,7 +8,8 @@ class NeuralNet(nn.Module):
     def __init__(
             self,
             layer_dims,
-            dropout_p: float = 0.2
+            dropout_p: float = 0.2,
+            batch_norm: bool = False
     ):
         super(NeuralNet, self).__init__()
 
@@ -17,6 +18,7 @@ class NeuralNet(nn.Module):
         self.out_features = layer_dims[-1]
         self.num_layers = len(layer_dims)
         self.dropout_p    = dropout_p
+        self.batch_norm = batch_norm
 
         self.model = self.build_model()
     
@@ -33,7 +35,8 @@ class NeuralNet(nn.Module):
             layer_list.append(nn.Linear(self.layer_dims[k-1], self.layer_dims[k]))
 
             if k < self.num_layers - 1:
-                layer_list.append(nn.BatchNorm1d(self.layer_dims[k]))
+                #if self.batch_norm:
+                #    layer_list.append(nn.BatchNorm1d(self.layer_dims[k]))
                 layer_list.append(nn.ReLU(inplace=True))
 
         """for l in range(self.num_layers):
