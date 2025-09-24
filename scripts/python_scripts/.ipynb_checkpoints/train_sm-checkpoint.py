@@ -46,7 +46,7 @@ class MakeDataset(Dataset):
             return x
         return x, self.y[idx]
     
-def create_data_loaders(data_dir, num_batches, batch_size, normalize=False, eps=1e-8, train_size=0.8, test_size=0.2, random_state=42, num_workers=0):
+def create_data_loaders(data_dir, num_batches, batch_size, eps=1e-8, train_size=0.8, test_size=0.2, random_state=42, num_workers=8):
 
     input_list = []
     output_list = []
@@ -74,34 +74,19 @@ def create_data_loaders(data_dir, num_batches, batch_size, normalize=False, eps=
         shuffle=True
     )
 
-    if normalize:
-        X_train_mean = X_train.mean(0)
-        X_train_std = X_train.std(0) + eps
+    X_train_mean = X_train.mean(0)
+    X_train_std = X_train.std(0) + eps
 
-        y_train_mean = y_train.mean(0)
-        y_train_std = y_train.std(0) + eps
+    y_train_mean = y_train.mean(0)
+    y_train_std = y_train.std(0) + eps
 
-        X_train = (X_train - X_train_mean) / X_train_std
-        X_test = (X_test - X_train_mean) / X_train_std
-        y_train = (y_train - y_train_mean) / y_train_std
-        y_test = (y_test - y_train_mean) / y_train_std
-    
-        train_set = MakeDataset(X_train, y_train)
-        test_set = MakeDataset(X_test, y_test)
+    train_set = MakeDataset(X_train, y_train)
+    test_set = MakeDataset(X_test, y_test)
 
-        train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=True)
-        test_loader  = DataLoader(test_set,  batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
+    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=True, prefetch_factor=4)
+    test_loader  = DataLoader(test_set,  batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=True, prefetch_factor=4)
 
-        return train_loader, test_loader, X_train_mean, X_train_std, y_train_mean, y_train_std
-
-    else:
-        train_set = MakeDataset(X_train, y_train)
-        test_set = MakeDataset(X_test, y_test)
-
-        train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=True)
-        test_loader  = DataLoader(test_set,  batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
-        
-        return train_loader, test_loader
+    return train_loader, test_loader, X_train_mean, X_train_std, y_train_mean, y_train_std
 
 def train_sm(model, criterion, optimizer, args, device, train_loader, test_loader, print_every=100):
 

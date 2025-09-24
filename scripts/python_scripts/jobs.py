@@ -294,13 +294,13 @@ if __name__ == "__main__":
             SLURM_OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
         ) """
     
-    c_indices = [1, 3, 4, 5, 6, 7]
+    c_indices = [2, 3, 4, 5, 6, 7]
     c_sig_volts = [0.8712577630625511, -0.5323602276247098, 0.9542597048359602, 1.3273684600791937, -0.3707830078391009, -0.726548944581742]
     c_sine_volts = [0.48431840576432994, 1.4355513682559609, 0.26524962777854855, 1.2232097957855352, 0.31940916409508846, 0.08077324262584651]
     control_volts = [-0.1, 1.1, -1.1, 0.1, -0.2, 1.1]
     slurm_single_IV(
-        numOfPoints=50,
-        inputIdx=2,
+        numOfPoints=100,
+        inputIdx=1,
         outputIdx=0,
         control_indices=c_indices,
         control_volts=control_volts,
@@ -310,7 +310,7 @@ if __name__ == "__main__":
         sim_steps=1_000_000,
         num_intervals=100,
         seed=np.random.randint(low=1, high=2**30),
-        cfg=Path("gpfs/bwfor/work/ws/hd_gy283-my_data/data_vMB/vMB_configs/config.txt"),
+        cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/data_vMB/vMB_configs/config_0.txt"),
         acc_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/data_vMB/vMB_configs/acceptors.txt"),
         don_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/data_vMB/vMB_configs/donors.txt"),
         ele_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/data_vMB/vMB_configs/electrodes.txt"),

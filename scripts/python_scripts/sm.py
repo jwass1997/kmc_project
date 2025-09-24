@@ -8,6 +8,8 @@ class NeuralNet(nn.Module):
     def __init__(
             self,
             layer_dims,
+            x_mean, x_std,
+            y_mean, y_std,
             dropout_p: float = 0.2,
             batch_norm: bool = False
     ):
@@ -20,9 +22,17 @@ class NeuralNet(nn.Module):
         self.dropout_p    = dropout_p
         self.batch_norm = batch_norm
 
+        self.register_buffer('x_mean', torch.as_tensor(x_mean, dtype=torch.float32))
+        self.register_buffer('x_std', torch.as_tensor(x_std, dtype=torch.float32))
+
+        self.register_buffer('y_mean', torch.as_tensor(y_mean, dtype=torch.float32))
+        self.register_buffer('y_std', torch.as_tensor(y_std, dtype=torch.float32))
+
         self.model = self.build_model()
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+
+        x = (x - self.x_mean) / self.x_std
         
         out = self.model(x)
 
