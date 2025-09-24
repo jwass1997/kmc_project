@@ -2,8 +2,8 @@
 #SBATCH --partition=cpu-single
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=64
-#SBATCH --time=07:00:00
-#SBATCH --mem=16gb
+#SBATCH --time=08:00:00
+#SBATCH --mem=32gb
 
 export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}
 

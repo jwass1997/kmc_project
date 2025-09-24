@@ -46,7 +46,7 @@ class MakeDataset(Dataset):
             return x
         return x, self.y[idx]
     
-def create_data_loaders(data_dir, num_batches, batch_size, eps=1e-8, train_size=0.8, test_size=0.2, random_state=42, num_workers=8):
+def create_data_loaders(data_dir, num_batches, batch_size, eps=1e-8, train_size=0.8, test_size=0.2, random_state=42, num_workers=4):
 
     input_list = []
     output_list = []
