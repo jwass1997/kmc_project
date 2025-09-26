@@ -1,23 +1,14 @@
 #include <unistd.h>
 #include <iostream>
-#include <vector>
 #include <ctime>
-#include <filesystem>
-#include <fstream>
-#include <memory>
 #include <cmath>
-#include <stdexcept>
-#include <algorithm>
-#include <numeric>
-#include <limits>
 
-#include "Configuration.h"
-#include "State.h"
-#include "KMCSimulator.h"
 #include "utils.h"
 
-int main(int argc, char* argv[]) {    
+int main(int argc, char* argv[]) {
+    std::cout << "Parsing arguments " << "\n";
     argParser(argc, argv);
+
     // --- shared params ---
     /* const double R_nm = 150.0;                 // disk radius (nm)
     const int femRes = 100000;                   // MFEM mesh "resolution"

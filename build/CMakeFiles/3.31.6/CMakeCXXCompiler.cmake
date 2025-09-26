@@ -1,4 +1,4 @@
-set(CMAKE_CXX_COMPILER "/opt/bwhpc/common/compiler/gnu/14.1.0/bin/g++")
+set(CMAKE_CXX_COMPILER "/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/g++")
 set(CMAKE_CXX_COMPILER_ARG1 "")
 set(CMAKE_CXX_COMPILER_ID "GNU")
 set(CMAKE_CXX_COMPILER_VERSION "14.1.0")
@@ -25,9 +25,9 @@ set(CMAKE_CXX_SIMULATE_VERSION "")
 
 
 set(CMAKE_AR "/usr/bin/ar")
-set(CMAKE_CXX_COMPILER_AR "/opt/bwhpc/common/compiler/gnu/14.1.0/bin/gcc-ar")
+set(CMAKE_CXX_COMPILER_AR "/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/gcc-ar")
 set(CMAKE_RANLIB "/usr/bin/ranlib")
-set(CMAKE_CXX_COMPILER_RANLIB "/opt/bwhpc/common/compiler/gnu/14.1.0/bin/gcc-ranlib")
+set(CMAKE_CXX_COMPILER_RANLIB "/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/gcc-ranlib")
 set(CMAKE_LINKER "/usr/bin/ld")
 set(CMAKE_LINKER_LINK "")
 set(CMAKE_LINKER_LLD "")
@@ -89,7 +89,7 @@ endif()
 
 set(CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES "/gpfs/bwfor/software/common/compiler/gnu/14.1.0/include/c++/14.1.0;/gpfs/bwfor/software/common/compiler/gnu/14.1.0/include/c++/14.1.0/x86_64-pc-linux-gnu;/gpfs/bwfor/software/common/compiler/gnu/14.1.0/include/c++/14.1.0/backward;/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64/gcc/x86_64-pc-linux-gnu/14.1.0/include;/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64/gcc/x86_64-pc-linux-gnu/14.1.0/include-fixed;/usr/local/include;/gpfs/bwfor/software/common/compiler/gnu/14.1.0/include;/usr/include")
 set(CMAKE_CXX_IMPLICIT_LINK_LIBRARIES "stdc++;m;gcc_s;gcc;c;gcc_s;gcc")
-set(CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES "/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64/gcc/x86_64-pc-linux-gnu/14.1.0;/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64/gcc;/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64;/lib64;/usr/lib64;/opt/bwhpc/common/devel/miniforge/24.9.2-0/lib")
+set(CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES "/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64/gcc/x86_64-pc-linux-gnu/14.1.0;/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64/gcc;/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64;/lib64;/usr/lib64")
 set(CMAKE_CXX_IMPLICIT_LINK_FRAMEWORK_DIRECTORIES "")
 set(CMAKE_CXX_COMPILER_CLANG_RESOURCE_DIR "")
 

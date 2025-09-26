@@ -7,7 +7,7 @@ events:
       - "/gpfs/bwfor/software/common/devel/cmake/3.31.6/share/cmake-3.31/Modules/CMakeDetermineSystem.cmake:205 (message)"
       - "CMakeLists.txt:2 (project)"
     message: |
-      The system is: Linux - 4.18.0-553.75.1.el8_10.x86_64 - x86_64
+      The system is: Linux - 4.18.0-553.74.1.el8_10.x86_64 - x86_64
   -
     kind: "message-v1"
     backtrace:
@@ -17,7 +17,7 @@ events:
       - "CMakeLists.txt:2 (project)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
-      Compiler: /opt/bwhpc/common/compiler/gnu/14.1.0/bin/g++ 
+      Compiler: /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/g++ 
       Build flags: 
       Id flags:  
       
@@ -39,8 +39,8 @@ events:
     checks:
       - "Detecting CXX compiler ABI info"
     directories:
-      source: "/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-DL068Y"
-      binary: "/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-DL068Y"
+      source: "/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-H5L6PY"
+      binary: "/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-H5L6PY"
     cmakeVariables:
       CMAKE_CXX_FLAGS: ""
       CMAKE_CXX_FLAGS_DEBUG: "-g"
@@ -50,23 +50,23 @@ events:
       variable: "CMAKE_CXX_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: '/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-DL068Y'
+        Change Dir: '/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-H5L6PY'
         
-        Run Build Command(s): /gpfs/bwfor/software/common/devel/cmake/3.31.6/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_721c2/fast
-        /usr/bin/gmake  -f CMakeFiles/cmTC_721c2.dir/build.make CMakeFiles/cmTC_721c2.dir/build
-        gmake[1]: Entering directory '/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-DL068Y'
-        Building CXX object CMakeFiles/cmTC_721c2.dir/CMakeCXXCompilerABI.cpp.o
-        /opt/bwhpc/common/compiler/gnu/14.1.0/bin/g++   -v -o CMakeFiles/cmTC_721c2.dir/CMakeCXXCompilerABI.cpp.o -c /gpfs/bwfor/software/common/devel/cmake/3.31.6/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp
+        Run Build Command(s): /gpfs/bwfor/software/common/devel/cmake/3.31.6/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_ac30c/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_ac30c.dir/build.make CMakeFiles/cmTC_ac30c.dir/build
+        gmake[1]: Entering directory '/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-H5L6PY'
+        Building CXX object CMakeFiles/cmTC_ac30c.dir/CMakeCXXCompilerABI.cpp.o
+        /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/g++   -v -o CMakeFiles/cmTC_ac30c.dir/CMakeCXXCompilerABI.cpp.o -c /gpfs/bwfor/software/common/devel/cmake/3.31.6/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp
         Using built-in specs.
-        COLLECT_GCC=/opt/bwhpc/common/compiler/gnu/14.1.0/bin/g++
+        COLLECT_GCC=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/g++
         OFFLOAD_TARGET_NAMES=nvptx-none
         Target: x86_64-pc-linux-gnu
         Configured with: ../configure --prefix=/opt/bwhpc/common/compiler/gnu/14.1.0 --libdir=/opt/bwhpc/common/compiler/gnu/14.1.0/lib64 --enable-languages=c,c++,jit,lto,fortran,go --enable-host-shared --disable-multilib --enable-lto --with-system-zlib --enable-gnu-unique-object --enable-linker-build-id --with-gmp-lib=/lhome/lsabine/bwhpc-rpmbuild/BUILD/gcc-14.1.0/opt/bwhpc/common/compiler/gnu/14.1.0/lib64 --with-gmp-include=/lhome/lsabine/bwhpc-rpmbuild/BUILD/gcc-14.1.0/opt/bwhpc/common/compiler/gnu/14.1.0/include --with-mpfr=/lhome/lsabine/bwhpc-rpmbuild/BUILD/gcc-14.1.0/opt/bwhpc/common/compiler/gnu/14.1.0 --with-mpc-lib=/lhome/lsabine/bwhpc-rpmbuild/BUILD/gcc-14.1.0/opt/bwhpc/common/compiler/gnu/14.1.0/lib64 --with-isl=/lhome/lsabine/bwhpc-rpmbuild/BUILD/gcc-14.1.0/opt/bwhpc/common/compiler/gnu/14.1.0 --enable-offload-targets=nvptx-none
         Thread model: posix
         Supported LTO compression algorithms: zlib zstd
         gcc version 14.1.0 (GCC) 
-        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_721c2.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_721c2.dir/'
-         /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/cc1plus -quiet -v -iprefix /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/ -D_GNU_SOURCE /gpfs/bwfor/software/common/devel/cmake/3.31.6/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpdir CMakeFiles/cmTC_721c2.dir/ -dumpbase CMakeCXXCompilerABI.cpp.cpp -dumpbase-ext .cpp -mtune=generic -march=x86-64 -version -o /scratch/hd_gy283_o05i14/ccNbpuZR.s
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_ac30c.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_ac30c.dir/'
+         /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/cc1plus -quiet -v -iprefix /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/ -D_GNU_SOURCE /gpfs/bwfor/software/common/devel/cmake/3.31.6/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpdir CMakeFiles/cmTC_ac30c.dir/ -dumpbase CMakeCXXCompilerABI.cpp.cpp -dumpbase-ext .cpp -mtune=generic -march=x86-64 -version -o /scratch/hd_gy283_o05i15/ccCqTRvo.s
         GNU C++17 (GCC) version 14.1.0 (x86_64-pc-linux-gnu)
         	compiled by GNU C version 14.1.0, GMP version 6.3.0, MPFR version 4.2.1, MPC version 1.3.1, isl version isl-0.26-GMP
         
@@ -90,16 +90,16 @@ events:
          /usr/include
         End of search list.
         Compiler executable checksum: 3f596f0232b833d1e9a8c9c7d22a6bd5
-        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_721c2.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_721c2.dir/'
-         as -v --64 -o CMakeFiles/cmTC_721c2.dir/CMakeCXXCompilerABI.cpp.o /scratch/hd_gy283_o05i14/ccNbpuZR.s
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_ac30c.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_ac30c.dir/'
+         as -v --64 -o CMakeFiles/cmTC_ac30c.dir/CMakeCXXCompilerABI.cpp.o /scratch/hd_gy283_o05i15/ccCqTRvo.s
         GNU assembler version 2.30 (x86_64-redhat-linux) using BFD version version 2.30-125.el8_10
         COMPILER_PATH=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/
-        LIBRARY_PATH=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/opt/bwhpc/common/devel/miniforge/24.9.2-0/lib/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../:/lib/:/usr/lib/
-        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_721c2.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_721c2.dir/CMakeCXXCompilerABI.cpp.'
-        Linking CXX executable cmTC_721c2
-        /gpfs/bwfor/software/common/devel/cmake/3.31.6/bin/cmake -E cmake_link_script CMakeFiles/cmTC_721c2.dir/link.txt --verbose=1
+        LIBRARY_PATH=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../:/lib/:/usr/lib/
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_ac30c.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_ac30c.dir/CMakeCXXCompilerABI.cpp.'
+        Linking CXX executable cmTC_ac30c
+        /gpfs/bwfor/software/common/devel/cmake/3.31.6/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ac30c.dir/link.txt --verbose=1
         Using built-in specs.
-        COLLECT_GCC=/opt/bwhpc/common/compiler/gnu/14.1.0/bin/g++
+        COLLECT_GCC=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/g++
         COLLECT_LTO_WRAPPER=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/lto-wrapper
         OFFLOAD_TARGET_NAMES=nvptx-none
         Target: x86_64-pc-linux-gnu
@@ -108,15 +108,15 @@ events:
         Supported LTO compression algorithms: zlib zstd
         gcc version 14.1.0 (GCC) 
         COMPILER_PATH=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/
-        LIBRARY_PATH=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/opt/bwhpc/common/devel/miniforge/24.9.2-0/lib/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../:/lib/:/usr/lib/
-        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_721c2' '-foffload-options=-l_GCC_m' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_721c2.'
-         /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/collect2 -plugin /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/liblto_plugin.so -plugin-opt=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/lto-wrapper -plugin-opt=-fresolution=/scratch/hd_gy283_o05i14/cc9UQFSy.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_721c2 /lib/../lib64/crt1.o /lib/../lib64/crti.o /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtbegin.o -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0 -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/opt/bwhpc/common/devel/miniforge/24.9.2-0/lib -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../.. -v CMakeFiles/cmTC_721c2.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtend.o /lib/../lib64/crtn.o
+        LIBRARY_PATH=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../:/lib/:/usr/lib/
+        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_ac30c' '-foffload-options=-l_GCC_m' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_ac30c.'
+         /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/collect2 -plugin /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/liblto_plugin.so -plugin-opt=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/lto-wrapper -plugin-opt=-fresolution=/scratch/hd_gy283_o05i15/ccxa0aOE.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_ac30c /lib/../lib64/crt1.o /lib/../lib64/crti.o /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtbegin.o -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0 -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../.. -v CMakeFiles/cmTC_ac30c.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtend.o /lib/../lib64/crtn.o
         collect2 version 14.1.0
-        /usr/bin/ld -plugin /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/liblto_plugin.so -plugin-opt=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/lto-wrapper -plugin-opt=-fresolution=/scratch/hd_gy283_o05i14/cc9UQFSy.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_721c2 /lib/../lib64/crt1.o /lib/../lib64/crti.o /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtbegin.o -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0 -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/opt/bwhpc/common/devel/miniforge/24.9.2-0/lib -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../.. -v CMakeFiles/cmTC_721c2.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtend.o /lib/../lib64/crtn.o
+        /usr/bin/ld -plugin /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/liblto_plugin.so -plugin-opt=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/lto-wrapper -plugin-opt=-fresolution=/scratch/hd_gy283_o05i15/ccxa0aOE.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_ac30c /lib/../lib64/crt1.o /lib/../lib64/crti.o /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtbegin.o -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0 -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../.. -v CMakeFiles/cmTC_ac30c.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtend.o /lib/../lib64/crtn.o
         GNU ld version 2.30-125.el8_10
-        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_721c2' '-foffload-options=-l_GCC_m' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_721c2.'
-        /opt/bwhpc/common/compiler/gnu/14.1.0/bin/g++  -v -Wl,-v CMakeFiles/cmTC_721c2.dir/CMakeCXXCompilerABI.cpp.o -o cmTC_721c2
-        gmake[1]: Leaving directory '/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-DL068Y'
+        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_ac30c' '-foffload-options=-l_GCC_m' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_ac30c.'
+        /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/g++  -v -Wl,-v CMakeFiles/cmTC_ac30c.dir/CMakeCXXCompilerABI.cpp.o -o cmTC_ac30c
+        gmake[1]: Leaving directory '/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-H5L6PY'
         
       exitCode: 0
   -
@@ -159,23 +159,23 @@ events:
       Parsed CXX implicit link information:
         link line regex: [^( *|.*[/\\])(ld[0-9]*(\\.[a-z]+)?|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
         linker tool regex: [^[ 	]*(->|")?[ 	]*(([^"]*[/\\])?(ld[0-9]*(\\.[a-z]+)?))("|,| |$)]
-        ignore line: [Change Dir: '/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-DL068Y']
+        ignore line: [Change Dir: '/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-H5L6PY']
         ignore line: []
-        ignore line: [Run Build Command(s): /gpfs/bwfor/software/common/devel/cmake/3.31.6/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_721c2/fast]
-        ignore line: [/usr/bin/gmake  -f CMakeFiles/cmTC_721c2.dir/build.make CMakeFiles/cmTC_721c2.dir/build]
-        ignore line: [gmake[1]: Entering directory '/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-DL068Y']
-        ignore line: [Building CXX object CMakeFiles/cmTC_721c2.dir/CMakeCXXCompilerABI.cpp.o]
-        ignore line: [/opt/bwhpc/common/compiler/gnu/14.1.0/bin/g++   -v -o CMakeFiles/cmTC_721c2.dir/CMakeCXXCompilerABI.cpp.o -c /gpfs/bwfor/software/common/devel/cmake/3.31.6/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp]
+        ignore line: [Run Build Command(s): /gpfs/bwfor/software/common/devel/cmake/3.31.6/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_ac30c/fast]
+        ignore line: [/usr/bin/gmake  -f CMakeFiles/cmTC_ac30c.dir/build.make CMakeFiles/cmTC_ac30c.dir/build]
+        ignore line: [gmake[1]: Entering directory '/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-H5L6PY']
+        ignore line: [Building CXX object CMakeFiles/cmTC_ac30c.dir/CMakeCXXCompilerABI.cpp.o]
+        ignore line: [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/g++   -v -o CMakeFiles/cmTC_ac30c.dir/CMakeCXXCompilerABI.cpp.o -c /gpfs/bwfor/software/common/devel/cmake/3.31.6/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp]
         ignore line: [Using built-in specs.]
-        ignore line: [COLLECT_GCC=/opt/bwhpc/common/compiler/gnu/14.1.0/bin/g++]
+        ignore line: [COLLECT_GCC=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/g++]
         ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none]
         ignore line: [Target: x86_64-pc-linux-gnu]
         ignore line: [Configured with: ../configure --prefix=/opt/bwhpc/common/compiler/gnu/14.1.0 --libdir=/opt/bwhpc/common/compiler/gnu/14.1.0/lib64 --enable-languages=c c++ jit lto fortran go --enable-host-shared --disable-multilib --enable-lto --with-system-zlib --enable-gnu-unique-object --enable-linker-build-id --with-gmp-lib=/lhome/lsabine/bwhpc-rpmbuild/BUILD/gcc-14.1.0/opt/bwhpc/common/compiler/gnu/14.1.0/lib64 --with-gmp-include=/lhome/lsabine/bwhpc-rpmbuild/BUILD/gcc-14.1.0/opt/bwhpc/common/compiler/gnu/14.1.0/include --with-mpfr=/lhome/lsabine/bwhpc-rpmbuild/BUILD/gcc-14.1.0/opt/bwhpc/common/compiler/gnu/14.1.0 --with-mpc-lib=/lhome/lsabine/bwhpc-rpmbuild/BUILD/gcc-14.1.0/opt/bwhpc/common/compiler/gnu/14.1.0/lib64 --with-isl=/lhome/lsabine/bwhpc-rpmbuild/BUILD/gcc-14.1.0/opt/bwhpc/common/compiler/gnu/14.1.0 --enable-offload-targets=nvptx-none]
         ignore line: [Thread model: posix]
         ignore line: [Supported LTO compression algorithms: zlib zstd]
         ignore line: [gcc version 14.1.0 (GCC) ]
-        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_721c2.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_721c2.dir/']
-        ignore line: [ /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/cc1plus -quiet -v -iprefix /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/ -D_GNU_SOURCE /gpfs/bwfor/software/common/devel/cmake/3.31.6/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpdir CMakeFiles/cmTC_721c2.dir/ -dumpbase CMakeCXXCompilerABI.cpp.cpp -dumpbase-ext .cpp -mtune=generic -march=x86-64 -version -o /scratch/hd_gy283_o05i14/ccNbpuZR.s]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_ac30c.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_ac30c.dir/']
+        ignore line: [ /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/cc1plus -quiet -v -iprefix /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/ -D_GNU_SOURCE /gpfs/bwfor/software/common/devel/cmake/3.31.6/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpdir CMakeFiles/cmTC_ac30c.dir/ -dumpbase CMakeCXXCompilerABI.cpp.cpp -dumpbase-ext .cpp -mtune=generic -march=x86-64 -version -o /scratch/hd_gy283_o05i15/ccCqTRvo.s]
         ignore line: [GNU C++17 (GCC) version 14.1.0 (x86_64-pc-linux-gnu)]
         ignore line: [	compiled by GNU C version 14.1.0  GMP version 6.3.0  MPFR version 4.2.1  MPC version 1.3.1  isl version isl-0.26-GMP]
         ignore line: []
@@ -199,16 +199,16 @@ events:
         ignore line: [ /usr/include]
         ignore line: [End of search list.]
         ignore line: [Compiler executable checksum: 3f596f0232b833d1e9a8c9c7d22a6bd5]
-        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_721c2.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_721c2.dir/']
-        ignore line: [ as -v --64 -o CMakeFiles/cmTC_721c2.dir/CMakeCXXCompilerABI.cpp.o /scratch/hd_gy283_o05i14/ccNbpuZR.s]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_ac30c.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_ac30c.dir/']
+        ignore line: [ as -v --64 -o CMakeFiles/cmTC_ac30c.dir/CMakeCXXCompilerABI.cpp.o /scratch/hd_gy283_o05i15/ccCqTRvo.s]
         ignore line: [GNU assembler version 2.30 (x86_64-redhat-linux) using BFD version version 2.30-125.el8_10]
         ignore line: [COMPILER_PATH=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/]
-        ignore line: [LIBRARY_PATH=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/opt/bwhpc/common/devel/miniforge/24.9.2-0/lib/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../:/lib/:/usr/lib/]
-        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_721c2.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_721c2.dir/CMakeCXXCompilerABI.cpp.']
-        ignore line: [Linking CXX executable cmTC_721c2]
-        ignore line: [/gpfs/bwfor/software/common/devel/cmake/3.31.6/bin/cmake -E cmake_link_script CMakeFiles/cmTC_721c2.dir/link.txt --verbose=1]
+        ignore line: [LIBRARY_PATH=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../:/lib/:/usr/lib/]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_ac30c.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_ac30c.dir/CMakeCXXCompilerABI.cpp.']
+        ignore line: [Linking CXX executable cmTC_ac30c]
+        ignore line: [/gpfs/bwfor/software/common/devel/cmake/3.31.6/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ac30c.dir/link.txt --verbose=1]
         ignore line: [Using built-in specs.]
-        ignore line: [COLLECT_GCC=/opt/bwhpc/common/compiler/gnu/14.1.0/bin/g++]
+        ignore line: [COLLECT_GCC=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/g++]
         ignore line: [COLLECT_LTO_WRAPPER=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/lto-wrapper]
         ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none]
         ignore line: [Target: x86_64-pc-linux-gnu]
@@ -217,14 +217,14 @@ events:
         ignore line: [Supported LTO compression algorithms: zlib zstd]
         ignore line: [gcc version 14.1.0 (GCC) ]
         ignore line: [COMPILER_PATH=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/]
-        ignore line: [LIBRARY_PATH=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/opt/bwhpc/common/devel/miniforge/24.9.2-0/lib/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../:/lib/:/usr/lib/]
-        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_721c2' '-foffload-options=-l_GCC_m' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_721c2.']
-        link line: [ /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/collect2 -plugin /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/liblto_plugin.so -plugin-opt=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/lto-wrapper -plugin-opt=-fresolution=/scratch/hd_gy283_o05i14/cc9UQFSy.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_721c2 /lib/../lib64/crt1.o /lib/../lib64/crti.o /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtbegin.o -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0 -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/opt/bwhpc/common/devel/miniforge/24.9.2-0/lib -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../.. -v CMakeFiles/cmTC_721c2.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtend.o /lib/../lib64/crtn.o]
+        ignore line: [LIBRARY_PATH=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../:/lib/:/usr/lib/]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_ac30c' '-foffload-options=-l_GCC_m' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_ac30c.']
+        link line: [ /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/collect2 -plugin /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/liblto_plugin.so -plugin-opt=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/lto-wrapper -plugin-opt=-fresolution=/scratch/hd_gy283_o05i15/ccxa0aOE.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_ac30c /lib/../lib64/crt1.o /lib/../lib64/crti.o /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtbegin.o -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0 -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../.. -v CMakeFiles/cmTC_ac30c.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtend.o /lib/../lib64/crtn.o]
           arg [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/collect2] ==> ignore
           arg [-plugin] ==> ignore
           arg [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/liblto_plugin.so] ==> ignore
           arg [-plugin-opt=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/lto-wrapper] ==> ignore
-          arg [-plugin-opt=-fresolution=/scratch/hd_gy283_o05i14/cc9UQFSy.res] ==> ignore
+          arg [-plugin-opt=-fresolution=/scratch/hd_gy283_o05i15/ccxa0aOE.res] ==> ignore
           arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
           arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
           arg [-plugin-opt=-pass-through=-lc] ==> ignore
@@ -237,7 +237,7 @@ events:
           arg [-dynamic-linker] ==> ignore
           arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
           arg [-o] ==> ignore
-          arg [cmTC_721c2] ==> ignore
+          arg [cmTC_ac30c] ==> ignore
           arg [/lib/../lib64/crt1.o] ==> obj [/lib/../lib64/crt1.o]
           arg [/lib/../lib64/crti.o] ==> obj [/lib/../lib64/crti.o]
           arg [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtbegin.o] ==> obj [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtbegin.o]
@@ -246,10 +246,9 @@ events:
           arg [-L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64] ==> dir [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64]
           arg [-L/lib/../lib64] ==> dir [/lib/../lib64]
           arg [-L/usr/lib/../lib64] ==> dir [/usr/lib/../lib64]
-          arg [-L/opt/bwhpc/common/devel/miniforge/24.9.2-0/lib] ==> dir [/opt/bwhpc/common/devel/miniforge/24.9.2-0/lib]
           arg [-L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../..] ==> dir [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../..]
           arg [-v] ==> ignore
-          arg [CMakeFiles/cmTC_721c2.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
+          arg [CMakeFiles/cmTC_ac30c.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
           arg [-lstdc++] ==> lib [stdc++]
           arg [-lm] ==> lib [m]
           arg [-lgcc_s] ==> lib [gcc_s]
@@ -260,7 +259,7 @@ events:
           arg [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtend.o] ==> obj [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtend.o]
           arg [/lib/../lib64/crtn.o] ==> obj [/lib/../lib64/crtn.o]
         ignore line: [collect2 version 14.1.0]
-        ignore line: [/usr/bin/ld -plugin /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/liblto_plugin.so -plugin-opt=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/lto-wrapper -plugin-opt=-fresolution=/scratch/hd_gy283_o05i14/cc9UQFSy.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_721c2 /lib/../lib64/crt1.o /lib/../lib64/crti.o /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtbegin.o -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0 -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/opt/bwhpc/common/devel/miniforge/24.9.2-0/lib -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../.. -v CMakeFiles/cmTC_721c2.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtend.o /lib/../lib64/crtn.o]
+        ignore line: [/usr/bin/ld -plugin /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/liblto_plugin.so -plugin-opt=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/lto-wrapper -plugin-opt=-fresolution=/scratch/hd_gy283_o05i15/ccxa0aOE.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_ac30c /lib/../lib64/crt1.o /lib/../lib64/crti.o /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtbegin.o -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0 -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../.. -v CMakeFiles/cmTC_ac30c.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtend.o /lib/../lib64/crtn.o]
         linker tool for 'CXX': /usr/bin/ld
         collapse obj [/lib/../lib64/crt1.o] ==> [/lib64/crt1.o]
         collapse obj [/lib/../lib64/crti.o] ==> [/lib64/crti.o]
@@ -272,11 +271,10 @@ events:
         collapse library dir [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64] ==> [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64]
         collapse library dir [/lib/../lib64] ==> [/lib64]
         collapse library dir [/usr/lib/../lib64] ==> [/usr/lib64]
-        collapse library dir [/opt/bwhpc/common/devel/miniforge/24.9.2-0/lib] ==> [/opt/bwhpc/common/devel/miniforge/24.9.2-0/lib]
         collapse library dir [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../..] ==> [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64]
         implicit libs: [stdc++;m;gcc_s;gcc;c;gcc_s;gcc]
         implicit objs: [/lib64/crt1.o;/lib64/crti.o;/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtbegin.o;/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtend.o;/lib64/crtn.o]
-        implicit dirs: [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64/gcc/x86_64-pc-linux-gnu/14.1.0;/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64/gcc;/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64;/lib64;/usr/lib64;/opt/bwhpc/common/devel/miniforge/24.9.2-0/lib]
+        implicit dirs: [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64/gcc/x86_64-pc-linux-gnu/14.1.0;/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64/gcc;/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64;/lib64;/usr/lib64]
         implicit fwks: []
       
       
@@ -298,8 +296,8 @@ events:
       - "CMakeLists.txt:25 (find_package)"
     description: "Detecting CXX OpenMP compiler info"
     directories:
-      source: "/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-qJ50AA"
-      binary: "/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-qJ50AA"
+      source: "/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-lV8PDv"
+      binary: "/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-lV8PDv"
     cmakeVariables:
       CMAKE_CXX_FLAGS: ""
       CMAKE_CXX_FLAGS_DEBUG: "-g"
@@ -308,17 +306,17 @@ events:
       variable: "OpenMP_COMPILE_RESULT_CXX_fopenmp"
       cached: true
       stdout: |
-        Change Dir: '/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-qJ50AA'
+        Change Dir: '/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-lV8PDv'
         
-        Run Build Command(s): /gpfs/bwfor/software/common/devel/cmake/3.31.6/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_03249/fast
-        /usr/bin/gmake  -f CMakeFiles/cmTC_03249.dir/build.make CMakeFiles/cmTC_03249.dir/build
-        gmake[1]: Entering directory '/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-qJ50AA'
-        Building CXX object CMakeFiles/cmTC_03249.dir/OpenMPTryFlag.cpp.o
-        /opt/bwhpc/common/compiler/gnu/14.1.0/bin/g++   -fopenmp -std=gnu++17 -o CMakeFiles/cmTC_03249.dir/OpenMPTryFlag.cpp.o -c /home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-qJ50AA/OpenMPTryFlag.cpp
-        Linking CXX executable cmTC_03249
-        /gpfs/bwfor/software/common/devel/cmake/3.31.6/bin/cmake -E cmake_link_script CMakeFiles/cmTC_03249.dir/link.txt --verbose=1
+        Run Build Command(s): /gpfs/bwfor/software/common/devel/cmake/3.31.6/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_f1cf9/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_f1cf9.dir/build.make CMakeFiles/cmTC_f1cf9.dir/build
+        gmake[1]: Entering directory '/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-lV8PDv'
+        Building CXX object CMakeFiles/cmTC_f1cf9.dir/OpenMPTryFlag.cpp.o
+        /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/g++   -fopenmp -std=gnu++17 -o CMakeFiles/cmTC_f1cf9.dir/OpenMPTryFlag.cpp.o -c /home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-lV8PDv/OpenMPTryFlag.cpp
+        Linking CXX executable cmTC_f1cf9
+        /gpfs/bwfor/software/common/devel/cmake/3.31.6/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f1cf9.dir/link.txt --verbose=1
         Using built-in specs.
-        COLLECT_GCC=/opt/bwhpc/common/compiler/gnu/14.1.0/bin/g++
+        COLLECT_GCC=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/g++
         COLLECT_LTO_WRAPPER=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/lto-wrapper
         OFFLOAD_TARGET_NAMES=nvptx-none
         Target: x86_64-pc-linux-gnu
@@ -327,13 +325,13 @@ events:
         Supported LTO compression algorithms: zlib zstd
         gcc version 14.1.0 (GCC) 
         COMPILER_PATH=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/
-        LIBRARY_PATH=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/opt/bwhpc/common/devel/miniforge/24.9.2-0/lib/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../:/lib/:/usr/lib/
+        LIBRARY_PATH=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../:/lib/:/usr/lib/
         Reading specs from /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64/libgomp.spec
-        COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-o' 'cmTC_03249' '-foffload-options=-l_GCC_m' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-pthread' '-dumpdir' 'cmTC_03249.'
-         /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/collect2 -plugin /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/liblto_plugin.so -plugin-opt=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/lto-wrapper -plugin-opt=-fresolution=/scratch/hd_gy283_o05i14/ccxDyGw0.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lpthread -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_03249 /lib/../lib64/crt1.o /lib/../lib64/crti.o /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtbegin.o /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtoffloadbegin.o -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0 -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/opt/bwhpc/common/devel/miniforge/24.9.2-0/lib -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../.. CMakeFiles/cmTC_03249.dir/OpenMPTryFlag.cpp.o -lstdc++ -lm -lgomp -lgcc_s -lgcc -lpthread -lc -lgcc_s -lgcc /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtend.o /lib/../lib64/crtn.o /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtoffloadend.o
-        COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-o' 'cmTC_03249' '-foffload-options=-l_GCC_m' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-pthread' '-dumpdir' 'cmTC_03249.'
-        /opt/bwhpc/common/compiler/gnu/14.1.0/bin/g++  -fopenmp -v CMakeFiles/cmTC_03249.dir/OpenMPTryFlag.cpp.o -o cmTC_03249
-        gmake[1]: Leaving directory '/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-qJ50AA'
+        COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-o' 'cmTC_f1cf9' '-foffload-options=-l_GCC_m' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-pthread' '-dumpdir' 'cmTC_f1cf9.'
+         /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/collect2 -plugin /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/liblto_plugin.so -plugin-opt=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/lto-wrapper -plugin-opt=-fresolution=/scratch/hd_gy283_o05i15/ccalvpyY.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lpthread -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_f1cf9 /lib/../lib64/crt1.o /lib/../lib64/crti.o /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtbegin.o /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtoffloadbegin.o -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0 -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../.. CMakeFiles/cmTC_f1cf9.dir/OpenMPTryFlag.cpp.o -lstdc++ -lm -lgomp -lgcc_s -lgcc -lpthread -lc -lgcc_s -lgcc /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtend.o /lib/../lib64/crtn.o /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtoffloadend.o
+        COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-o' 'cmTC_f1cf9' '-foffload-options=-l_GCC_m' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-pthread' '-dumpdir' 'cmTC_f1cf9.'
+        /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/g++  -fopenmp -v CMakeFiles/cmTC_f1cf9.dir/OpenMPTryFlag.cpp.o -o cmTC_f1cf9
+        gmake[1]: Leaving directory '/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-lV8PDv'
         
       exitCode: 0
   -
@@ -345,17 +343,17 @@ events:
     message: |
       Parsed CXX OpenMP implicit link information from above output:
         link line regex: [^( *|.*[/\\])(ld[0-9]*(\\.[a-z]+)?|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
-        ignore line: [Change Dir: '/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-qJ50AA']
+        ignore line: [Change Dir: '/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-lV8PDv']
         ignore line: []
-        ignore line: [Run Build Command(s): /gpfs/bwfor/software/common/devel/cmake/3.31.6/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_03249/fast]
-        ignore line: [/usr/bin/gmake  -f CMakeFiles/cmTC_03249.dir/build.make CMakeFiles/cmTC_03249.dir/build]
-        ignore line: [gmake[1]: Entering directory '/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-qJ50AA']
-        ignore line: [Building CXX object CMakeFiles/cmTC_03249.dir/OpenMPTryFlag.cpp.o]
-        ignore line: [/opt/bwhpc/common/compiler/gnu/14.1.0/bin/g++   -fopenmp -std=gnu++17 -o CMakeFiles/cmTC_03249.dir/OpenMPTryFlag.cpp.o -c /home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-qJ50AA/OpenMPTryFlag.cpp]
-        ignore line: [Linking CXX executable cmTC_03249]
-        ignore line: [/gpfs/bwfor/software/common/devel/cmake/3.31.6/bin/cmake -E cmake_link_script CMakeFiles/cmTC_03249.dir/link.txt --verbose=1]
+        ignore line: [Run Build Command(s): /gpfs/bwfor/software/common/devel/cmake/3.31.6/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_f1cf9/fast]
+        ignore line: [/usr/bin/gmake  -f CMakeFiles/cmTC_f1cf9.dir/build.make CMakeFiles/cmTC_f1cf9.dir/build]
+        ignore line: [gmake[1]: Entering directory '/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-lV8PDv']
+        ignore line: [Building CXX object CMakeFiles/cmTC_f1cf9.dir/OpenMPTryFlag.cpp.o]
+        ignore line: [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/g++   -fopenmp -std=gnu++17 -o CMakeFiles/cmTC_f1cf9.dir/OpenMPTryFlag.cpp.o -c /home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-lV8PDv/OpenMPTryFlag.cpp]
+        ignore line: [Linking CXX executable cmTC_f1cf9]
+        ignore line: [/gpfs/bwfor/software/common/devel/cmake/3.31.6/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f1cf9.dir/link.txt --verbose=1]
         ignore line: [Using built-in specs.]
-        ignore line: [COLLECT_GCC=/opt/bwhpc/common/compiler/gnu/14.1.0/bin/g++]
+        ignore line: [COLLECT_GCC=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/g++]
         ignore line: [COLLECT_LTO_WRAPPER=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/lto-wrapper]
         ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none]
         ignore line: [Target: x86_64-pc-linux-gnu]
@@ -364,15 +362,15 @@ events:
         ignore line: [Supported LTO compression algorithms: zlib zstd]
         ignore line: [gcc version 14.1.0 (GCC) ]
         ignore line: [COMPILER_PATH=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/]
-        ignore line: [LIBRARY_PATH=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/opt/bwhpc/common/devel/miniforge/24.9.2-0/lib/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../:/lib/:/usr/lib/]
+        ignore line: [LIBRARY_PATH=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../:/lib/:/usr/lib/]
         ignore line: [Reading specs from /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64/libgomp.spec]
-        ignore line: [COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-o' 'cmTC_03249' '-foffload-options=-l_GCC_m' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-pthread' '-dumpdir' 'cmTC_03249.']
-        link line: [ /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/collect2 -plugin /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/liblto_plugin.so -plugin-opt=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/lto-wrapper -plugin-opt=-fresolution=/scratch/hd_gy283_o05i14/ccxDyGw0.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lpthread -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_03249 /lib/../lib64/crt1.o /lib/../lib64/crti.o /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtbegin.o /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtoffloadbegin.o -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0 -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/opt/bwhpc/common/devel/miniforge/24.9.2-0/lib -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../.. CMakeFiles/cmTC_03249.dir/OpenMPTryFlag.cpp.o -lstdc++ -lm -lgomp -lgcc_s -lgcc -lpthread -lc -lgcc_s -lgcc /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtend.o /lib/../lib64/crtn.o /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtoffloadend.o]
+        ignore line: [COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-o' 'cmTC_f1cf9' '-foffload-options=-l_GCC_m' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-pthread' '-dumpdir' 'cmTC_f1cf9.']
+        link line: [ /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/collect2 -plugin /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/liblto_plugin.so -plugin-opt=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/lto-wrapper -plugin-opt=-fresolution=/scratch/hd_gy283_o05i15/ccalvpyY.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lpthread -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_f1cf9 /lib/../lib64/crt1.o /lib/../lib64/crti.o /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtbegin.o /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtoffloadbegin.o -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0 -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../.. CMakeFiles/cmTC_f1cf9.dir/OpenMPTryFlag.cpp.o -lstdc++ -lm -lgomp -lgcc_s -lgcc -lpthread -lc -lgcc_s -lgcc /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtend.o /lib/../lib64/crtn.o /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/crtoffloadend.o]
           arg [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/collect2] ==> ignore
           arg [-plugin] ==> ignore
           arg [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/liblto_plugin.so] ==> ignore
           arg [-plugin-opt=/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../libexec/gcc/x86_64-pc-linux-gnu/14.1.0/lto-wrapper] ==> ignore
-          arg [-plugin-opt=-fresolution=/scratch/hd_gy283_o05i14/ccxDyGw0.res] ==> ignore
+          arg [-plugin-opt=-fresolution=/scratch/hd_gy283_o05i15/ccalvpyY.res] ==> ignore
           arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
           arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
           arg [-plugin-opt=-pass-through=-lpthread] ==> ignore
@@ -386,15 +384,14 @@ events:
           arg [-dynamic-linker] ==> ignore
           arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
           arg [-o] ==> ignore
-          arg [cmTC_03249] ==> ignore
+          arg [cmTC_f1cf9] ==> ignore
           arg [-L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0] ==> dir [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0]
           arg [-L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc] ==> dir [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc]
           arg [-L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64] ==> dir [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64]
           arg [-L/lib/../lib64] ==> dir [/lib/../lib64]
           arg [-L/usr/lib/../lib64] ==> dir [/usr/lib/../lib64]
-          arg [-L/opt/bwhpc/common/devel/miniforge/24.9.2-0/lib] ==> dir [/opt/bwhpc/common/devel/miniforge/24.9.2-0/lib]
           arg [-L/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../..] ==> dir [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../..]
-          arg [CMakeFiles/cmTC_03249.dir/OpenMPTryFlag.cpp.o] ==> ignore
+          arg [CMakeFiles/cmTC_f1cf9.dir/OpenMPTryFlag.cpp.o] ==> ignore
           arg [-lstdc++] ==> lib [stdc++]
           arg [-lm] ==> lib [m]
           arg [-lgomp] ==> lib [gomp]
@@ -409,11 +406,10 @@ events:
         collapse library dir [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../../../lib64] ==> [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64]
         collapse library dir [/lib/../lib64] ==> [/lib64]
         collapse library dir [/usr/lib/../lib64] ==> [/usr/lib64]
-        collapse library dir [/opt/bwhpc/common/devel/miniforge/24.9.2-0/lib] ==> [/opt/bwhpc/common/devel/miniforge/24.9.2-0/lib]
         collapse library dir [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.1.0/../../..] ==> [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64]
         implicit libs: [stdc++;m;gomp;gcc_s;gcc;pthread;c;gcc_s;gcc]
         implicit objs: []
-        implicit dirs: [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64/gcc/x86_64-pc-linux-gnu/14.1.0;/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64/gcc;/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64;/lib64;/usr/lib64;/opt/bwhpc/common/devel/miniforge/24.9.2-0/lib]
+        implicit dirs: [/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64/gcc/x86_64-pc-linux-gnu/14.1.0;/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64/gcc;/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64;/lib64;/usr/lib64]
         implicit fwks: []
       
       
@@ -425,8 +421,8 @@ events:
       - "CMakeLists.txt:25 (find_package)"
     description: "Detecting CXX OpenMP version"
     directories:
-      source: "/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-bsdIuS"
-      binary: "/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-bsdIuS"
+      source: "/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-aizIAR"
+      binary: "/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-aizIAR"
     cmakeVariables:
       CMAKE_CXX_FLAGS: ""
       CMAKE_CXX_FLAGS_DEBUG: "-g"
@@ -435,17 +431,17 @@ events:
       variable: "OpenMP_SPECTEST_CXX_"
       cached: true
       stdout: |
-        Change Dir: '/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-bsdIuS'
+        Change Dir: '/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-aizIAR'
         
-        Run Build Command(s): /gpfs/bwfor/software/common/devel/cmake/3.31.6/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_2fc22/fast
-        /usr/bin/gmake  -f CMakeFiles/cmTC_2fc22.dir/build.make CMakeFiles/cmTC_2fc22.dir/build
-        gmake[1]: Entering directory '/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-bsdIuS'
-        Building CXX object CMakeFiles/cmTC_2fc22.dir/OpenMPCheckVersion.cpp.o
-        /opt/bwhpc/common/compiler/gnu/14.1.0/bin/g++   -fopenmp -std=gnu++17 -o CMakeFiles/cmTC_2fc22.dir/OpenMPCheckVersion.cpp.o -c /home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-bsdIuS/OpenMPCheckVersion.cpp
-        Linking CXX executable cmTC_2fc22
-        /gpfs/bwfor/software/common/devel/cmake/3.31.6/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2fc22.dir/link.txt --verbose=1
-        /opt/bwhpc/common/compiler/gnu/14.1.0/bin/g++  -fopenmp CMakeFiles/cmTC_2fc22.dir/OpenMPCheckVersion.cpp.o -o cmTC_2fc22
-        gmake[1]: Leaving directory '/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-bsdIuS'
+        Run Build Command(s): /gpfs/bwfor/software/common/devel/cmake/3.31.6/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_d30c0/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_d30c0.dir/build.make CMakeFiles/cmTC_d30c0.dir/build
+        gmake[1]: Entering directory '/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-aizIAR'
+        Building CXX object CMakeFiles/cmTC_d30c0.dir/OpenMPCheckVersion.cpp.o
+        /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/g++   -fopenmp -std=gnu++17 -o CMakeFiles/cmTC_d30c0.dir/OpenMPCheckVersion.cpp.o -c /home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-aizIAR/OpenMPCheckVersion.cpp
+        Linking CXX executable cmTC_d30c0
+        /gpfs/bwfor/software/common/devel/cmake/3.31.6/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d30c0.dir/link.txt --verbose=1
+        /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/g++  -fopenmp CMakeFiles/cmTC_d30c0.dir/OpenMPCheckVersion.cpp.o -o cmTC_d30c0
+        gmake[1]: Leaving directory '/gpfs/bwfor/home/hd/hd_hd/hd_gy283/kmc_project/build/CMakeFiles/CMakeScratch/TryCompile-aizIAR'
         
       exitCode: 0
 ...

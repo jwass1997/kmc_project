@@ -1,0 +1,71 @@
+{
+	"kind" : "toolchains",
+	"toolchains" : 
+	[
+		{
+			"compiler" : 
+			{
+				"id" : "GNU",
+				"implicit" : 
+				{
+					"includeDirectories" : 
+					[
+						"/gpfs/bwfor/software/common/compiler/gnu/14.1.0/include/c++/14.1.0",
+						"/gpfs/bwfor/software/common/compiler/gnu/14.1.0/include/c++/14.1.0/x86_64-pc-linux-gnu",
+						"/gpfs/bwfor/software/common/compiler/gnu/14.1.0/include/c++/14.1.0/backward",
+						"/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64/gcc/x86_64-pc-linux-gnu/14.1.0/include",
+						"/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64/gcc/x86_64-pc-linux-gnu/14.1.0/include-fixed",
+						"/usr/local/include",
+						"/gpfs/bwfor/software/common/compiler/gnu/14.1.0/include",
+						"/usr/include"
+					],
+					"linkDirectories" : 
+					[
+						"/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64/gcc/x86_64-pc-linux-gnu/14.1.0",
+						"/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64/gcc",
+						"/gpfs/bwfor/software/common/compiler/gnu/14.1.0/lib64",
+						"/lib64",
+						"/usr/lib64"
+					],
+					"linkFrameworkDirectories" : [],
+					"linkLibraries" : 
+					[
+						"stdc++",
+						"m",
+						"gcc_s",
+						"gcc",
+						"c",
+						"gcc_s",
+						"gcc"
+					]
+				},
+				"path" : "/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/g++",
+				"version" : "14.1.0"
+			},
+			"language" : "CXX",
+			"sourceFileExtensions" : 
+			[
+				"C",
+				"M",
+				"c++",
+				"cc",
+				"cpp",
+				"cxx",
+				"m",
+				"mm",
+				"mpp",
+				"CPP",
+				"ixx",
+				"cppm",
+				"ccm",
+				"cxxm",
+				"c++m"
+			]
+		}
+	],
+	"version" : 
+	{
+		"major" : 1,
+		"minor" : 0
+	}
+}

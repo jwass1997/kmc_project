@@ -1,0 +1,18 @@
+{
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "gnu-14",
+      "generator": "Unix Makefiles",
+      "binaryDir": "build",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/gcc",
+        "CMAKE_CXX_COMPILER": "/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/g++"
+      },
+      "environment": {
+        "CC": "/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/gcc",
+        "CXX": "/gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/g++"
+      }
+    }
+  ]
+}
