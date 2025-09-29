@@ -126,4 +126,4 @@ if __name__ == "__main__":
     angles_acc, angles_don, r_acc, r_don = create_dopant_configuration(150.0, 200, 3, f"test_acc_{type}_eps={eps}", f"test_don_{type}_eps={eps}", type, eps)
     """ thetas = [0.1, 0.2, 0.3, 0.4, 0.5, 1.0, 1.5]
     for theta in thetas:
-        jiggle_configuration(angles_acc, r_acc, dtheta_max=theta, radial_sigma=0.0, name=f"jiggled_acc_uniform_{theta}") """<
+        jiggle_configuration(angles_acc, r_acc, dtheta_max=theta, radial_sigma=0.0, name=f"jiggled_acc_uniform_{theta}") """

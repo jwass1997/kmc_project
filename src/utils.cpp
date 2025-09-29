@@ -6,7 +6,6 @@
 
 #include "utils.h"
 #include "State.h"
-#include "LiteLaplaceCircle.h"
 #include "Configuration.h"
 #include "KMCSimulator.h"
 

@@ -273,7 +273,7 @@ if __name__ == "__main__":
     SH_SCRIPT = ROOT / "scripts" / "slurm" / "single_curve.sh"
 
     num_batches = 200
-    batch_size = 1_000
+    batch_size = 1_500
     b_list = [73, 74, 113, 114, 115, 116]
     """ for i in range(200, 300):
         time.sleep(0.1)
@@ -294,7 +294,7 @@ if __name__ == "__main__":
             SLURM_OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
         ) """
     
-    """ for i in range(100, num_batches):
+    for i in range(200):
         time.sleep(0.1)
         slurm_batch_from_single_state(
             batch_size=batch_size,
@@ -302,16 +302,16 @@ if __name__ == "__main__":
             output_idx=0,
             eq_steps=10_000, sim_steps=10_000_000, num_of_tasks=100,
             LHCSeed=np.random.randint(low=0, high=2**30 - 1), threadBaseSeed=np.random.randint(low=0, high=2**30 - 1),
-            cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/configs/configs_n_a=50/config.txt"),
-            acc_cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/configs/configs_n_a=50/acceptors.txt"),
-            don_cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/configs/configs_n_a=50/donors.txt"),
-            ele_cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/configs/configs_n_a=50/electrodes.txt"),
-            save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/data_uni_n_a=50"),
+            cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/data_uni_n_a=100/configs_n_a=100/config.txt"),
+            acc_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/data_uni_n_a=100/configs_n_a=100/acceptors.txt"),
+            don_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/data_uni_n_a=100/configs_n_a=100/donors.txt"),
+            ele_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/data_uni_n_a=100/configs_n_a=100/electrodes.txt"),
+            save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/data_uni_n_a=100"),
             file_name=f"batch_{i}",
             BINARY = Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"), 
             SH_SCRIPT =Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/batch_script.sh"), 
             SLURM_OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
-        ) """
+        )
     
     c_indices = [2, 3, 4, 5, 6, 7]
     c_sig_volts = [0.8712577630625511, -0.5323602276247098, 0.9542597048359602, 1.3273684600791937, -0.3707830078391009, -0.726548944581742]
