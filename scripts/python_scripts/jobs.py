@@ -203,7 +203,6 @@ def slurm_batch_of_independant_states(
         Nr,
         Nt,
         dist_type,
-        input_idx,
         output_idx,
         eq_steps,
         sim_steps,
@@ -228,7 +227,7 @@ def slurm_batch_of_independant_states(
         f"--output={output_file_name}",
         str(SH_SCRIPT),
         str(BINARY),
-        "batchOfIndependantStates",
+        "batchOfMultipleStates",
         f"--batchSize={batch_size}",
         f"--minVoltage={min_V}",
         f"--maxVoltage={max_V}",
@@ -246,7 +245,6 @@ def slurm_batch_of_independant_states(
         f"--Nr={Nr}",
         f"--Nt={Nt}",
         f"--distType={dist_type}",
-        f"--inputIdx={input_idx}",
         f"--outputIdx={output_idx}",
         f"--eqSteps={eq_steps}",
         f"--simSteps={sim_steps}",
@@ -272,6 +270,38 @@ if __name__ == "__main__":
     BINARY = ROOT / "build" / "kmc_project"
     SH_SCRIPT = ROOT / "scripts" / "slurm" / "single_curve.sh"
 
+    slurm_batch_of_independant_states(
+        batch_size=1000,
+        min_V=-1.5,
+        max_V=1.5,
+        n_acceptors=200,
+        n_electrodes=8,
+        n_donors=3,
+        radius=150.0,
+        nu0=1.0,
+        a=20.0,
+        T=77.0,
+        energy_disorder=0.01,
+        electrode_width=60.0,
+        min_hop_distance=60.0,
+        max_hop_distance=1.5,
+        Nr=257,
+        Nt=1440,
+        dist_type="uniform",
+        output_idx=0,
+        eq_steps=10_000,
+        sim_steps=1_000_000,
+        num_of_tasks=100,
+        LHCSeed=np.random.randint(low=0, high=2**30),
+        threadBaseSeed=np.random.randint(low=0, high=2**30),
+        save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/graph_data"),
+        file_name=f"graph_batch",
+        BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
+        SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/batch_script.sh"),
+
+        SLURM_OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
+    )
+
     num_batches = 200
     batch_size = 1_500
     b_list = [73, 74, 113, 114, 115, 116]
@@ -294,7 +324,7 @@ if __name__ == "__main__":
             SLURM_OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
         ) """
     
-    for i in range(200):
+    """ for i in range(200):
         time.sleep(0.1)
         slurm_batch_from_single_state(
             batch_size=batch_size,
@@ -311,7 +341,7 @@ if __name__ == "__main__":
             BINARY = Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"), 
             SH_SCRIPT =Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/batch_script.sh"), 
             SLURM_OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
-        )
+        ) """
     
     c_indices = [2, 3, 4, 5, 6, 7]
     c_sig_volts = [0.8712577630625511, -0.5323602276247098, 0.9542597048359602, 1.3273684600791937, -0.3707830078391009, -0.726548944581742]

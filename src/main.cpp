@@ -2,7 +2,6 @@
 #include <iostream>
 #include <ctime>
 #include <cmath>
-#include <vector>
 
 #include "utils.h"
 

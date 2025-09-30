@@ -1,8 +1,9 @@
+#include <cstddef>
 #include <random>
 #include <algorithm>
-#include <chrono>
 #include <omp.h>
 #include <boost/program_options.hpp>
+#include <vector>
 
 #include "utils.h"
 #include "State.h"
@@ -574,7 +575,7 @@ void batchOfMultipleStates(
     double minHopDistance, double maxHopDistance,
     int Nr, int Nt,
     std::string distType,
-    int inputIdx, int outputIdx,
+    int outputIdx,
     int eqSteps, int simSteps, int numOfTasks,
     int LHCSeed, int threadBaseSeed,
     const std::string& saveFolder, const std::string& fileName
@@ -584,6 +585,20 @@ void batchOfMultipleStates(
     }
 
     int numOfSites = nAcceptors + nElectrodes;
+
+    /* Energy contributions */
+    std::vector<double> initEn(batchSize * numOfSites, 0.0);
+    std::vector<size_t> initEnShape = {size_t(batchSize), size_t(numOfSites)};
+
+    std::vector<double> randEn(batchSize * nAcceptors, 0.0);
+    std::vector<size_t> randEnShape = {size_t(batchSize), size_t(nAcceptors)};
+
+    std::vector<double> accDonInt(batchSize * nAcceptors, 0.0);
+    std::vector<size_t> accDonIntShape = {size_t(batchSize), size_t(nAcceptors)};
+
+    std::vector<double> accAccInt(batchSize * nAcceptors, 0.0);
+    std::vector<size_t> accAccIntShape = {size_t(batchSize), size_t(nAcceptors)};
+
 
     std::string file = saveFolder + "/" + fileName + ".npz";
     /* Output current */
@@ -598,6 +613,7 @@ void batchOfMultipleStates(
     /* 8 dimensional input space */
     std::vector<double> inputData(batchSize*nElectrodes, 0.0);
     std::vector<size_t> inputDataShape = {(size_t)batchSize, (size_t)nElectrodes};
+    /* Energies  */
     /* LHC sampled voltages */
     std::vector<double> mins(nElectrodes, minVoltage);
     std::vector<double> maxs(nElectrodes, maxVoltage);
@@ -611,6 +627,16 @@ void batchOfMultipleStates(
     /* Vectors for coordinates */
     std::vector<double> accCoords(batchSize*nAcceptors*2, 0.0);
     std::vector<size_t> accCoordsShape = {(size_t)batchSize, (size_t)nAcceptors, 2};
+    std::vector<double> donCoords(batchSize*nDonors*2, 0.0);
+    std::vector<size_t> donCoordsShape = {(size_t)batchSize, (size_t)nDonors, 2};
+
+    /* Rate prefactors */
+    std::vector<double> ratePref(batchSize*numOfSites*numOfSites, 0.0);
+    std::vector<size_t> ratePrefShape = {size_t(batchSize), size_t(numOfSites), size_t(numOfSites)};
+
+    /* Adjacency */
+    std::vector<int> adjMat(batchSize * numOfSites * numOfSites, 0.0);
+    std::vector<size_t> adjMatShape = {size_t(batchSize), size_t(numOfSites), size_t(numOfSites)};
 
     #pragma omp parallel
     {
@@ -653,15 +679,38 @@ void batchOfMultipleStates(
             Configuration config(params, cfgSeed);
 
             State tempState(config, stateSeed);
-            //for (int n = 0; n < voltages.size(); ++n) std::cout << "V_" << n << " " << voltages[n] << "\n"; 
 
             tempState.updateBoundaries(voltages);
 
+            int s = 0;
+            for (s = 0; s < numOfSites; ++s) initEn[s + _p * tempState.numOfSites] = tempState.siteEnergies[s];
+            for (s = 0; s < nAcceptors; ++s) {
+                randEn[s + _p * tempState.nAcceptors] = tempState.randomEnergies[s];
+                accDonInt[s + _p * tempState.nAcceptors] = tempState.acceptorDonorInteraction[s];
+                accAccInt[s + _p * tempState.nAcceptors] = tempState.acceptorInteraction[s];
+            }
+
             KMCSimulator kmc(tempState, kmcSeed);
             /* Saving coords */
-            for (int _u = 0; _u < nAcceptors; ++_u) {
-                accCoords[(_u + _p*nAcceptors)*2] = tempState.acceptorCoordinates[_u*2];
-                accCoords[(_u + _p*nAcceptors)*2 + 1] = tempState.acceptorCoordinates[_u*2 + 1];
+            int u = 0;
+            for (u = 0; u < nAcceptors; ++u) {
+                accCoords[(u + _p * nAcceptors)*2] = tempState.acceptorCoordinates[u * 2];
+                accCoords[(u + _p * nAcceptors)*2 + 1] = tempState.acceptorCoordinates[u * 2 + 1];
+            }
+            for (u = 0; u < nDonors; ++u) {
+                donCoords[(u + _p * nDonors)*2] = tempState.donorCoordinates[u * 2];
+                donCoords[(u + _p * nDonors)*2 + 1] = tempState.donorCoordinates[u * 2 + 1];
+            }
+
+            /* Save rate prefactors into NxN shape */
+            for (int k = 0; k < tempState.jaggedArrayLengths.size() - 1; ++k) {
+                int start = tempState.jaggedArrayLengths[k];
+                int end = tempState.jaggedArrayLengths[k+1];
+
+                for (int l = start; l < end; ++l) {
+                    ratePref[_p * numOfSites * numOfSites + k * numOfSites + tempState.neighbourIndices[l]] = kmc.constantTransitionRates[l];
+                    adjMat[_p * numOfSites * numOfSites + k * numOfSites + tempState.neighbourIndices[l]] = 1;
+                }
             }
 
             /* Equilibrate */
@@ -699,10 +748,7 @@ void batchOfMultipleStates(
 
                 double Ii = static_cast<double>(inEvents-outEvents) / elapsedTime;
                 averagedCurrent += Ii*elapsedTime;
-
-                /**
-                 * weighted Welford update
-                 */
+                /* Weighted Welford Update */
                 double w = elapsedTime;
                 double prevMean = meanW;
                 wSum += w;
@@ -727,16 +773,25 @@ void batchOfMultipleStates(
             }
         }
     }
-    /* Input-Output data */
-    cnpy::npz_save(file, "inputIdx", &inputIdx, {1}, "w");
-    cnpy::npz_save(file, "outputIdx", &outputIdx, {1}, "a");
+    /* Input-Output */
+    cnpy::npz_save(file, "outputIdx", &outputIdx, {1}, "w");
     cnpy::npz_save(file, "currents", currentData.data(), currentDataShape, "a");
     cnpy::npz_save(file, "inputs", inputData.data(), inputDataShape, "a");
     cnpy::npz_save(file, "sampleStd", currentStd.data(), currentStdShape, "a");
     cnpy::npz_save(file, "sem", currentSem.data(), currentSemShape, "a");
 
-    /* Save coords of equilState */
+    /* Coords */
     cnpy::npz_save(file, "acc_xy", accCoords.data(), accCoordsShape, "a");
+    cnpy::npz_save(file, "don_xy", donCoords.data(), donCoordsShape, "a");
+    
+    /* Initial Energies and Single Energy contributions */
+    cnpy::npz_save(file, "init_en", initEn.data(), initEnShape, "a");
+    cnpy::npz_save(file, "rand_en", randEn.data(), randEnShape, "a");
+    cnpy::npz_save(file, "acc_don", accDonInt.data(), accDonIntShape, "a");
+    cnpy::npz_save(file, "acc_acc", accAccInt.data(), accAccIntShape, "a");
+
+    cnpy::npz_save(file, "rate_pref", ratePref.data(), ratePrefShape, "a");
+    cnpy::npz_save(file, "adj_mat", adjMat.data(), adjMatShape, "a");           
 }
 
 int argParser(int argc, char* argv[]) {
@@ -938,7 +993,7 @@ int argParser(int argc, char* argv[]) {
         return 1;
     }
 
-    if (firstCommand == "batchOfIndependantStates") {
+    if (firstCommand == "batchOfMultipleStates") {
 
         boost::program_options::options_description options("Batch run options");
         options.add_options()
@@ -959,7 +1014,6 @@ int argParser(int argc, char* argv[]) {
             ("Nr", boost::program_options::value<int>()->required())
             ("Nt", boost::program_options::value<int>()->required())
             ("distType", boost::program_options::value<std::string>()->required())
-            ("inputIdx", boost::program_options::value<int>()->required())
             ("outputIdx", boost::program_options::value<int>()->required())
             ("eqSteps", boost::program_options::value<int>()->default_value(1e4))
             ("simSteps", boost::program_options::value<int>()->required())
@@ -995,7 +1049,6 @@ int argParser(int argc, char* argv[]) {
             vm["Nr"].as<int>(),
             vm["Nt"].as<int>(),
             vm["distType"].as<std::string>(),
-            vm["inputIdx"].as<int>(),
             vm["outputIdx"].as<int>(),
             vm["eqSteps"].as<int>(),
             vm["simSteps"].as<int>(),

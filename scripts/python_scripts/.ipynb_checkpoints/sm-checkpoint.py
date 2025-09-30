@@ -47,7 +47,8 @@ class NeuralNet(nn.Module):
             if k < self.num_layers - 1:
                 #if self.batch_norm:
                 #    layer_list.append(nn.BatchNorm1d(self.layer_dims[k]))
-                layer_list.append(nn.ReLU(inplace=True))
+                #layer_list.append(nn.ReLU(inplace=True))
+                layer_list.append(nn.PReLU())
 
         """for l in range(self.num_layers):
             # Determine dims for this layer
