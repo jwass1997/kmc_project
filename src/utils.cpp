@@ -504,7 +504,7 @@ void batchFromSingleState(
                 ++intervalCount;
             }
 
-            averagedCurrent  /= totalTime;
+            averagedCurrent /= totalTime;
             double weightedVar = (wSum > 0.0) ? (M2w / wSum) : 0.0;
             double sampleStd = std::sqrt(weightedVar);
             double sem = (wSum > 0.0) ? (sampleStd * std::sqrt(w2Sum) / wSum) : 0.0;
@@ -602,16 +602,16 @@ void batchOfMultipleStates(
 
     std::string file = saveFolder + "/" + fileName + ".npz";
     /* Output current */
-    std::vector<double> currentData(batchSize, 0.0);
-    std::vector<size_t> currentDataShape = {static_cast<size_t>(batchSize)};
+    std::vector<double> currentData(batchSize * nElectrodes, 0.0);
+    std::vector<size_t> currentDataShape = {static_cast<size_t>(batchSize), static_cast<size_t>(nElectrodes)};
 
-    std::vector<double> currentStd(batchSize, 0.0);
-    std::vector<size_t> currentStdShape = {static_cast<size_t>(batchSize)};
+    std::vector<double> currentStd(batchSize * nElectrodes, 0.0);
+    std::vector<size_t> currentStdShape = {static_cast<size_t>(batchSize), static_cast<size_t>(nElectrodes)};
 
-    std::vector<double> currentSem(batchSize, 0.0);
-    std::vector<size_t> currentSemShape = {static_cast<size_t>(batchSize)};
+    std::vector<double> currentSem(batchSize * nElectrodes, 0.0);
+    std::vector<size_t> currentSemShape = {static_cast<size_t>(batchSize), static_cast<size_t>(nElectrodes)};
     /* 8 dimensional input space */
-    std::vector<double> inputData(batchSize*nElectrodes, 0.0);
+    std::vector<double> inputData(batchSize * nElectrodes, 0.0);
     std::vector<size_t> inputDataShape = {(size_t)batchSize, (size_t)nElectrodes};
     /* Energies  */
     /* LHC sampled voltages */
@@ -635,7 +635,7 @@ void batchOfMultipleStates(
     std::vector<size_t> ratePrefShape = {size_t(batchSize), size_t(numOfSites), size_t(numOfSites)};
 
     /* Adjacency */
-    std::vector<int> adjMat(batchSize * numOfSites * numOfSites, 0.0);
+    std::vector<int> adjMat(batchSize * numOfSites * numOfSites, 0);
     std::vector<size_t> adjMatShape = {size_t(batchSize), size_t(numOfSites), size_t(numOfSites)};
 
     #pragma omp parallel
@@ -655,7 +655,7 @@ void batchOfMultipleStates(
 
             /* Configuring state and simulator */
             std::vector<double> voltages = samples[_p];
-            voltages[outputIdx] = 0.0;
+
             ConfigurationParams params;
             params.nAcceptors = nAcceptors;
             params.nElectrodes = nElectrodes;
@@ -719,63 +719,73 @@ void batchOfMultipleStates(
             tempState.stateTime = 0.0;
 
             /* Calculating output current */
-            double averagedCurrent = 0.0;
+            std::vector<double> averagedCurrent(nElectrodes, 0.0);
             double totalTime = 0.0;
             int intervalSteps = simSteps / numOfTasks;
-            int netEvents = 0;
 
-            double meanW = 0.0;
-            double M2w = 0.0;
-            double wSum = 0.0;
-            double w2Sum = 0.0;
+            std::vector<double> meanW(nElectrodes, 0.0);
+            std::vector<double> M2w(nElectrodes, 0.0);
+            std::vector<double> wSum(nElectrodes, 0.0);
+            std::vector<double> w2Sum(nElectrodes, 0.0);
 
             int intervalCount = 0;
-            while (intervalCount < numOfTasks) {
+            while (intervalCount < numOfTasks) 
+            {
 
                 double startClock = tempState.stateTime;
                 kmc.simulate(tempState, intervalSteps, false, true);
                 double endClock = tempState.stateTime; 
 
                 double elapsedTime = endClock - startClock;
-                int inEvents = 0;
-                int outEvents = 0;
-                for (int i = 0; i < tempState.numOfSites; ++i) {
-                    outEvents += tempState.eventCounter[(outputIdx + tempState.nAcceptors)*tempState.numOfSites + i];
-                    inEvents += tempState.eventCounter[tempState.numOfSites*i + (outputIdx + tempState.nAcceptors)];
-                }
                 totalTime += elapsedTime;
-                netEvents += inEvents-outEvents;
+                for (int electrode_idx = 0; electrode_idx < tempState.nElectrodes; ++electrode_idx) 
+                {
+                    int inEvents = 0;
+                    int outEvents = 0;
+                    
+                    for (int s = 0; s < tempState.numOfSites; ++s)
+                    {
+                        outEvents += tempState.eventCounter[(electrode_idx + tempState.nAcceptors) * tempState.numOfSites + s];
+                        inEvents += tempState.eventCounter[tempState.numOfSites * s + (electrode_idx + tempState.nAcceptors)];                    
+                    }
 
-                double Ii = static_cast<double>(inEvents-outEvents) / elapsedTime;
-                averagedCurrent += Ii*elapsedTime;
-                /* Weighted Welford Update */
-                double w = elapsedTime;
-                double prevMean = meanW;
-                wSum += w;
-                meanW += w * (Ii - meanW) / wSum;
-                M2w += w * (Ii - prevMean) * (Ii - meanW);
-                w2Sum += w * w;
+                    double Ii = (elapsedTime > 0) 
+                        ? static_cast<double>(inEvents - outEvents) / elapsedTime : 0.0;
+                    averagedCurrent[electrode_idx] += Ii * elapsedTime;
 
+                    double w = elapsedTime;
+                    double prevMean = meanW[electrode_idx];
+                    wSum[electrode_idx] += w;
+                    meanW[electrode_idx] += w * (Ii - meanW[electrode_idx]) / wSum[electrode_idx];
+                    M2w[electrode_idx] += w * (Ii - prevMean) * (Ii - meanW[electrode_idx]);
+                    w2Sum[electrode_idx] += w * w;
+                }
                 tempState.resetEventCounter();
                 intervalCount++;
             }
 
-            averagedCurrent /= totalTime;
-            double weightedVar = (wSum > 0.0) ? (M2w / wSum) : 0.0;
-            double sampleStd = std::sqrt(weightedVar);
-            double sem = (wSum > 0.0) ? (sampleStd * std::sqrt(w2Sum) / wSum) : 0.0;
+            for (int electrode_idx = 0; electrode_idx < nElectrodes; ++electrode_idx)
+            {
+                averagedCurrent[electrode_idx] /= totalTime;
+                double weightedVar = (wSum[electrode_idx] > 0.0) 
+                    ? (M2w[electrode_idx] / wSum[electrode_idx]) : 0.0;
+                double sampleStd = std::sqrt(weightedVar);
+                double sem = (wSum[electrode_idx] > 0.0) 
+                    ? (sampleStd * std::sqrt(w2Sum[electrode_idx]) / wSum[electrode_idx]) : 0.0;
 
-            currentData[_p] = averagedCurrent;
-            currentStd[_p] = sampleStd;
-            currentSem[_p] = sem;
-            for (int k = 0; k < nElectrodes; ++k) {
+                currentData[_p * nElectrodes + electrode_idx] = averagedCurrent[electrode_idx];
+                currentStd[_p * nElectrodes + electrode_idx] = sampleStd;
+                currentSem[_p * nElectrodes + electrode_idx] = sem;
+                
+            }
+            for (int k = 0; k < nElectrodes; ++k) 
+            {
                 inputData[k + _p*nElectrodes] = voltages[k];
             }
         }
     }
     /* Input-Output */
-    cnpy::npz_save(file, "outputIdx", &outputIdx, {1}, "w");
-    cnpy::npz_save(file, "currents", currentData.data(), currentDataShape, "a");
+    cnpy::npz_save(file, "currents", currentData.data(), currentDataShape, "w");
     cnpy::npz_save(file, "inputs", inputData.data(), inputDataShape, "a");
     cnpy::npz_save(file, "sampleStd", currentStd.data(), currentStdShape, "a");
     cnpy::npz_save(file, "sem", currentSem.data(), currentSemShape, "a");
