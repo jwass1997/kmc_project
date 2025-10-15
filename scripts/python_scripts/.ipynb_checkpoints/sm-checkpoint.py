@@ -61,11 +61,15 @@ class NeuralNet(nn.Module):
 
 class LearnableActivationFunc(nn.Module):
     
-    def __init__(self, model, v_min, v_max, device):
+    def __init__(self, model, input_index, v_min, v_max, data_input_ranges, device):
         super().__init__()
 
+        self.input_index = input_index
+        
         self.v_min = v_min
         self.v_max = v_max
+
+        self.data_input_ranges = data_input_ranges
 
         self.sm = copy.deepcopy(model)
 
@@ -78,42 +82,44 @@ class LearnableActivationFunc(nn.Module):
             if p.requires_grad == True:
                 p.requires_grad = False
         self.sm.eval()
-        
-        self.reset_cntrl_parameters()
-
-    def reset_cntrl_parameters(self):
 
         num_control_parameters = self.sm.layer_dims[0] - 1
-
-        with torch.no_grad():
-            init_params = (self.v_max - self.v_min) * torch.randn(num_control_parameters, device=self.device)
-            #init_params = torch.tensor([1.3929118495476631, 1.4696805209710357, -1.2824866848281564, -1.4634759777883688, -0.7459804457812129, -0.2399690924094745], dtype=torch.float32).to(self.device)
-
+        init_params = torch.randn(num_control_parameters) * 0.1#torch.zeros(num_control_parameters, device=self.device)
         self.raw_cntrl_params = nn.Parameter(init_params)
 
     def scale_cntrl(self):
 
-        return self.v_min + (self.v_max - self.v_min) * (torch.tanh(self.raw_cntrl_params) + 1) / 2
+        return torch.clamp(self.raw_cntrl_params, self.v_min, self.v_max)
 
     def affine_input_scaling(self, x, eps=1e-8):
 
-        x_min = x.min()
-        x_max = x.max()
+        if self.data_input_ranges is not None:
+            
+            x_min = self.data_input_ranges[0]
+            x_max = self.data_input_ranges[1]
+    
+            scale = (self.v_max - self.v_min) / (x_max - x_min + eps)
+            
+            return self.v_min + (x - x_min) * scale 
 
-        scale = (self.v_max - self.v_min) / (x_max - x_min + eps)
-        
-        return self.v_min + (x - x_min) * scale 
+        else:
+
+            return torch.clamp(x, self.v_min, self.v_max)
 
     def forward(self, x):
-
+        
+        self.sm.eval()
         orig_shape = x.shape
 
         x = x.reshape(-1, 1)
         B = x.size(0)
 
         cntrl_params = self.scale_cntrl().to(x.device, x.dtype)[None,:].expand(B, -1)
+        cntrl_params_left = cntrl_params[:, :self.input_index]
+        cntrl_params_right = cntrl_params[:, self.input_index:]
+        
         x_sc = self.affine_input_scaling(x)
-        input_tensor = torch.cat([x_sc, cntrl_params], dim=1)
+        input_tensor = torch.cat([cntrl_params_left, x_sc, cntrl_params_right], dim=1)
 
         out = self.sm(input_tensor)
 

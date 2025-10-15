@@ -42,15 +42,16 @@ def find_control_voltages_1D(model, target, N, input_idx, c_volt_min, c_volt_max
         with torch.no_grad():
             y_pred = model(input_tensor).detach().cpu()
     
-        mse = mse_loss(y_pred, target)
+        mse = mse_loss(y_pred, target) + 0.001 * torch.mean(cv_tensor**2).item()
 
         if trial.number % PRINT_EVERY == 0:
             print('\x1b[6;30;42m' + f'{trial.number}] Finished with score: {mse: .6f}' + '\x1b[0m')
 
         return mse
     
-    tpe = optuna.samplers.TPESampler(multivariate=True, group=True, n_startup_trials=n_startup_trials)
-    study = optuna.create_study(direction="minimize", sampler=tpe)
+    sampler = optuna.samplers.TPESampler(n_startup_trials=n_startup_trials)
+    #sampler = optuna.samplers.RandomSampler()
+    study = optuna.create_study(direction="minimize", sampler=sampler)
     study.optimize(objective, n_trials=n_trials)
 
     return study
