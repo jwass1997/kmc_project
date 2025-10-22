@@ -3,6 +3,13 @@ import os
 import time
 import subprocess
 
+import matplotlib.pyplot as plt
+import matplotlib.patches as ps
+from visualize_hops import visualize_current, current_snapshot
+from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.cm import ScalarMappable
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
 from pathlib import Path
 
 def create_dopant_configuration(radius, n_a, n_d, name_a, name_d, mode, eps, save_dir):
@@ -96,9 +103,10 @@ def create_dopant_configuration(radius, n_a, n_d, name_a, name_d, mode, eps, sav
                     angles_don[j] = np.arctan2(sample[1], sample[0])
                     j += 1
                                 
-
-    np.savetxt(f"{save_dir}/{name_a}.txt", acc_pos, fmt="%.6f", delimiter="\t")
-    np.savetxt(f"{save_dir}/{name_d}.txt", don_pos, fmt="%.6f", delimiter="\t")
+    file_A = Path(save_dir) / f"{name_a}.txt"
+    file_D = Path(save_dir) / f"{name_d}.txt"
+    np.savetxt(f"{str(file_A)}", acc_pos, fmt="%.6f", delimiter="\t")
+    np.savetxt(f"{str(file_D)}", don_pos, fmt="%.6f", delimiter="\t")
 
     return angles_acc, angles_don, r_acc, r_don
 
@@ -120,10 +128,175 @@ def jiggle_configuration(angles, radii, dtheta_max, radial_sigma, name):
         for i in range(N):
             f.write(f"{new_positions[i][0]}\t{new_positions[i][1]}\n")
 
-if __name__ == "__main__":
-    type = "mixed"
-    eps = 0.2
-    angles_acc, angles_don, r_acc, r_don = create_dopant_configuration(150.0, 200, 3, f"test_acc_{type}_eps={eps}", f"test_don_{type}_eps={eps}", type, eps)
-    """ thetas = [0.1, 0.2, 0.3, 0.4, 0.5, 1.0, 1.5]
-    for theta in thetas:
-        jiggle_configuration(angles_acc, r_acc, dtheta_max=theta, radial_sigma=0.0, name=f"jiggled_acc_uniform_{theta}") """
+def triangle_from_src_to_dst(src, dst, base_width):
+    """
+    Return the 3 vertices of an isosceles triangle whose base is centered at src
+    (length = base_width) and whose tip is at dst.
+    """
+    v = dst - src
+    L = np.linalg.norm(v)
+    if L == 0:
+        return None  # same point, nothing to draw
+    u = v / L                        # direction from src to dst
+    n = np.array([-u[1], u[0]])      # unit normal (perpendicular)
+    half = 0.5 * base_width
+
+    p_left  = src + half * n
+    p_right = src - half * n
+    tip     = dst
+    return np.vstack([p_left, p_right, tip])
+
+def current_distribution(ax, add_cbar, device_data):
+    
+    """ Load data"""
+    events = device_data['event_matrix']
+    simulation_time = device_data['sim_time']
+    acc_xy = device_data['acc_xy']
+    don_xy = device_data['don_xy']
+    ele_xy = device_data['ele_xy']
+    energies = device_data['energies']
+
+    n_A = acc_xy.shape[0]
+    n_E = ele_xy.shape[0]
+
+    net_events = (events - events.T)
+    dir_rows, dir_cols = np.where(net_events > 0)
+    #lower_half_currents = np.abs(np.tril(net_events, k=-1))
+    abs_current = np.abs(net_events) / simulation_time
+
+    min_current = abs_current.min()
+    max_current = abs_current.max()
+    #print(min_current)
+    #print(max_current)
+    #print(events.sum())
+
+    abs_current_normalized = abs_current / max_current
+
+    acc_face_clr = (0, 0.6, 0, 1)
+
+    """ Energies to color """
+    cmap = plt.get_cmap('magma')
+    norm = plt.Normalize(vmin=energies.min(), vmax=energies.max())
+    colors = cmap(norm(energies))
+
+    ax.set_aspect('equal', adjustable='box')
+
+    """ Device boundary """
+    radius = float(np.max(np.linalg.norm(acc_xy, axis=1)))
+    device_boundary = ps.Circle(
+        xy=(0.0, 0.0),
+        radius=radius+0.15,
+        fill=None,
+        edgecolor='gray',
+        zorder=4,
+        lw=4
+    )
+    ax.add_patch(device_boundary)
+
+    """ Electrodes """
+    arcs = []
+    th = np.linspace(0.0, 315, n_E)
+    th_width = 12.5
+    for i in range(n_E):
+        """arcs.append(
+            ps.Arc(
+                xy=(0.0, 0.0),
+                width=2*radius + 0.40,
+                height=2*radius + 0.40,
+                linewidth=8,
+                color=colors[i + n_A],
+                theta1=th[i]-th_width,
+                theta2=th[i]+th_width,
+                zorder=5
+            )
+        )"""
+        arcs.append(
+            ps.Wedge(
+                center=(0, 0),
+                r=radius + .4,
+                fc=colors[i+n_A],
+                ec='k',
+                theta1=th[i]-th_width,
+                theta2=th[i]+th_width,
+                width = 0.4,
+                zorder=5
+            )
+        )
+        
+    for arc in arcs:
+        ax.add_patch(arc)
+        
+    """ Acceptor and donors """
+    node_radius = 0.13
+    base_width = 2.0 * node_radius
+    for i, pt in enumerate(acc_xy):
+        ax.add_patch(
+            ps.Circle(
+                xy=(pt[0], pt[1]),
+                radius=node_radius,
+                zorder=4,
+                color=colors[i]
+            )
+        )
+
+    """ Plot currents between acceptors """
+    for i in range(n_A):
+        for j in range(n_A):
+            if abs_current_normalized[i, j] > 0.01:
+                """ax.plot(
+                    [acc_xy[i, 0], acc_xy[j, 0]],
+                    [acc_xy[i, 1], acc_xy[j, 1]],
+                    color='black',
+                    alpha=abs_current_normalized[i, j],
+                    zorder=3,
+                    lw=1.5
+                )"""
+
+                if net_events[i, j] > 0:
+                    src = acc_xy[i]
+                    dest = acc_xy[j]
+                    tri = triangle_from_src_to_dst(src, dest, base_width)
+                    if tri is None:
+                        continue
+                    ax.add_patch(
+                        ps.Polygon(
+                            tri,
+                            closed=True,
+                            facecolor='black',
+                            edgecolor='none',
+                            alpha=float(abs_current_normalized[i, j]),
+                            zorder=3
+                        )
+                    )
+                elif net_events[i, j] < 0:
+                    src = acc_xy[j]
+                    dest = acc_xy[i]
+                    tri = triangle_from_src_to_dst(src, dest, node_radius)
+                    if tri is None:
+                        continue
+                    ax.add_patch(
+                        ps.Polygon(
+                            tri,
+                            closed=True,
+                            facecolor='black',
+                            edgecolor='none',
+                            alpha=float(abs_current_normalized[i, j]),
+                            zorder=3
+                        )
+                    )
+
+    cbar = None
+
+    if add_cbar is not None:
+        sm = ScalarMappable(norm=norm, cmap=cmap)
+        sm.set_array([])
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes('right', size='5%', pad=0.3)
+        fig = ax.figure
+        cbar = fig.colorbar(sm, cax=cax)
+    
+    ax.set_xlim(-radius - 0.5, radius + 0.5)
+    ax.set_ylim(-radius - 0.5, radius + 0.5)
+    ax.axis('off')
+    
+    return ax, cbar

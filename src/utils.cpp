@@ -106,45 +106,58 @@ void singleRun(
     int nElectrodes = state.nElectrodes;
     int nDonors = state.nDonors;
 
-    std::vector<double> flattenedAcceptorCoordinates;
-    std::vector<double> flattenedDonorCoordinates;
-    std::vector<double> flattenedElectrodeCoordinates;    
-    std::vector<int> flattenedEventCounts;
+    std::vector<double> flattenedAcceptorCoordinates(2*state.nAcceptors, 0.0);
+    std::vector<double> flattenedDonorCoordinates(2*state.nDonors, 0.0);
+    std::vector<double> flattenedElectrodeCoordinates(2*state.nElectrodes, 0.0);    
+    std::vector<int> flattenedEventCounts(state.numOfSites*state.numOfSites, 0);
+    std::vector<double> flattenedEnergies(state.numOfSites, 0.0);
 
     std::vector<size_t> shapeFlattenedAcceptorCoordinates = {static_cast<size_t>(nAcceptors), 2};
     std::vector<size_t> shapeFlattenedDonorCoordinates = {static_cast<size_t>(nDonors), 2};
     std::vector<size_t> shapeFlattenedElectrodeCoordinates = {static_cast<size_t>(nElectrodes), 2};
     std::vector<size_t> shapeFlattenedEventCounts = {static_cast<size_t>(nAcceptors+nElectrodes), static_cast<size_t>(nAcceptors+nElectrodes)};
+    std::vector<size_t> shapeFlattenedEnergies = {static_cast<size_t>(state.numOfSites)};
 
     std::string deviceName = saveFolderPath + "/" + ID + ".npz";
     cnpy::npz_save(deviceName, "ID", &ID, {1}, "w"); 
 
-    for(int i = 0; i < nAcceptors; ++i) {
-        flattenedAcceptorCoordinates.push_back(state.acceptorCoordinates[i*2]);
-        flattenedAcceptorCoordinates.push_back(state.acceptorCoordinates[i*2 + 1]);
+    for (int i = 0; i < nAcceptors; ++i) 
+    {
+        flattenedAcceptorCoordinates[i*2] = state.acceptorCoordinates[i*2];
+        flattenedAcceptorCoordinates[i*2 + 1] = state.acceptorCoordinates[i*2 + 1];
     }
-    for(int i = 0; i < nDonors; ++i) {
-        flattenedDonorCoordinates.push_back(state.donorCoordinates[i*2]);
-        flattenedDonorCoordinates.push_back(state.donorCoordinates[i*2 + 1]);
+    for (int i = 0; i < nDonors; ++i) 
+    {
+        flattenedDonorCoordinates[i*2] = state.donorCoordinates[i*2];
+        flattenedDonorCoordinates[i*2 + 1] = state.donorCoordinates[i*2 + 1];
     }
-    for(int i = 0; i < nElectrodes; ++i) {
-        flattenedElectrodeCoordinates.push_back(state.electrodeCoordinates[i*2]);
-        flattenedElectrodeCoordinates.push_back(state.electrodeCoordinates[i*2 + 1]);
+    for (int i = 0; i < nElectrodes; ++i) 
+    {
+        flattenedElectrodeCoordinates[i*2] = state.electrodeCoordinates[i*2];
+        flattenedElectrodeCoordinates[i*2 + 1] = state.electrodeCoordinates[i*2 + 1];
     }
 
-    for(int j = 0; j < nAcceptors+nElectrodes; ++j) {
-        for(int i = 0; i <nAcceptors+nElectrodes; ++i) {
-            flattenedEventCounts.push_back(state.eventCounter[j*state.numOfSites + i]);
+    for (int j = 0; j < nAcceptors+nElectrodes; ++j) 
+    {
+        for (int i = 0; i <nAcceptors+nElectrodes; ++i) 
+        {
+            flattenedEventCounts[j*state.numOfSites + i] = state.eventCounter[j*state.numOfSites + i];
         }
+    }
+
+    for (int i = 0; i < state.numOfSites; ++i)
+    {
+        flattenedEnergies[i] = state.siteEnergies[i];
     }
 
     double total_time = state.stateTime;
 
-    cnpy::npz_save(deviceName, "acceptor_coordinates", flattenedAcceptorCoordinates.data(), shapeFlattenedAcceptorCoordinates, "a");
-    cnpy::npz_save(deviceName, "donor_coordinates", flattenedDonorCoordinates.data(), shapeFlattenedDonorCoordinates, "a");
-    cnpy::npz_save(deviceName, "electrode_coordinates", flattenedElectrodeCoordinates.data(), shapeFlattenedElectrodeCoordinates, "a");
-    cnpy::npz_save(deviceName, "event_counts", flattenedEventCounts.data(), shapeFlattenedEventCounts, "a");
-    cnpy::npz_save(deviceName, "device_time", &total_time, {1}, "a");
+    cnpy::npz_save(deviceName, "acc_xy", flattenedAcceptorCoordinates.data(), shapeFlattenedAcceptorCoordinates, "a");
+    cnpy::npz_save(deviceName, "don_xy", flattenedDonorCoordinates.data(), shapeFlattenedDonorCoordinates, "a");
+    cnpy::npz_save(deviceName, "ele_xy", flattenedElectrodeCoordinates.data(), shapeFlattenedElectrodeCoordinates, "a");
+    cnpy::npz_save(deviceName, "event_matrix", flattenedEventCounts.data(), shapeFlattenedEventCounts, "a");
+    cnpy::npz_save(deviceName, "energies", flattenedEnergies.data(), shapeFlattenedEnergies, "a");
+    cnpy::npz_save(deviceName, "sim_time", &total_time, {1}, "a");
 }
 
 double singleIVPoint(
@@ -327,7 +340,7 @@ void singleIVCurve(
                 totalTime += elapsedTime;
                 netEvents += inEvents-outEvents;
 
-                double Ii = static_cast<double>(inEvents-outEvents) / elapsedTime;
+                double Ii = e * static_cast<double>(inEvents-outEvents) / elapsedTime;
                 averagedCurrent += Ii*elapsedTime;
                 
                 /**

@@ -1,13 +1,9 @@
 #pragma once
 
-#include <iostream>
 #include <random>
 #include <cstdint>
 #include <cstring>
 #include <string>
-#include <filesystem>
-#include <algorithm>
-#include <numeric>
 #include <boost/program_options.hpp>
 
 #include "cnpy.h"

@@ -48,6 +48,7 @@ Configuration::Configuration(const ConfigurationParams& params, uint64_t seed)
 
     if (noDimension) {
         A0 = A0 / R;
+        a = a / R;
         radius = radius / R;
         electrodeWidth = electrodeWidth / R;
         minHopDistance = minHopDistance / R;

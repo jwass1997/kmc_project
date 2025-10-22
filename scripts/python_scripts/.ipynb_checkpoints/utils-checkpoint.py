@@ -96,9 +96,10 @@ def create_dopant_configuration(radius, n_a, n_d, name_a, name_d, mode, eps, sav
                     angles_don[j] = np.arctan2(sample[1], sample[0])
                     j += 1
                                 
-
-    np.savetxt(f"{save_dir}/{name_a}.txt", acc_pos, fmt="%.6f", delimiter="\t")
-    np.savetxt(f"{save_dir}/{name_d}.txt", don_pos, fmt="%.6f", delimiter="\t")
+    file_A = Path(save_dir) / f"{name_a}.txt"
+    file_D = Path(save_dir) / f"{name_d}.txt"
+    np.savetxt(f"{str(file_A)}", acc_pos, fmt="%.6f", delimiter="\t")
+    np.savetxt(f"{str(file_D)}", don_pos, fmt="%.6f", delimiter="\t")
 
     return angles_acc, angles_don, r_acc, r_don
 
