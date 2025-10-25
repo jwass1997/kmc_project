@@ -16,7 +16,7 @@ class NeuralNet(nn.Module):
         x_mean, x_std,
         y_mean, y_std,
         dropout_p: float = 0.2,
-        batch_norm: bool = False,
+        batch_norm: bool = True,
     ):
         super().__init__()
         self.layer_dims = layer_dims
@@ -44,6 +44,8 @@ class NeuralNet(nn.Module):
 
             if k < self.num_layers - 1:
                 layers.append(nn.ReLU())
+                if self.batch_norm:
+                    layers.append(nn.BatchNorm1d(out_dim))
                 if self.dropout_p > 0:
                     layers.append(nn.Dropout(self.dropout_p))
         return nn.Sequential(*layers)

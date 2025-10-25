@@ -146,7 +146,30 @@ def triangle_from_src_to_dst(src, dst, base_width):
     tip     = dst
     return np.vstack([p_left, p_right, tip])
 
-def current_distribution(ax, add_cbar, device_data):
+def log_scaling(v, eps):
+
+    positives = v > 0
+    v_positives = v[positives]
+    v_min = np.min(v_positives)
+    v_max = np.max(v_positives)
+
+    if eps is None:
+        eps = 1e-6 * v_max
+
+    a = np.log(v_min + eps)
+    b = np.log(v_max + eps)
+    denom = b - a
+
+    x = np.where(v + eps > 0.0, np.log(v + eps), -np.inf)
+
+    alpha = np.zeros_like(v, dtype=float)
+    alpha[positives] = (np.log(v[positives] + eps) - a) / denom
+
+    alpha = np.clip(alpha, 0.0, 1.0)
+    
+    return alpha
+
+def current_distribution(ax, add_cbar, device_data, alpha_cutoff):
     
     """ Load data"""
     events = device_data['event_matrix']
@@ -171,6 +194,7 @@ def current_distribution(ax, add_cbar, device_data):
     #print(events.sum())
 
     abs_current_normalized = abs_current / max_current
+    #abs_current_normalized = log_scaling(abs_current, None)
 
     acc_face_clr = (0, 0.6, 0, 1)
 
@@ -242,7 +266,8 @@ def current_distribution(ax, add_cbar, device_data):
     """ Plot currents between acceptors """
     for i in range(n_A):
         for j in range(n_A):
-            if abs_current_normalized[i, j] > 0.01:
+            a_val = abs_current_normalized[i, j]
+            if a_val > alpha_cutoff:
                 """ax.plot(
                     [acc_xy[i, 0], acc_xy[j, 0]],
                     [acc_xy[i, 1], acc_xy[j, 1]],
@@ -264,7 +289,7 @@ def current_distribution(ax, add_cbar, device_data):
                             closed=True,
                             facecolor='black',
                             edgecolor='none',
-                            alpha=float(abs_current_normalized[i, j]),
+                            alpha=a_val,#alpha=np.sqrt(a_val),
                             zorder=3
                         )
                     )
@@ -280,7 +305,7 @@ def current_distribution(ax, add_cbar, device_data):
                             closed=True,
                             facecolor='black',
                             edgecolor='none',
-                            alpha=float(abs_current_normalized[i, j]),
+                            alpha=a_val,#alpha=np.sqrt(a_val),
                             zorder=3
                         )
                     )

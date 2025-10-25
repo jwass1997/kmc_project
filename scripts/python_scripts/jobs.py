@@ -302,22 +302,22 @@ if __name__ == "__main__":
         SLURM_OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
     ) """
 
-    num_batches = 200
-    batch_size = 1_500
+    """ num_batches = 200
+    batch_size = 1_000
     b_list = [73, 74, 113, 114, 115, 116]
-    """ for i in range(200, 300):
+    for i in range(num_batches):
         time.sleep(0.1)
         slurm_batch_from_single_state(
             batch_size=batch_size,
             min_V=-1.5, max_V=1.5,
             output_idx=0,
-            eq_steps=10_000, sim_steps=10_000_000, num_of_tasks=100,
+            eq_steps=100_000, sim_steps=10_000_000, num_of_tasks=100,
             LHCSeed=np.random.randint(low=0, high=2**30 - 1), threadBaseSeed=np.random.randint(low=0, high=2**30 - 1),
-            cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/data/data_vMB/vMB_configs/config.txt"), 
-            acc_cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/data/data_vMB/vMB_configs/acceptors.txt"), 
-            don_cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/data/data_vMB/vMB_configs/donors.txt"), 
-            ele_cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/data/data_vMB/vMB_configs/electrodes.txt"),
-            save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/data_vMB_own_pde_solver"), 
+            cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/config.txt"), 
+            acc_cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/configs/radial_distribution.txt"), 
+            don_cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/donors.txt"), 
+            ele_cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/electrodes.txt"),
+            save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/data_radial_dist"), 
             file_name=f"batch_{i}",
             BINARY = Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"), 
             SH_SCRIPT =Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/batch_script.sh"), 
@@ -392,29 +392,30 @@ if __name__ == "__main__":
         SH_SCRIPT=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
         OUT_DIR=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
     ) """
-
-    """ slurm_single_IV(
+    c_indices = [2, 3, 4, 5, 6, 7]
+    c_volts = [-0.7733428091030262, -1.5, 1.5, 0.9196776659998821, -0.1257736685193547, -0.2709422061409364]
+    slurm_single_IV(
         numOfPoints=50,
         inputIdx=1,
         outputIdx=0,
         control_indices=c_indices,
-        control_volts=control_volts,
+        control_volts=c_volts,
         minVoltage=-1.5,
         maxVoltage=1.5,
         eq_steps=10_000,
-        sim_steps=10_000_000,
+        sim_steps=1_000_000,
         num_intervals=100,
         seed=np.random.randint(low=1, high=2**30),
-        cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/data_vMB/vMB_configs/config_0.txt"),
-        acc_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/data_vMB/vMB_configs/acceptors.txt"),
-        don_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/data_vMB/vMB_configs/donors.txt"),
-        ele_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/data_vMB/vMB_configs/electrodes.txt"),
-        save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/"),
-        file_name=Path(f"vMB_sim_444"),
+        cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/config.txt"),
+        acc_cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/configs/radial_distribution.txt"),
+        don_cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/donors_0.txt"),
+        ele_cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/electrodes.txt"),
+        save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/radial"),
+        file_name=Path(f"sim_0"),
         BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
         SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
         OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
-    ) """
+    )
 
     """ for n in noise_levels:
         seed = np.random.randint(low=1, high=2**15)
@@ -440,11 +441,11 @@ if __name__ == "__main__":
             SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
             OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
         ) """
-    volts = [0.0, 0.0, 0.2, 1.1, -0.5, -1, 0.5, 0.7]
-    slurm_single_device(
+    volts = [0.0, -1.0, 0.2, 1.1, -0.5, -1, 0.5, 0.7]
+    """ slurm_single_device(
         control_indices=[0, 1, 2, 3, 4, 5, 6, 7],
         control_volts = volts,#np.random.uniform(low=-1.5, high=1.5, size=8).tolist(),
-        eq_steps=10_000,
+        eq_steps=100_000,
         sim_steps=1_000_000,
         seed=np.random.randint(low=1, high=2**30),
         cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/config.txt"),
@@ -456,4 +457,21 @@ if __name__ == "__main__":
         BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
         SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/helix_single.sh"),
         OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
-    )
+    ) """
+
+    """ slurm_single_device(
+        control_indices=[0, 1, 2, 3, 4, 5, 6, 7],
+        control_volts = volts,#np.random.uniform(low=-1.5, high=1.5, size=8).tolist(),
+        eq_steps=100_000,
+        sim_steps=1_000_000,
+        seed=np.random.randint(low=1, high=2**30),
+        cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/config.txt"),
+        acc_cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/configs/radial_distribution.txt"),
+        don_cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/donors_0.txt"),
+        ele_cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/electrodes.txt"),
+        save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/device_sanpshots"),
+        file_name=Path(f"dist_device_0_v={volts[1]}_radial"),
+        BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
+        SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/helix_single.sh"),
+        OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
+    ) """

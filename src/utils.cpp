@@ -111,12 +111,14 @@ void singleRun(
     std::vector<double> flattenedElectrodeCoordinates(2*state.nElectrodes, 0.0);    
     std::vector<int> flattenedEventCounts(state.numOfSites*state.numOfSites, 0);
     std::vector<double> flattenedEnergies(state.numOfSites, 0.0);
+    std::vector<double> inputVoltages(nElectrodes, 0.0);
 
     std::vector<size_t> shapeFlattenedAcceptorCoordinates = {static_cast<size_t>(nAcceptors), 2};
     std::vector<size_t> shapeFlattenedDonorCoordinates = {static_cast<size_t>(nDonors), 2};
     std::vector<size_t> shapeFlattenedElectrodeCoordinates = {static_cast<size_t>(nElectrodes), 2};
     std::vector<size_t> shapeFlattenedEventCounts = {static_cast<size_t>(nAcceptors+nElectrodes), static_cast<size_t>(nAcceptors+nElectrodes)};
     std::vector<size_t> shapeFlattenedEnergies = {static_cast<size_t>(state.numOfSites)};
+    std::vector<size_t> shapeInputVoltages = {static_cast<size_t>(nElectrodes)};
 
     std::string deviceName = saveFolderPath + "/" + ID + ".npz";
     cnpy::npz_save(deviceName, "ID", &ID, {1}, "w"); 
@@ -158,6 +160,7 @@ void singleRun(
     cnpy::npz_save(deviceName, "event_matrix", flattenedEventCounts.data(), shapeFlattenedEventCounts, "a");
     cnpy::npz_save(deviceName, "energies", flattenedEnergies.data(), shapeFlattenedEnergies, "a");
     cnpy::npz_save(deviceName, "sim_time", &total_time, {1}, "a");
+    cnpy::npz_save(deviceName, "inputs", inputVoltages.data(), shapeInputVoltages, "a");
 }
 
 double singleIVPoint(
