@@ -357,3 +357,27 @@ def current_distribution(ax, add_cbar, device_data, alpha_cutoff):
     ax.axis('off')
     
     return ax, cbar
+
+def pred_vs_true(ax, y_pred, y_true, bins=140, use_log=True):
+
+    y_pred = np.asarray(y_pred).ravel()
+    y_true = np.asarray(y_true).ravel()
+
+    pad = 0.1
+    min_val = float(min(y_true.min(),y_pred.min())) + pad
+    max_val = float(max(y_true.max(),y_pred.max())) + pad
+
+    norm = LogNorm()
+    
+    _, _, _, im = ax.hist2d(y_pred, y_true, bins=bins, range=[[min_val, max_val], [min_val, max_val]], norm=norm, cmap="RdBu", zorder=5)
+    cax = fig.add_axes([ax.get_position().x1 + 0.05, ax.get_position().y0, 0.04, ax.get_position().height])
+    plt.colorbar(im, cax=cax)
+    #ax.scatter(y_pred, y_true, s=4, edgecolors="blue", facecolor=None)
+    ax.spines[:].set_linewidth(1.5)
+    ax.tick_params(which='major', direction='in', width=1.5)
+    ax.set_aspect('equal')
+    ax.grid(linestyle='--', c='w')
+    ax.set_facecolor('lightgray')
+
+    ax.set_xlabel(r'$I_{\mathrm{pred}}$ $[ \nu_0 e_0 ]$')
+    ax.set_ylabel(r'$I_{\mathrm{true}}$ $[ \nu_0 e_0 ]$')
