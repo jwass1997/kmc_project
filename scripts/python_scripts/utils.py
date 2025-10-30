@@ -12,6 +12,36 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from pathlib import Path
 
+def create_config(n_a, n_d, n_e,
+                  radius,
+                  nu_0, a, T,
+                  en_dis,
+                  ele_width, max_h, min_h,
+                  no_dim,
+                  Nr, Nt,
+                  name, save_dir):
+    
+    Path(save_dir).mkdir(exist_ok=True, parents=True)
+    path_to_save = Path(save_dir) / f"{name}.txt"
+
+    with path_to_save.open('w', encoding='utf-8', newline='\n') as f:
+        f.write(f'nAcceptors {n_a}\n')
+        f.write(f'nDonors {n_d}\n')
+        f.write(f'nElectrodes {n_e}\n')
+        f.write(f'radius {radius}\n')
+        f.write(f'nu0 {nu_0}\n')
+        f.write(f'a {a}\n')
+        f.write(f'T {T}\n')
+        f.write(f'energyDisorder {en_dis}\n')
+        f.write(f'electrodeWidth {ele_width}\n')
+        f.write(f'minHopDistance {min_h}\n')
+        f.write(f'maxHopDistance {max_h}\n')
+        f.write(f'noDimension {no_dim}\n')
+        f.write(f'Nr {Nr}\n')
+        f.write(f'Nt {Nt}\n')       
+
+
+
 def create_dopant_configuration(radius, n_a, n_d, name_a, name_d, mode, eps, save_dir):
 
     acc_pos, don_pos = np.zeros((n_a, 2)), np.zeros((n_d, 2))
@@ -243,12 +273,13 @@ def current_distribution(ax, add_cbar, device_data, alpha_cutoff):
                 theta1=th[i]-th_width,
                 theta2=th[i]+th_width,
                 width = 0.4,
-                zorder=5
+                zorder=5,
             )
         )
         
-    for arc in arcs:
+    for i, arc in enumerate(arcs):
         ax.add_patch(arc)
+        #ax.text(x=(radius + 0.4)*np.cos(th[i]), y=(radius + 0.4)*np.sin(th[i]), s=rf'$V_{i}$')
         
     """ Acceptor and donors """
     node_radius = 0.13
@@ -319,6 +350,7 @@ def current_distribution(ax, add_cbar, device_data, alpha_cutoff):
         cax = divider.append_axes('right', size='5%', pad=0.3)
         fig = ax.figure
         cbar = fig.colorbar(sm, cax=cax)
+        cbar.set_label(f'$E / k_b T$')
     
     ax.set_xlim(-radius - 0.5, radius + 0.5)
     ax.set_ylim(-radius - 0.5, radius + 0.5)
