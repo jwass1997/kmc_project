@@ -1,3 +1,4 @@
+import torch
 import numpy as np
 import os
 import time
@@ -5,6 +6,7 @@ import subprocess
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as ps
+from matplotlib.colors import LogNorm
 from visualize_hops import visualize_current, current_snapshot
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.cm import ScalarMappable
@@ -358,26 +360,50 @@ def current_distribution(ax, add_cbar, device_data, alpha_cutoff):
     
     return ax, cbar
 
-def pred_vs_true(ax, y_pred, y_true, bins=140, use_log=True):
+def pred_vs_true(ax, test_input, test_target, model, bins=140, use_log=True):
+
+    test_input = test_input.to('cpu')
+    y_true = test_target
+
+    model = model.to('cpu')
+    model.eval()
+    with torch.no_grad():
+        y_pred = model(test_input).detach().cpu()
+
+    #y_pred = y_pred * model.y_std.numpy() + model.y_mean.numpy()
 
     y_pred = np.asarray(y_pred).ravel()
     y_true = np.asarray(y_true).ravel()
 
     pad = 0.1
-    min_val = float(min(y_true.min(),y_pred.min())) + pad
-    max_val = float(max(y_true.max(),y_pred.max())) + pad
+    lo = min(y_pred.min(), y_true.min())
+    hi = max(y_pred.max(), y_true.max())
+    plot_range=[[lo, hi], [lo, hi]]
 
-    norm = LogNorm()
+    ax.set_xlim(lo, hi)
+    ax.set_ylim(lo, hi)
+
+    x_ticks = ax.get_xticks()
+    ax.set_yticks(x_ticks)
     
-    _, _, _, im = ax.hist2d(y_pred, y_true, bins=bins, range=[[min_val, max_val], [min_val, max_val]], norm=norm, cmap="RdBu", zorder=5)
-    cax = fig.add_axes([ax.get_position().x1 + 0.05, ax.get_position().y0, 0.04, ax.get_position().height])
+    norm = LogNorm()
+
+    #im = ax.hexbin(y_pred, y_true, bins=bins, gridsize=50, norm=norm, cmap="RdBu", zorder=5)
+    _, _, _, im = ax.hist2d(y_pred, y_true, bins=bins, range=plot_range, norm=norm, cmap="RdBu", zorder=5)
+    ax.plot([lo, hi], [lo, hi], linestyle='--', linewidth=2, color='k', alpha=0.7, zorder=6)
+
+    fig = ax.figure
+    cax = fig.add_axes([ax.get_position().x1 - 0.05, ax.get_position().y0, 0.04, ax.get_position().height])
     plt.colorbar(im, cax=cax)
     #ax.scatter(y_pred, y_true, s=4, edgecolors="blue", facecolor=None)
     ax.spines[:].set_linewidth(1.5)
     ax.tick_params(which='major', direction='in', width=1.5)
-    ax.set_aspect('equal')
     ax.grid(linestyle='--', c='w')
     ax.set_facecolor('lightgray')
 
     ax.set_xlabel(r'$I_{\mathrm{pred}}$ $[ \nu_0 e_0 ]$')
     ax.set_ylabel(r'$I_{\mathrm{true}}$ $[ \nu_0 e_0 ]$')
+
+    ax.set_aspect('equal', adjustable='box')
+
+    return ax

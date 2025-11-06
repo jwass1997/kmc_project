@@ -46,15 +46,20 @@ class MakeDataset(Dataset):
             return x
         return x, self.y[idx]
     
-def create_data_loaders(data_dir, num_batches, batch_size, eps=1e-8, train_size=0.8, test_size=0.2, random_state=42, num_workers=4):
+def create_data_loaders(data_dir, output_idx, num_batches, batch_size, eps=1e-8, train_size=0.8, test_size=0.2, random_state=42, num_workers=4):
 
     input_list = []
     output_list = []
 
     for i in range(num_batches):
         batch = np.load(data_dir/f"batch_{i}.npz")
-        _input = batch["inputs"]
-        _output = batch["currents"]
+        _input = batch['inputs']
+        
+        if batch['currents'].ndim != 1:
+            _output = batch["currents"][:, output_idx]
+        else:
+            _output = batch['currents']
+            
         input_list.append(_input)
         output_list.append(_output)
 
@@ -87,6 +92,68 @@ def create_data_loaders(data_dir, num_batches, batch_size, eps=1e-8, train_size=
     test_loader  = DataLoader(test_set,  batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=True, prefetch_factor=4)
 
     return train_loader, test_loader, X_train_mean, X_train_std, y_train_mean, y_train_std
+
+def train_val_test_loaders(data_dir, output_idx, num_batches, batch_size, eps=1e-8, train_size=0.8, val_size=0.1, test_size=0.1, random_state=42, num_workers=2):
+
+    assert (train_size + val_size + test_size == 1.0)
+    
+    input_list = []
+    output_list = []
+
+    for i in range(num_batches):
+        batch = np.load(data_dir/f"batch_{i}.npz")
+        _input = batch['inputs']
+        
+        if batch['currents'].ndim != 1:
+            _output = batch["currents"][:, output_idx]
+        else:
+            _output = batch['currents']
+            
+        input_list.append(_input)
+        output_list.append(_output)
+
+    raw_inputs = np.concatenate(input_list)
+    outputs = np.concatenate(output_list)
+    inputs = raw_inputs[:, [i for i in range(raw_inputs.shape[1]) if i != output_idx]]
+    len_dataset = inputs.shape[0]
+
+    X_train, X_, y_train, y_ = train_test_split(
+        inputs, 
+        outputs, 
+        test_size=val_size+test_size, 
+        random_state=random_state, 
+        shuffle=True
+    )
+
+    X_train_mean = X_train.mean(0)
+    X_train_std = X_train.std(0) + eps
+
+    y_train_mean = y_train.mean(0)
+    y_train_std = y_train.std(0) + eps
+
+    X_val = X_[:int(val_size*len_dataset), ...]
+    y_val = y_[:int(val_size*len_dataset)]
+
+    X_test = X_[int(val_size*len_dataset):, ...]
+    y_test = y_[int(val_size*len_dataset):]
+    
+    train_set = MakeDataset(X_train, y_train)
+    val_set = MakeDataset(X_val, y_val)
+
+    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=True, prefetch_factor=4)
+    val_loader  = DataLoader(val_set, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=True, prefetch_factor=4)
+
+    out_dict = {
+        'train_loader': train_loader,
+        'val_loader': val_loader,
+        'test_set': (torch.from_numpy(X_test).float(), torch.from_numpy(y_test).float()),
+        'X_train_mean': X_train_mean,
+        'X_train_std': X_train_std,
+        'y_train_mean': y_train_mean,
+        'y_train_std': y_train_std
+    }
+
+    return out_dict
 
 def train_sm(model, criterion, optimizer, args, device, train_loader, test_loader, print_every=100):
 

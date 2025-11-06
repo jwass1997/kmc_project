@@ -32,7 +32,7 @@ Configuration::Configuration(const ConfigurationParams& params, uint64_t seed)
 
     kbT = kb*T;
 
-    energyDisorder = params.energyDisorder;
+    energyDisorder = params.energyDisorder * e / (kb*T);
 
     electrodeWidth = params.electrodeWidth;
     minHopDistance = params.minHopDistance;

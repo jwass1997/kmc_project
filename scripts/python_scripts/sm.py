@@ -43,11 +43,12 @@ class NeuralNet(nn.Module):
             layers.append(nn.Linear(in_dim, out_dim, bias=True))
 
             if k < self.num_layers - 1:
-                layers.append(nn.ReLU())
-                if self.batch_norm:
-                    layers.append(nn.BatchNorm1d(out_dim))
                 if self.dropout_p > 0:
                     layers.append(nn.Dropout(self.dropout_p))
+                if self.batch_norm:
+                    layers.append(nn.BatchNorm1d(out_dim))
+                layers.append(nn.ReLU())
+                
         return nn.Sequential(*layers)
 
     def _reset_parameters(self):
@@ -58,7 +59,7 @@ class NeuralNet(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
 
-        x = (x - self.x_mean) / self.x_std
+        #x = (x - self.x_mean) / self.x_std
         return self.model(x)
 
 class LearnableActivationFunc(nn.Module):

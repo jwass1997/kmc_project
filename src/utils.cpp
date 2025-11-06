@@ -420,7 +420,7 @@ void batchFromSingleState(
     std::vector<double> currentSem(batchSize, 0.0);
     std::vector<size_t> currentSemShape = {static_cast<size_t>(batchSize)};
 
-    /* Input 8D (8 electrode voltages with input_electrode set to ground) */
+    /* Input 8D (8 inputs voltages with output set to ground) */
     std::vector<double> inputData(batchSize*config.nElectrodes, 0.0);
     std::vector<size_t> inputDataShape = {static_cast<size_t>(batchSize), static_cast<size_t>(config.nElectrodes)};
     /* LHC sampled voltages */
@@ -671,6 +671,7 @@ void batchOfMultipleStates(
 
             /* Configuring state and simulator */
             std::vector<double> voltages = samples[_p];
+            voltages[outputIdx] = 0.0;
 
             ConfigurationParams params;
             params.nAcceptors = nAcceptors;
@@ -801,7 +802,8 @@ void batchOfMultipleStates(
         }
     }
     /* Input-Output */
-    cnpy::npz_save(file, "currents", currentData.data(), currentDataShape, "w");
+    cnpy::npz_save(file, "out_idx", &outputIdx, {1}, "w");
+    cnpy::npz_save(file, "currents", currentData.data(), currentDataShape, "a");
     cnpy::npz_save(file, "inputs", inputData.data(), inputDataShape, "a");
     cnpy::npz_save(file, "sampleStd", currentStd.data(), currentStdShape, "a");
     cnpy::npz_save(file, "sem", currentSem.data(), currentSemShape, "a");
