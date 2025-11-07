@@ -53,6 +53,7 @@ add_executable(kmc_project ${SOURCES})
 target_include_directories(kmc_project PRIVATE
     ${PROJECT_ROOT}/include
     ${EXTERNAL_ROOT}/include
+    ${PROJECT_ROOT}/external/eigen-3.4.0
     ${Boost_INCLUDE_DIRS}
     ${ZLIB_INCLUDE_DIRS} 
 )

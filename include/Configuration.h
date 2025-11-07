@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <random>
+#include <vector>
 
 #include "utils.h"
 
@@ -39,6 +40,9 @@ struct ConfigurationParams {
     };
 
     std::string distType = "uniform";
+
+    std::vector<double> means;
+    std::vector<double> stds;
 };
 
 class Configuration {

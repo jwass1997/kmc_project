@@ -4,7 +4,7 @@
 # compile CXX with /gpfs/bwfor/software/common/compiler/gnu/14.1.0/bin/g++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/hd/hd_hd/hd_gy283/kmc_project/include -I/home/hd/hd_hd/hd_gy283/kmc_project/../local/include -I/opt/bwhpc/common/lib/boost/1.80.0/include
+CXX_INCLUDES = -I/home/hd/hd_hd/hd_gy283/kmc_project/include -I/home/hd/hd_hd/hd_gy283/kmc_project/../local/include -I/home/hd/hd_hd/hd_gy283/kmc_project/external/eigen-3.4.0 -I/opt/bwhpc/common/lib/boost/1.80.0/include
 
 CXX_FLAGS = -std=gnu++17 -Ofast -fopenmp -fopenmp
 
