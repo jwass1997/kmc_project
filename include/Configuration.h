@@ -6,6 +6,13 @@
 
 #include "utils.h"
 
+bool subset_connected (
+    std::vector<double>& subset_coordinates, 
+    std::vector<double>& coordinates,
+    double min_dist,
+    double max_distance
+);
+
 struct ConfigurationParams {
 
     int nAcceptors = 200;
@@ -40,9 +47,6 @@ struct ConfigurationParams {
     };
 
     std::string distType = "uniform";
-
-    std::vector<double> means;
-    std::vector<double> stds;
 };
 
 class Configuration {

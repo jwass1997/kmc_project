@@ -1,10 +1,16 @@
 #pragma once
 
+#include <array>
+#include <cwchar>
+#include <linux/limits.h>
 #include <random>
 #include <cstdint>
 #include <cstring>
+#include <stdexcept>
 #include <string>
 #include <boost/program_options.hpp>
+#include <vector>
+#include <cmath>
 
 #include "cnpy.h"
 
@@ -14,6 +20,127 @@ class State;
 struct Electrode {
     double angularPosition;
     double voltage;
+};
+
+struct Gaussian2D {
+    double mx, my; 
+    double sxy, sxx, syy;
+
+    double det;
+    double inv00, inv01, inv10, inv11;
+    double norm_const;
+
+    Gaussian2D(double mx, double my, double sxy, double sxx, double syy) 
+    : mx(mx)
+    , my(my)
+    , sxy(sxy)
+    , sxx(sxx)
+    , syy(syy)
+    {
+        det = sxx * syy - sxy * sxy;
+
+        if (det <= 0.0) 
+        {
+            throw std::runtime_error("Covariance is not not positive definite.");
+        }
+            
+        inv00 = syy / det;
+        inv01 = -sxy  / det;
+        inv10 = -sxy / det;
+        inv11 = sxx / det;
+
+        norm_const = 1.0 / (2.0*M_PI * std::sqrt(det));
+    }
+
+    std::array<double, 2> sample (std::mt19937 &rng) const{
+        thread_local std::normal_distribution<double> normal_dist_1D(0.0, 1.0);
+
+        double a = sxx;
+        double b = sxy;
+        double c = syy;
+
+        double l11 = std::sqrt(a);
+
+        if (l11 <= 0.0)
+        {
+            throw std::runtime_error("Cholesky failed: non-SPD covariance");
+        }
+        
+        double l21 = b / l11;
+        double t = c - l21 * l21;
+
+        if (t <= 0.0)
+        {
+            throw std::runtime_error("Cholesky failed: non-SPD covariance.");
+        }
+        
+        double l22 = std::sqrt(t);
+
+        double z1 = normal_dist_1D(rng);
+        double z2 = normal_dist_1D(rng);
+
+        double x = mx + l11*z1;
+        double y = my + l21*z1 + l22*z2;
+
+        return {x, y};
+    }
+};
+
+struct GaussianMixture2D {
+
+    std::vector<Gaussian2D> components;
+    std::vector<double> cum_weights;
+
+    GaussianMixture2D (const std::vector<Gaussian2D> &components, const std::vector<double> &weights)
+    :
+    components(components)
+    {
+        if (components.empty() || weights.size() != components.size())
+        {
+            throw std::runtime_error("Mismatch between components and weight sizes or empty components.");
+        }
+
+        double sum = 0.0;
+        for (auto w : weights)
+        {
+            sum += w;
+        }
+
+        if (sum <= 0)
+        {
+            throw std::runtime_error("Sum of weights must be positive.");
+        }
+
+        cum_weights.reserve(weights.size());
+        double w_sum = 0.0;
+        for (auto w : weights) 
+        {
+            w_sum += w / sum;
+            cum_weights.push_back(w_sum);
+        }
+
+        cum_weights.back() = 1.0;
+    }
+
+    static std::mt19937 &thread_rng () {
+        thread_local std::mt19937 rng{std::random_device{}()};
+        return rng;
+    }
+
+    std::array<double, 2> sample () const {
+        auto &rng = thread_rng();
+
+        std::uniform_real_distribution<double> uni_01(0.0, 1.0);
+        double u = uni_01(rng);
+
+        int k = 0;
+        while (k + 1 < cum_weights.size() && u > cum_weights[k])
+        {
+            ++k;
+        }
+
+        return components[k].sample(rng);
+    }
 };
 
 inline constexpr double kb = 1.380649e-23;

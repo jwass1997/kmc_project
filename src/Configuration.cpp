@@ -3,18 +3,103 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <array>
 #include <algorithm>
 #include <filesystem>
 #include <chrono>
 #include <cmath>
+#include <queue>
 
 #include "Configuration.h"
+
+bool subset_connected(
+    std::vector<double> &subset_coords, 
+    std::vector<double> &coords, 
+    double min_dist, 
+    double max_dist)
+    {
+        const int N_main = static_cast<int>(coords.size() / 2);
+        const int N_subset = static_cast<int>(subset_coords.size() / 2);
+
+        if (N_subset <= 1) 
+        {
+            return true;
+        }
+
+        std::vector<double> nodes;
+        nodes.reserve(coords.size() + subset_coords.size());
+        nodes.insert(nodes.end(), coords.begin(), coords.end());
+        nodes.insert(nodes.end(), subset_coords.begin(), subset_coords.end());
+
+        const int total_points = static_cast<int>(nodes.size() / 2);
+        const int subset_start = N_main;
+        const int subset_end = N_main + N_subset;
+
+        const double mind2 = min_dist * min_dist;
+        const double maxd2 = max_dist * max_dist;
+
+        std::vector<std::vector<int>> adj(total_points);
+
+
+        for (int i = 0; i < total_points; ++i)
+        {   
+            double x_i = nodes[2*i];
+            double y_i = nodes[2*i+1];
+
+            for (int j = i+1; j < total_points; ++j)
+            {
+                double dx = x_i - nodes[2*j];
+                double dy = y_i - nodes[2*j+1];
+
+                double dist2 = dx*dx + dy*dy;
+                
+                if (dist2 >= mind2 && dist2 <= maxd2)
+                {
+                    adj[i].push_back(j);
+                    adj[j].push_back(i);
+                }
+            }
+        }
+
+        std::vector<bool> visited(total_points, false);
+        std::queue<int> q;
+
+        int start = subset_start;
+        visited[start] = true;
+        q.push(start);
+
+        while (!q.empty())
+        {
+            int u = q.front();
+            q.pop();
+
+            for (int v : adj[u])
+            {
+                if (!visited[v])
+                {
+                    visited[v] = true;
+                    q.push(v);
+                }
+            }
+        }
+
+        for (int idx = subset_start; idx <  subset_end; ++idx)
+        {
+            if (!visited[idx])
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
 Configuration::Configuration(const ConfigurationParams& params, uint64_t seed)
     : _rng(seed)
 {
 
-    if (params.nElectrodes != params.electrodeData.size()) {
+    if (params.nElectrodes != params.electrodeData.size()) 
+    {
         throw std::invalid_argument("[Configuration]: electrodeData.size() is not equal to nElectrodes");
     }
 
@@ -57,16 +142,29 @@ Configuration::Configuration(const ConfigurationParams& params, uint64_t seed)
 
     distType = params.distType;
 
-    if (distType == "uniform") {
+    electrodeData = params.electrodeData;
+    electrodeCoords.reserve(2*nElectrodes);
+    for (const auto& el : electrodeData) 
+    {
+        double phi = (2.0 * M_PI * el.angularPosition) / 360.0;
+        double x = radius * std::cos(phi);
+        double y = radius * std::sin(phi);
+        electrodeCoords.push_back(x);
+        electrodeCoords.push_back(y);
+    }
 
-        for (int i = 0; i < nAcceptors; ++i) {
+    if (distType == "uniform") 
+    {
+        for (int i = 0; i < nAcceptors; ++i) 
+        {
             double randomPhi = 2.0*M_PI*uniform01();
             double randomR = radius*std::sqrt(uniform01());
             acceptorCoords.push_back(randomR*std::cos(randomPhi));
             acceptorCoords.push_back(randomR*std::sin(randomPhi));
         }
 
-        for (int i = 0; i < nDonors; ++i) {
+        for (int i = 0; i < nDonors; ++i) 
+        {
             double randomPhi = 2.0*M_PI*uniform01();
             double randomR = radius*std::sqrt(uniform01());
             donorCoords.push_back(randomR*std::cos(randomPhi));
@@ -74,14 +172,64 @@ Configuration::Configuration(const ConfigurationParams& params, uint64_t seed)
         }
     }
 
-    electrodeData = params.electrodeData;
-    electrodeCoords.reserve(2*nElectrodes);
-    for (const auto& el : electrodeData) {
-        double phi = (2.0 * M_PI * el.angularPosition) / 360.0;
-        double x = radius * std::cos(phi);
-        double y = radius * std::sin(phi);
-        electrodeCoords.push_back(x);
-        electrodeCoords.push_back(y);
+    if (distType == "gaussian_mixture")
+    {
+        double std_min = radius / 3.0;
+        double std_max = radius / 2.0;
+
+        int num_components = 3;
+
+        std::vector<Gaussian2D> mixture_components;
+        std::vector<double> component_weights;
+
+        for (int i = 0; i < num_components; ++i)
+        {
+            double comp_weight = uniform01();
+            component_weights.push_back(comp_weight);
+
+            double randomPhi = 2.0*M_PI*uniform01();
+            double randomR = radius * std::sqrt(uniform01());
+
+            double mx = randomR*std::cos(randomPhi);
+            double my = randomR*std::sin(randomPhi);
+
+            double log_bound_min = 2.0 * std::log(std_min);
+            double log_bound_max = 2.0 * std::log(std_max);
+
+            double log_var = (log_bound_max - log_bound_min) * uniform01() + log_bound_min;
+            double var = std::exp(log_var);
+
+            mixture_components.push_back(Gaussian2D(mx, my, 0.0, var, var));
+        }
+
+        GaussianMixture2D gaussian_mixture(mixture_components, component_weights);
+
+        bool connected_electrodes = false;
+        while (!connected_electrodes)
+        {
+            acceptorCoords.clear();
+            acceptorCoords.reserve(2*nAcceptors);
+
+            for (int j = 0; j < nAcceptors; ++j)
+            {
+                std::array<double, 2> coords = gaussian_mixture.sample();
+                if (coords[0]*coords[0] + coords[1]*coords[1] <= radius*radius)
+                {
+                    acceptorCoords.push_back(coords[0]);
+                    acceptorCoords.push_back(coords[1]);
+                }
+            }
+
+            connected_electrodes = subset_connected(electrodeCoords, acceptorCoords, minHopDistance, maxHopDistance);
+        }
+
+        for (int k = 0; k < nDonors; ++k) 
+        {
+            double randomPhi = 2.0*M_PI*uniform01();
+            double randomR = radius*std::sqrt(uniform01());
+            donorCoords.push_back(randomR*std::cos(randomPhi));
+            donorCoords.push_back(randomR*std::sin(randomPhi));
+        }
     }
 }
 

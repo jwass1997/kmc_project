@@ -270,9 +270,9 @@ if __name__ == "__main__":
     BINARY = ROOT / "build" / "kmc_project"
     SH_SCRIPT = ROOT / "scripts" / "slurm" / "single_curve.sh"
 
-    """ for i in range(200):
+    for i in range(1):
         slurm_batch_of_independant_states(
-            batch_size=1000,
+            batch_size=100,
             min_V=-1.5,
             max_V=1.5,
             n_acceptors=200,
@@ -288,24 +288,23 @@ if __name__ == "__main__":
             max_hop_distance=60.0,
             Nr=257,
             Nt=1440,
-            dist_type="uniform",
+            dist_type="gaussian_mixture",
             output_idx=0,
             eq_steps=10_000,
             sim_steps=1_000_000,
             num_of_tasks=100,
             LHCSeed=np.random.randint(low=0, high=2**31),
             threadBaseSeed=np.random.randint(low=0, high=2**31),
-            save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/data_uni_samples_1e6"),
+            save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/data_gmm"),
             file_name=f"batch_{i}",
             BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
             SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/batch_script.sh"),
             SLURM_OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
-        ) """
+        )
 
-    """ num_batches = 200
+    num_batches = 200
     batch_size = 1_000
-    b_list = [73, 74, 113, 114, 115, 116]
-    for i in range(num_batches):
+    """ for i in range(num_batches):
         time.sleep(0.1)
         slurm_batch_from_single_state(
             batch_size=batch_size,
@@ -314,7 +313,7 @@ if __name__ == "__main__":
             eq_steps=100_000, sim_steps=10_000_000, num_of_tasks=100,
             LHCSeed=np.random.randint(low=0, high=2**30 - 1), threadBaseSeed=np.random.randint(low=0, high=2**30 - 1),
             cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/config.txt"), 
-            acc_cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/configs/radial_distribution.txt"), 
+            acc_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/gm_configs/batch_0/gm_cfg_{idx}.txt"), 
             don_cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/donors.txt"), 
             ele_cfg=Path("/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/electrodes.txt"),
             save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/data_radial_dist"), 
@@ -347,7 +346,7 @@ if __name__ == "__main__":
     #control_volts = np.random.uniform(low=-1.5, high=1.5, size=len(c_indices)).tolist()#[0.2, 1.1, -0.5, -1, 0.5, 0.7]
     control_volts = [0.2, 1.1, -0.5, -1, 0.5, 0.7]
 
-    slurm_single_IV(
+    """ slurm_single_IV(
         numOfPoints=100,
         inputIdx=1,
         outputIdx=0,
@@ -368,7 +367,7 @@ if __name__ == "__main__":
         BINARY=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
         SH_SCRIPT=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
         OUT_DIR=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
-    )
+    ) """
     c_indices = [2, 3, 4, 5, 6, 7]
     c_volts = [-1.1192982948659904, 0.11237314251492486, -0.5453210281976734, -0.3224823080683447, 1.5, 0.860979202982826]
     """ slurm_single_IV(

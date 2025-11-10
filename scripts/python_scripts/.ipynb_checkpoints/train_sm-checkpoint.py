@@ -93,7 +93,7 @@ def create_data_loaders(data_dir, output_idx, num_batches, batch_size, eps=1e-8,
 
     return train_loader, test_loader, X_train_mean, X_train_std, y_train_mean, y_train_std
 
-def train_val_test_loaders(data_dir, output_idx, num_batches, batch_size, eps=1e-8, train_size=0.8, val_size=0.1, test_size=0.1, random_state=42, num_workers=2):
+def train_val_test_loaders(data_dir, output_idx, num_batches, batch_size, eps=1e-8, train_size=0.8, val_size=0.1, test_size=0.1, noise_level=0.01, random_state=42, num_workers=2):
 
     assert (train_size + val_size + test_size == 1.0)
     
@@ -127,6 +127,11 @@ def train_val_test_loaders(data_dir, output_idx, num_batches, batch_size, eps=1e
 
     X_train_mean = X_train.mean(0)
     X_train_std = X_train.std(0) + eps
+
+    if noise_level is not None and noise_level > 0.0:
+        noise = np.random.normal(loc=0.0, scale=noise_level, size=X_train.shape)
+        X_train = X_train + noise
+        print('Added noise to train data')
 
     y_train_mean = y_train.mean(0)
     y_train_std = y_train.std(0) + eps
