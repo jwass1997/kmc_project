@@ -90,6 +90,7 @@ struct GaussianMixture2D {
 
     std::vector<Gaussian2D> components;
     std::vector<double> cum_weights;
+    std::vector<double> normalized_weights;
 
     GaussianMixture2D (const std::vector<Gaussian2D> &components, const std::vector<double> &weights)
     :
@@ -117,6 +118,7 @@ struct GaussianMixture2D {
         {
             w_sum += w / sum;
             cum_weights.push_back(w_sum);
+            normalized_weights.push_back(w / sum);
         }
 
         cum_weights.back() = 1.0;
@@ -273,7 +275,7 @@ void batchOfMultipleStates(
     double electrodeWidth,
     double minHopDistance, double maxHopDistance,
     int Nr, int Nt,
-    std::string distType,
+    std::string distType, int n_comps,
     int inputIdx, int outputIdx,
     int eqSteps, int simSteps, int numOfTasks,
     int LHCSeed, int threadBaseSeed,

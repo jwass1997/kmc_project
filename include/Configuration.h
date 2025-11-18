@@ -6,11 +6,21 @@
 
 #include "utils.h"
 
-bool subset_connected (
-    std::vector<double>& subset_coordinates, 
-    std::vector<double>& coordinates,
-    double min_dist,
-    double max_distance
+bool subset_connected(
+    std::vector<double> &subset_coords, 
+    std::vector<double> &coords, 
+    double min_dist, 
+    double max_dist
+);
+
+std::vector<double> gm_rej_sampling(
+    int num_samples, 
+    double radius,
+    double min_distance,
+    double max_distance,
+    GaussianMixture2D& gaussian_mixture,
+    std::vector<double>& subset_nodes,
+    const int max_attempts
 );
 
 struct ConfigurationParams {
@@ -47,6 +57,15 @@ struct ConfigurationParams {
     };
 
     std::string distType = "uniform";
+
+    int n_comps;
+
+    std::vector<double> var11;
+    std::vector<double> var22;
+    std::vector<double> var12;
+    std::vector<double> m1;
+    std::vector<double> m2;
+    std::vector<double> normalized_weights;
 };
 
 class Configuration {
@@ -56,7 +75,7 @@ class Configuration {
         Configuration() = delete;
 
         Configuration(
-            const ConfigurationParams& params,
+            ConfigurationParams& params,
             uint64_t seed      
         );
 

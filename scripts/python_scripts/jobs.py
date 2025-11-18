@@ -203,6 +203,7 @@ def slurm_batch_of_independant_states(
         Nr,
         Nt,
         dist_type,
+        n_comps,
         output_idx,
         eq_steps,
         sim_steps,
@@ -245,6 +246,7 @@ def slurm_batch_of_independant_states(
         f"--Nr={Nr}",
         f"--Nt={Nt}",
         f"--distType={dist_type}",
+        f"--n_comps={n_comps}",
         f"--outputIdx={output_idx}",
         f"--eqSteps={eq_steps}",
         f"--simSteps={sim_steps}",
@@ -270,9 +272,10 @@ if __name__ == "__main__":
     BINARY = ROOT / "build" / "kmc_project"
     SH_SCRIPT = ROOT / "scripts" / "slurm" / "single_curve.sh"
 
-    for i in range(1):
+    for i in range(200):
+        time.sleep(0.1)
         slurm_batch_of_independant_states(
-            batch_size=100,
+            batch_size=1000,
             min_V=-1.5,
             max_V=1.5,
             n_acceptors=200,
@@ -289,13 +292,14 @@ if __name__ == "__main__":
             Nr=257,
             Nt=1440,
             dist_type="gaussian_mixture",
+            n_comps=8,
             output_idx=0,
             eq_steps=10_000,
             sim_steps=1_000_000,
             num_of_tasks=100,
             LHCSeed=np.random.randint(low=0, high=2**31),
             threadBaseSeed=np.random.randint(low=0, high=2**31),
-            save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/data_gmm"),
+            save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/data_gmm_params"),
             file_name=f"batch_{i}",
             BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
             SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/batch_script.sh"),

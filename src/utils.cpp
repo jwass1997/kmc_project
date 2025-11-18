@@ -590,7 +590,7 @@ void batchOfMultipleStates(
     double electrodeWidth,
     double minHopDistance, double maxHopDistance,
     int Nr, int Nt,
-    std::string distType,
+    std::string distType, int n_comps,
     int outputIdx,
     int eqSteps, int simSteps, int numOfTasks,
     int LHCSeed, int threadBaseSeed,
@@ -654,6 +654,14 @@ void batchOfMultipleStates(
     std::vector<int> adjMat(batchSize * numOfSites * numOfSites, 0);
     std::vector<size_t> adjMatShape = {size_t(batchSize), size_t(numOfSites), size_t(numOfSites)};
 
+    /* Disttribution params */
+    std::vector<double> variances(batchSize*3*n_comps, 0.0);
+    std::vector<size_t> variances_shape = {static_cast<size_t>(batchSize), static_cast<size_t>(n_comps), 3};
+    std::vector<double> means(batchSize*2*n_comps, 0.0);
+    std::vector<size_t> means_shape = {static_cast<size_t>(batchSize), static_cast<size_t>(n_comps), 2};
+    std::vector<double> normalized_weights(batchSize*n_comps, 0.0);
+    std::vector<size_t> normalized_weights_shape = {static_cast<size_t>(batchSize), static_cast<size_t>(n_comps)};
+
     #pragma omp parallel
     {
         int threadID = omp_get_thread_num();
@@ -688,6 +696,7 @@ void batchOfMultipleStates(
             params.Nr = Nr;
             params.Nt = Nt;
             params.distType = distType;
+            params.n_comps = n_comps;
 
             uint64_t cfgSeed = mix(
                 stateSeed ^ 0x94D049BB133111EBULL                
@@ -799,27 +808,50 @@ void batchOfMultipleStates(
             {
                 inputData[k + _p*nElectrodes] = voltages[k];
             }
+
+            if (distType == "gaussian_mixture")
+            {   
+                for (int l = 0; l < n_comps; ++l)
+                {
+                    variances[(_p*n_comps + l) * 3] = params.var11[l];
+                    variances[(_p*n_comps + l) * 3 + 1] = params.var22[l];
+                    variances[(_p*n_comps + l) * 3 + 2] = params.var12[l];
+
+                    means[(_p*n_comps + l) * 2] = params.m1[l];
+                    means[(_p*n_comps + l) * 2 + 1] = params.m2[l];
+
+                    normalized_weights[_p*n_comps + l] = params.normalized_weights[l];
+                }
+            }
         }
     }
-    /* Input-Output */
+    /* input-output */
     cnpy::npz_save(file, "out_idx", &outputIdx, {1}, "w");
     cnpy::npz_save(file, "currents", currentData.data(), currentDataShape, "a");
     cnpy::npz_save(file, "inputs", inputData.data(), inputDataShape, "a");
     cnpy::npz_save(file, "sampleStd", currentStd.data(), currentStdShape, "a");
     cnpy::npz_save(file, "sem", currentSem.data(), currentSemShape, "a");
 
-    /* Coords */
+    /* coords */
     cnpy::npz_save(file, "acc_xy", accCoords.data(), accCoordsShape, "a");
     cnpy::npz_save(file, "don_xy", donCoords.data(), donCoordsShape, "a");
     
-    /* Initial Energies and Single Energy contributions */
+    /* initial energies and single energy contributions */
     cnpy::npz_save(file, "init_en", initEn.data(), initEnShape, "a");
     cnpy::npz_save(file, "rand_en", randEn.data(), randEnShape, "a");
     cnpy::npz_save(file, "acc_don", accDonInt.data(), accDonIntShape, "a");
     cnpy::npz_save(file, "acc_acc", accAccInt.data(), accAccIntShape, "a");
 
     cnpy::npz_save(file, "rate_pref", ratePref.data(), ratePrefShape, "a");
-    cnpy::npz_save(file, "adj_mat", adjMat.data(), adjMatShape, "a");           
+    cnpy::npz_save(file, "adj_mat", adjMat.data(), adjMatShape, "a");
+    
+    /* acceptor distribution params */
+    if (distType == "gaussian_mixture")
+    {
+        cnpy::npz_save(file, "variances", variances.data(), variances_shape, "a");
+        cnpy::npz_save(file, "means", means.data(), means_shape, "a");
+        cnpy::npz_save(file, "norm_weights", normalized_weights.data(), normalized_weights_shape, "a");
+    }
 }
 
 int argParser(int argc, char* argv[]) {
@@ -1042,6 +1074,7 @@ int argParser(int argc, char* argv[]) {
             ("Nr", boost::program_options::value<int>()->required())
             ("Nt", boost::program_options::value<int>()->required())
             ("distType", boost::program_options::value<std::string>()->required())
+            ("n_comps", boost::program_options::value<int>()->required())
             ("outputIdx", boost::program_options::value<int>()->required())
             ("eqSteps", boost::program_options::value<int>()->default_value(1e4))
             ("simSteps", boost::program_options::value<int>()->required())
@@ -1077,6 +1110,7 @@ int argParser(int argc, char* argv[]) {
             vm["Nr"].as<int>(),
             vm["Nt"].as<int>(),
             vm["distType"].as<std::string>(),
+            vm["n_comps"].as<int>(),
             vm["outputIdx"].as<int>(),
             vm["eqSteps"].as<int>(),
             vm["simSteps"].as<int>(),

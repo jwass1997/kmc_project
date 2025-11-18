@@ -10,6 +10,6 @@ using Eigen::MatrixXd;
 
 int main(int argc, char* argv[]) 
 {
-    std::cout << "Parsing arguments " << "\n";
+    //std::cout << "Parsing arguments " << "\n";
     argParser(argc, argv);
 }

@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include <string>
 #include <vector>
 #include <iostream>
@@ -18,6 +19,11 @@ bool subset_connected(
     double min_dist, 
     double max_dist)
     {
+        if (min_dist > max_dist)
+        {
+            throw std::runtime_error("Minimal hopping distance is greater than maximal hopping distance.");
+        }
+
         const int N_main = static_cast<int>(coords.size() / 2);
         const int N_subset = static_cast<int>(subset_coords.size() / 2);
 
@@ -28,18 +34,17 @@ bool subset_connected(
 
         std::vector<double> nodes;
         nodes.reserve(coords.size() + subset_coords.size());
-        nodes.insert(nodes.end(), coords.begin(), coords.end());
         nodes.insert(nodes.end(), subset_coords.begin(), subset_coords.end());
+        nodes.insert(nodes.end(), coords.begin(), coords.end());
 
         const int total_points = static_cast<int>(nodes.size() / 2);
-        const int subset_start = N_main;
-        const int subset_end = N_main + N_subset;
+        const int subset_start = 0;
+        const int subset_end = N_subset;
 
         const double mind2 = min_dist * min_dist;
         const double maxd2 = max_dist * max_dist;
 
         std::vector<std::vector<int>> adj(total_points);
-
 
         for (int i = 0; i < total_points; ++i)
         {   
@@ -58,6 +63,11 @@ bool subset_connected(
                     adj[i].push_back(j);
                     adj[j].push_back(i);
                 }
+            }
+
+            if (i < N_subset && adj[i].empty())
+            {
+                return false;
             }
         }
 
@@ -94,7 +104,53 @@ bool subset_connected(
         return true;
     }
 
-Configuration::Configuration(const ConfigurationParams& params, uint64_t seed)
+std::vector<double> gm_rej_sampling(
+    int num_samples, 
+    double radius,
+    double min_distance,
+    double max_distance,
+    GaussianMixture2D& gaussian_mixture,
+    std::vector<double>& subset_nodes,
+    const int max_attempts) {
+
+        if (max_distance < min_distance)
+        {
+            throw std::runtime_error("Minimal distance > maximal distance.");
+        }
+
+        double radius2 = radius*radius;
+
+        std::vector<double> node_samples;
+        for  (int attempt = 0; attempt < max_attempts; ++attempt) 
+        {
+            node_samples.clear();
+            while ((int)node_samples.size() < 2 * num_samples)
+            {
+                std::array<double, 2> pnt = gaussian_mixture.sample();
+
+                if (pnt[0]*pnt[0] + pnt[1]*pnt[1] < radius2)
+                {
+                    node_samples.push_back(pnt[0]);
+                    node_samples.push_back(pnt[1]);
+                }
+                else 
+                {
+                    continue;            
+                }
+            }
+            
+            bool connected_nodes = subset_connected(subset_nodes, node_samples, min_distance, max_distance);
+
+            if (connected_nodes) 
+            {
+                return node_samples;            
+            }
+        }
+        
+        return {};
+}
+
+Configuration::Configuration(ConfigurationParams& params, uint64_t seed)
     : _rng(seed)
 {
 
@@ -174,53 +230,66 @@ Configuration::Configuration(const ConfigurationParams& params, uint64_t seed)
 
     if (distType == "gaussian_mixture")
     {
-        double std_min = radius / 3.0;
+        const int max_attempts = 100;
+
+        double std_min = radius / 10.0;
         double std_max = radius / 2.0;
 
-        int num_components = 3;
+        double radius_min = 0.0;
+        double radius_max = 0.7 * radius;
 
-        std::vector<Gaussian2D> mixture_components;
-        std::vector<double> component_weights;
+        //double std_min = std::max(minHopDistance / 3.0, 0.02*radius);
+        //double std_max = std::min(maxHopDistance / 2.0, 0.5*radius);
 
-        for (int i = 0; i < num_components; ++i)
+        int num_components = params.n_comps;
+
+        while (acceptorCoords.empty())
         {
-            double comp_weight = uniform01();
-            component_weights.push_back(comp_weight);
+            std::vector<Gaussian2D> mixture_components;
+            std::vector<double> component_weights;
 
-            double randomPhi = 2.0*M_PI*uniform01();
-            double randomR = radius * std::sqrt(uniform01());
-
-            double mx = randomR*std::cos(randomPhi);
-            double my = randomR*std::sin(randomPhi);
-
-            double log_bound_min = 2.0 * std::log(std_min);
-            double log_bound_max = 2.0 * std::log(std_max);
-
-            double log_var = (log_bound_max - log_bound_min) * uniform01() + log_bound_min;
-            double var = std::exp(log_var);
-
-            mixture_components.push_back(Gaussian2D(mx, my, 0.0, var, var));
-        }
-
-        GaussianMixture2D gaussian_mixture(mixture_components, component_weights);
-
-        bool connected_electrodes = false;
-        while (!connected_electrodes)
-        {
-            acceptorCoords.clear();
-            acceptorCoords.reserve(2*nAcceptors);
-
-            for (int j = 0; j < nAcceptors; ++j)
+            for (int i = 0; i < num_components; ++i)
             {
-                std::array<double, 2> coords = gaussian_mixture.sample();
-                if (coords[0]*coords[0] + coords[1]*coords[1] <= radius*radius)
-                {
-                    acceptorCoords.push_back(coords[0]);
-                    acceptorCoords.push_back(coords[1]);
-                }
+                double comp_weight = uniform01();
+                component_weights.push_back(comp_weight);
+
+                double randomPhi = 2.0*M_PI*uniform01();
+                double randomR = (radius_max - radius_min) * std::sqrt(uniform01()) + radius_min;
+
+                double mx = randomR*std::cos(randomPhi);
+                double my = randomR*std::sin(randomPhi);
+
+                double log_std_min = std::log(std_min); 
+                double log_std_max = std::log(std_max);
+                
+                double log_sx = (log_std_max - log_std_min) * uniform01() + log_std_min;
+                double log_sy = (log_std_max - log_std_min) * uniform01() + log_std_min;
+
+                double sx = std::exp(log_sx);
+                double sy = std::exp(log_sy);
+
+                //double sx = (std_max - std_min) * uniform01() + std_min;
+                //double sy = (std_max - std_min) * uniform01() + std_min;
+
+                double varxx = sx * sx;
+                double varyy = sy * sy;
+                double varxy = 0.0;
+
+                mixture_components.push_back(Gaussian2D(mx, my, 0.0, varxx, varyy));
+
+                params.var11.push_back(varxx);
+                params.var22.push_back(varyy);
+                params.var12.push_back(varxy);
+
+                params.m1.push_back(mx);
+                params.m2.push_back(my);
             }
 
-            connected_electrodes = subset_connected(electrodeCoords, acceptorCoords, minHopDistance, maxHopDistance);
+            GaussianMixture2D gaussian_mixture(mixture_components, component_weights);
+
+            params.normalized_weights = gaussian_mixture.normalized_weights;
+
+            acceptorCoords = gm_rej_sampling(nAcceptors, radius, minHopDistance, maxHopDistance, gaussian_mixture, electrodeCoords, max_attempts);
         }
 
         for (int k = 0; k < nDonors; ++k) 
