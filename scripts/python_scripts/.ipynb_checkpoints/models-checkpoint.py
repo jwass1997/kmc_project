@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from modules import ISAB, SAB, MAB, PMA
+import torch.distributions as D
 
 class DeepSet(nn.Module):
     def __init__(self, in_dim, h_dim, num_outputs, out_dim, aggr_type):
@@ -113,6 +114,176 @@ class CondSM(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
 
         return self.model(x)
+
+class CouplingNet(nn.Module):
+    def __init__(self, in_dim, cond_dim, h_dim=64):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(in_dim + cond_dim, h_dim),
+            nn.ReLU(),
+            nn.Linear(h_dim, h_dim),
+            nn.ReLU()
+        )
+        self.s = nn.Linear(h_dim, in_dim)
+        self.t = nn.Linear(h_dim, in_dim)
+
+    def forward(self, x, c):
+        h = self.net(torch.cat([x, c], dim=-1))
+        s = self.s(h)
+        t = self.t(h)
+        
+        return s, t
+
+class CondRealNVP(nn.Module):
+    def __init__(self, x_dim, cond_dim, num_coupling_layers=4, h_dim=64):
+        """
+        x_dim: dimension of data x (not condition)
+        cond_dim: dimension of conditioning vector c
+        """
+        super().__init__()
+        self.x_dim = x_dim
+        self.cond_dim = cond_dim
+        self.num_coupling_layers = num_coupling_layers
+
+        masks = []
+        # simple pattern: first half masked, then second half, alternating
+        # works for any x_dim >= 2
+        mask_half = torch.cat([
+            #torch.ones(x_dim // 2),
+            torch.ones(1),
+            #torch.zeros(x_dim - x_dim // 2)
+            torch.zeros(x_dim - 1)
+        ])
+
+        for i in range(num_coupling_layers):
+            if i % 2 == 0:
+                mask = mask_half
+            else:
+                mask = 1.0 - mask_half  # complement
+            masks.append(mask)
+
+        # register as buffer so it moves with .to(device) and saves in state_dict
+        self.register_buffer("masks", torch.stack(masks))  # (num_layers, x_dim)
+
+        self.coupling_layers = nn.ModuleList([
+            CouplingNet(in_dim=x_dim, cond_dim=cond_dim, h_dim=h_dim)
+            for _ in range(num_coupling_layers)
+        ])
+
+    def forward(self, x, c):
+        """
+        x: (batch, x_dim)
+        c: (batch, cond_dim)
+        returns: z, log_det
+        """
+        z = x
+        log_det = torch.zeros(x.shape[0], device=x.device)
+
+        for i, cl in enumerate(self.coupling_layers):
+            mask = self.masks[i].to(z.device)      # (x_dim,)
+            mask = mask.unsqueeze(0)               # (1, x_dim) for broadcasting
+
+            x_masked = z * mask                    # part that stays
+            x_trans  = z * (1.0 - mask)            # part to transform
+
+            s, t = cl(x_masked, c)                 # (batch, x_dim)
+
+            # only transform the unmasked dimensions
+            s = s * (1.0 - mask)
+            t = t * (1.0 - mask)
+
+            z = x_masked + (x_trans * torch.exp(s) + t)
+
+            # log-det only from transformed dims
+            log_det += (s).sum(dim=-1)
+
+        return z, log_det
+
+    def log_prob(self, x, c):
+        z, log_det = self.forward(x, c)
+        base_dist = D.MultivariateNormal(
+            loc=torch.zeros(self.x_dim, device=x.device),
+            covariance_matrix=torch.eye(self.x_dim, device=x.device)
+        )
+        return base_dist.log_prob(z) + log_det
+
+    def inverse(self, z, c):
+        """
+        z: (batch, x_dim)  -- sample from base_dist
+        c: (batch, cond_dim)
+        returns: x, log_det   (log_det is optional for sampling, but nice to keep)
+        """
+        x = z
+        log_det = torch.zeros(z.shape[0], device=z.device)
+    
+        # iterate through layers in reverse
+        for i in reversed(range(self.num_coupling_layers)):
+            cl = self.coupling_layers[i]
+            mask = self.masks[i].to(x.device).unsqueeze(0)  # (1, x_dim)
+    
+            x_masked = x * mask
+            x_trans  = x * (1.0 - mask)
+    
+            # same as forward, but we condition on the masked part of *current* x
+            s, t = cl(x_masked, c)
+            s = s * (1.0 - mask)
+            t = t * (1.0 - mask)
+    
+            # invert the affine transform
+            x = x_masked + (x_trans - t) * torch.exp(-s)
+    
+            # inverse log-det is negative of forward
+            log_det -= s.sum(dim=-1)
+    
+        return x, log_det
+
+class CondRealNVP2d(nn.Module):
+    def __init__(self, cond_dim, num_coupling_layers=4, h_dim=64):
+        super().__init__()
+        self.masks = []
+        self.coupling_layers = nn.ModuleList()
+        for i in range(num_coupling_layers):
+            mask = torch.tensor([i % 2, (i + 1) % 2], dtype=torch.float32)
+            self.masks.append(mask)
+            self.coupling_layers.append(
+                CouplingNet(in_dim=2, cond_dim=cond_dim, h_dim=h_dim)
+            )
+        #self.base_dist = D.MultivariateNormal(
+        #    loc=torch.zeros(2).to(device),
+        #    covariance_matrix=torch.eye(2).to(device)
+        #)
+    def forward(self, x, c):
+        z = x
+        log_det = torch.zeros(x.shape[0], device=x.device)
+        for mask, cl in zip(self.masks, self.coupling_layers):
+            mask = mask.to(z.device)
+            x_masked = z * mask
+            x_trans = z * (1 - mask)
+
+            s, t = cl(x_masked, c)
+            s = s * (1 - mask)
+            t = t * (1 - mask)
+
+            z = x_masked + (x_trans * torch.exp(s) + t)
+            log_det += s.sum(dim=-1)
+        return z, log_det
+        
+    def log_prob(self, x, c):
+        z, log_det = self.forward(x, c)
+        base_dist = D.MultivariateNormal(
+            loc=torch.zeros(2, device=x.device),
+            covariance_matrix=torch.eye(2, device=x.device)
+        )
+        return base_dist.log_prob(z) + log_det
+
+    def inverse(self, z, c):
+
+        x = z
+        log_det = torch.zeros(x.shape[0], device=x.device)
+
+        for i in reversed(range(self.num_coupling_layers)):
+            cl = self.coupling_layers[i]
+            mask = self.masks[i].to(x.device)
 
 """class DeepSet(nn.Module):
     def __init__(self, in_dim, h_dim, out_dim, aggr_type):

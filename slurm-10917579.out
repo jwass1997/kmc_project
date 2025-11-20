@@ -1,0 +1,5 @@
+/home/hd/hd_hd/hd_gy283/.conda/envs/py311/bin/python
+Python 3.11.12
+/var/spool/slurm/job10917579/slurm_script: line 15: 1237718 Killed                  $PYTHON scripts/python_scripts/create_dataset.py
+slurmstepd: error: acct_gather_profile/influxdb _send_data: curl_easy_perform failed to send data (discarded). Reason: Couldn't resolve host name
+slurmstepd: error: Detected 1 oom_kill event in StepId=10917579.batch. Some of the step tasks have been OOM Killed.
