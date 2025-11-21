@@ -401,11 +401,13 @@ Configuration::Configuration(
         configFile.close();
     }
 
-    if (nAcceptors <= 0) {
+    if (nAcceptors <= 0) 
+    {
     std::cerr << "[FATAL] Parsed invalid nAcceptors: " << nAcceptors << "\n";
     std::exit(1);
     }
-    if (nElectrodes <= 0) {
+    if (nElectrodes <= 0) 
+    {
         std::cerr << "[FATAL] Parsed invalid nElectrodes: " << nElectrodes << "\n";
         std::exit(1);
     }
@@ -415,7 +417,8 @@ Configuration::Configuration(
     kbT = kb*T;
     A0 = (e*e) / (4.0*kb*T*PI*eps0*epsr*1e-9);
 
-    if (noDimension) {
+    if (noDimension) 
+    {
         radius = radius / R;
         a = a / R;
         A0 = A0 / R;
@@ -425,18 +428,23 @@ Configuration::Configuration(
     }
 
     /* Electrodes */
-    if (!electrodeFile.is_open()) {
+    if (!electrodeFile.is_open()) 
+    {
             std::cerr << "No such file: " << electrodeConfig<< "\n";
     }
     
-    else {
+    else 
+    {
         std::string line;
         
-        while(getline(electrodeFile, line)) {
-            if (line.empty() || line[0] == '#') {
+        while (getline(electrodeFile, line)) 
+        {
+            if (line.empty() || line[0] == '#') 
+            {
                 continue;
             }
-            else {
+            else 
+            {
                 std::stringstream ss(line);
                 std::string angleStr;
                 std::string vStr;
@@ -461,23 +469,29 @@ Configuration::Configuration(
         electrodeFile.close();
     }
     /* Coordinates */
-    if (!acceptorFile.is_open()) {
+    if (!acceptorFile.is_open()) 
+    {
         std::cerr << "No such file: " << acceptorConfig << "\n";
     }
-    else {
+    else 
+    {
         std::string line;
 
-        while (getline(acceptorFile, line)) {
-            if (line.empty() || line[0] == '#') {
+        while (getline(acceptorFile, line)) 
+        {
+            if (line.empty() || line[0] == '#') 
+            {
                 continue;
             }
-            else {
+            else 
+            {
                 std::stringstream ss(line);
 
                 double coordX, coordY;
                 ss >> coordX >> coordY;
                 
-                if (noDimension) {
+                if (noDimension) 
+                {
                     coordX = coordX / R;
                     coordY = coordY / R;
                 }
@@ -489,23 +503,29 @@ Configuration::Configuration(
         acceptorFile.close();
     }
 
-    if (!donorFile.is_open()) {
+    if (!donorFile.is_open()) 
+    {
         std::cerr << "No such file: " << donorConfig << "\n";
     }
-    else {
+    else 
+    {
             std::string line;
 
-        while (getline(donorFile, line)) {
-            if (line.empty() || line[0] == '#') {
+        while (getline(donorFile, line)) 
+        {
+            if (line.empty() || line[0] == '#') 
+            {
                 continue;
             }
-            else {
+            else 
+            {
                 std::stringstream ss(line);
 
                 double coordX, coordY;
                 ss >> coordX >> coordY;
 
-                if (noDimension) {
+                if (noDimension) 
+                {
                     coordX = coordX / R;
                     coordY = coordY / R;
                 }

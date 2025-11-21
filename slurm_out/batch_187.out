@@ -1,0 +1,4 @@
+terminate called recursively
+terminate called recursively
+terminate called recursively
+/var/spool/slurm/job10946680/slurm_script: line 10: 2874311 Aborted                 (core dumped) "$@"

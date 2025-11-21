@@ -1,5 +1,0 @@
-slurmstepd: error: acct_gather_profile/influxdb _send_data: curl_easy_perform failed to send data (discarded). Reason: Couldn't resolve host name
-slurmstepd: error: _xgetaddrinfo: getaddrinfo(slurm-ctrl.service.consul:7007) failed: Name or service not known
-slurmstepd: error: slurm_set_addr: Unable to resolve "slurm-ctrl.service.consul"
-slurmstepd: error: _xgetaddrinfo: getaddrinfo(slurm-ctrl.service.consul:7005) failed: Name or service not known
-slurmstepd: error: slurm_set_addr: Unable to resolve "slurm-ctrl.service.consul"
