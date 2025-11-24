@@ -1,6 +1,0 @@
-terminate called recursively
-terminate called recursively
-terminate called recursively
-terminate called recursively
-terminate called after throwing an instance of 'std::out_of_range'
-/var/spool/slurm/job10946638/slurm_script: line 10: 225963 Aborted                 (core dumped) "$@"

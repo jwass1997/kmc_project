@@ -32,10 +32,13 @@ KMCSimulator::KMCSimulator(State& state, uint64_t seed)
         writePtr[i] = jaggedArrayLengths[i];
     }
 
-    for (int i = 0; i < state.numOfSites; ++i) {
-        for (int j = i+1; j < state.numOfSites; ++j) {
+    for (int i = 0; i < state.numOfSites; ++i) 
+    {
+        for (int j = i+1; j < state.numOfSites; ++j) 
+        {
         double distance =  state.distanceMatrix[i*state.numOfSites + j];
-            if (distance > state.minHopDistance && distance < state.maxHopDistance) {
+            if (distance > state.minHopDistance && distance < state.maxHopDistance) 
+            {
                 int indexIJ = writePtr[i]++;
                 int indexJI = writePtr[j]++;
                 constantTransitionRates[indexIJ] = state.nu0*fastExp(-2.0*distance / state.a);
@@ -49,15 +52,20 @@ void KMCSimulator::updateTransitionRates(State& state) {
 
     totalSumOfRates = 0.0;
 
-    for (int i = 0; i < state.numOfSites; ++i) {
-		for (int k = jaggedArrayLengths[i]; k < jaggedArrayLengths[i+1]; ++k) {
+    for (int i = 0; i < state.numOfSites; ++i) 
+    {
+		for (int k = jaggedArrayLengths[i]; k < jaggedArrayLengths[i+1]; ++k) 
+        {
             int partner = neighbourIndices[k];
 			// Electrode - Acceptor
-			if (i >= state.nAcceptors && partner < state.nAcceptors) {
-				if(state.currentOccupation[partner] == 1) {
+			if (i >= state.nAcceptors && partner < state.nAcceptors) 
+            {
+				if(state.currentOccupation[partner] == 1) 
+                {
 					dynamicalTransitionRates[k] = 0.0;
 				}
-				else {
+				else 
+                {
 					double deltaE = state.siteEnergies[partner] - state.siteEnergies[i];
 					if (deltaE < 0.0) {
 						dynamicalTransitionRates[k] = 1.0;
@@ -68,32 +76,42 @@ void KMCSimulator::updateTransitionRates(State& state) {
 				}
 			}
 			// Acceptor - Electrode
-			else if (i < state.nAcceptors && partner >= state.nAcceptors) {
-				if (state.currentOccupation[i] == 0) {
+			else if (i < state.nAcceptors && partner >= state.nAcceptors) 
+            {
+				if (state.currentOccupation[i] == 0) 
+                {
 					dynamicalTransitionRates[k] = 0.0;
 				} 
-				else {
+				else 
+                {
 					double deltaE = state.siteEnergies[partner] - state.siteEnergies[i];
-					if (deltaE < 0.0) {
+					if (deltaE < 0.0) 
+                    {
 						dynamicalTransitionRates[k] = 1.0;
 					}
-					else {
+					else 
+                    {
 						dynamicalTransitionRates[k] = fastExp(-deltaE);
 					}
 				}
 			}
 			// Acceptor - Acceptor
-			else if (i < state.nAcceptors && partner < state.nAcceptors) {
-				if ((state.currentOccupation[i] == 1) && (state.currentOccupation[partner] == 0)) {
+			else if (i < state.nAcceptors && partner < state.nAcceptors) 
+            {
+				if ((state.currentOccupation[i] == 1) && (state.currentOccupation[partner] == 0)) 
+                {
 					double deltaE = state.siteEnergies[partner] - state.siteEnergies[i] - state.A0 / state.distanceMatrix[i*state.numOfSites + partner];
-					if (deltaE < 0.0) {
+					if (deltaE < 0.0) 
+                    {
 						dynamicalTransitionRates[k] = 1.0;
 					}
-					else {
+					else 
+                    {
 						dynamicalTransitionRates[k] = fastExp(-deltaE);
 					} 
 				}
-				else {
+				else 
+                {
 					dynamicalTransitionRates[k] = 0.0;
 				}					
 			}
@@ -107,13 +125,16 @@ void KMCSimulator::sampleEvent(State& state) {
     
     double _r = totalSumOfRates*uniform01();
     cumulativeSumOfRates = 0.0;
-    for (int i = 0; i < state.numOfSites; ++i) {
+    for (int i = 0; i < state.numOfSites; ++i) 
+    {
         int L = jaggedArrayLengths[i];
         int R = jaggedArrayLengths[i+1];
-        for (int k = L; k < R; ++k) {
+        for (int k = L; k < R; ++k) 
+        {
             double rate = aggregatedTransitionRates[k];
             cumulativeSumOfRates+=rate;
-            if (cumulativeSumOfRates >= _r) {
+            if (cumulativeSumOfRates >= _r) 
+            {
                 int j = neighbourIndices[k];
                 lastHopIndices[0] = i;
                 lastHopIndices[1] = j;
@@ -131,18 +152,21 @@ void KMCSimulator::mcStep(State& state, bool writeData) {
     state.updateSiteEnergies(lastHopIndices);
     state.increaseStateTime(totalSumOfRates);
 
-    if (writeData) {
+    if (writeData) 
+    {
         state.eventCounter[lastHopIndices[0]*state.numOfSites + lastHopIndices[1]] += 1;
     }
 }
 
 void KMCSimulator::simulate(State& state, int steps, bool reset, bool writeData) {
 
-    if (reset) {
+    if (reset) 
+    {
         state.resetState();
     }
 
-    for (int i = 0; i < steps; ++i) {
+    for (int i = 0; i < steps; ++i) 
+    {
         mcStep(state, writeData);
     }
 }

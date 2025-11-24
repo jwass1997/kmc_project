@@ -596,7 +596,8 @@ void batchOfMultipleStates(
     int LHCSeed, int threadBaseSeed,
     const std::string& saveFolder, const std::string& fileName
 ) {
-    if (saveFolder.empty()) {
+    if (saveFolder.empty()) 
+    {
         throw std::invalid_argument("[batchOfMultipleStates]: Save folder not found");
     }
 
@@ -831,6 +832,313 @@ void batchOfMultipleStates(
     cnpy::npz_save(file, "inputs", inputData.data(), inputDataShape, "a");
     cnpy::npz_save(file, "sampleStd", currentStd.data(), currentStdShape, "a");
     cnpy::npz_save(file, "sem", currentSem.data(), currentSemShape, "a");
+
+    /* Parameters */
+    cnpy::npz_save(file, "T", &T, {1}, "a");
+    cnpy::npz_save(file, "sigma", &energyDisorder, {1}, "a");
+    cnpy::npz_save(file, "min_hop_dist", &minHopDistance, {1}, "a");
+    cnpy::npz_save(file, "max_hop_dist", &maxHopDistance, {1}, "a");
+
+    /* coords */
+    cnpy::npz_save(file, "acc_xy", accCoords.data(), accCoordsShape, "a");
+    cnpy::npz_save(file, "don_xy", donCoords.data(), donCoordsShape, "a");
+    
+    /* initial energies and single energy contributions */
+    cnpy::npz_save(file, "init_en", initEn.data(), initEnShape, "a");
+    cnpy::npz_save(file, "rand_en", randEn.data(), randEnShape, "a");
+    cnpy::npz_save(file, "acc_don", accDonInt.data(), accDonIntShape, "a");
+    cnpy::npz_save(file, "acc_acc", accAccInt.data(), accAccIntShape, "a");
+
+    cnpy::npz_save(file, "rate_pref", ratePref.data(), ratePrefShape, "a");
+    cnpy::npz_save(file, "adj_mat", adjMat.data(), adjMatShape, "a");
+    
+    /* acceptor distribution params */
+    if (distType == "gaussian_mixture")
+    {
+        cnpy::npz_save(file, "variances", variances.data(), variances_shape, "a");
+        cnpy::npz_save(file, "means", means.data(), means_shape, "a");
+        cnpy::npz_save(file, "norm_weights", normalized_weights.data(), normalized_weights_shape, "a");
+    }
+}
+
+void batchOfSamplesWTemp(
+    int batchSize,
+    double minVoltage, double maxVoltage,
+    double Tmin, double Tmax,
+    int nAcceptors, int nElectrodes, int nDonors,
+    double radius, double nu0, double a,
+    double energyDisorder,
+    double electrodeWidth,
+    double minHopDistance, double maxHopDistance,
+    int Nr, int Nt,
+    std::string distType, int n_comps,
+    int outputIdx,
+    int eqSteps, int simSteps, int numOfTasks,
+    int LHCSeed, int threadBaseSeed,
+    const std::string& saveFolder, const std::string& fileName
+) {
+    if (saveFolder.empty()) 
+    {
+        throw std::invalid_argument("[batchOfMultipleStates]: Save folder not found");
+    }
+
+    int numOfSites = nAcceptors + nElectrodes;
+
+    /* Energy contributions */
+    std::vector<double> initEn(batchSize * numOfSites, 0.0);
+    std::vector<size_t> initEnShape = {size_t(batchSize), size_t(numOfSites)};
+
+    std::vector<double> randEn(batchSize * nAcceptors, 0.0);
+    std::vector<size_t> randEnShape = {size_t(batchSize), size_t(nAcceptors)};
+
+    std::vector<double> accDonInt(batchSize * nAcceptors, 0.0);
+    std::vector<size_t> accDonIntShape = {size_t(batchSize), size_t(nAcceptors)};
+
+    std::vector<double> accAccInt(batchSize * nAcceptors, 0.0);
+    std::vector<size_t> accAccIntShape = {size_t(batchSize), size_t(nAcceptors)};
+
+
+    std::string file = saveFolder + "/" + fileName + ".npz";
+    /* Output current */
+    std::vector<double> currentData(batchSize * nElectrodes, 0.0);
+    std::vector<size_t> currentDataShape = {static_cast<size_t>(batchSize), static_cast<size_t>(nElectrodes)};
+
+    std::vector<double> currentStd(batchSize * nElectrodes, 0.0);
+    std::vector<size_t> currentStdShape = {static_cast<size_t>(batchSize), static_cast<size_t>(nElectrodes)};
+
+    std::vector<double> currentSem(batchSize * nElectrodes, 0.0);
+    std::vector<size_t> currentSemShape = {static_cast<size_t>(batchSize), static_cast<size_t>(nElectrodes)};
+    /* 8 dimensional input space */
+    std::vector<double> inputData(batchSize * nElectrodes, 0.0);
+    std::vector<size_t> inputDataShape = {(size_t)batchSize, (size_t)nElectrodes};
+    /* LHC sampled temperatures */
+    std::vector<double> temps(batchSize, 0.0);
+    std::vector<size_t> tempsShape = {(size_t)batchSize};
+    /* Energies  */
+    /* LHC sampled voltages and temperatures */
+    std::vector<double> mins(nElectrodes, minVoltage);
+    std::vector<double> maxs(nElectrodes, maxVoltage);
+    
+    mins.push_back(Tmin);
+    maxs.push_back(Tmax);
+    /* sampled parameters: Ne + 1 */
+    std::vector<std::vector<double>> samples = scaledLHC(
+        batchSize,
+        nElectrodes+1,
+        mins,
+        maxs,
+        LHCSeed 
+    );
+    /* Vectors for coordinates */
+    std::vector<double> accCoords(batchSize*nAcceptors*2, 0.0);
+    std::vector<size_t> accCoordsShape = {(size_t)batchSize, (size_t)nAcceptors, 2};
+    std::vector<double> donCoords(batchSize*nDonors*2, 0.0);
+    std::vector<size_t> donCoordsShape = {(size_t)batchSize, (size_t)nDonors, 2};
+
+    /* Rate prefactors */
+    std::vector<double> ratePref(batchSize*numOfSites*numOfSites, 0.0);
+    std::vector<size_t> ratePrefShape = {size_t(batchSize), size_t(numOfSites), size_t(numOfSites)};
+
+    /* Adjacency */
+    std::vector<int> adjMat(batchSize * numOfSites * numOfSites, 0);
+    std::vector<size_t> adjMatShape = {size_t(batchSize), size_t(numOfSites), size_t(numOfSites)};
+
+    /* Disttribution params */
+    std::vector<double> variances(batchSize*3*n_comps, 0.0);
+    std::vector<size_t> variances_shape = {static_cast<size_t>(batchSize), static_cast<size_t>(n_comps), 3};
+    std::vector<double> means(batchSize*2*n_comps, 0.0);
+    std::vector<size_t> means_shape = {static_cast<size_t>(batchSize), static_cast<size_t>(n_comps), 2};
+    std::vector<double> normalized_weights(batchSize*n_comps, 0.0);
+    std::vector<size_t> normalized_weights_shape = {static_cast<size_t>(batchSize), static_cast<size_t>(n_comps)};
+
+    #pragma omp parallel
+    {
+        int threadID = omp_get_thread_num();
+
+        #pragma omp for
+        for (int _p = 0; _p < batchSize; ++_p) {
+            
+            uint64_t stateSeed = mix(
+                uint64_t(threadBaseSeed) ^
+                (uint64_t(threadID) << 32) ^
+                uint64_t(_p) ^
+                0xD1B54A32D192ED03ULL
+            );
+            uint64_t kmcSeed = mix(stateSeed ^ 0x94D049BB133111EBULL);
+
+            std::vector<double> voltages(nElectrodes, 0.0);
+            /* Configuring state and simulator */
+            for (int i = 0; i < nElectrodes; ++i)
+            {
+                voltages[i] = samples[_p][i];
+            }
+                
+            voltages[outputIdx] = 0.0;
+
+            ConfigurationParams params;
+            params.nAcceptors = nAcceptors;
+            params.nElectrodes = nElectrodes;
+            params.nDonors = nDonors;
+            params.radius = radius;
+            params.nu0 = nu0;
+            params.a = a;
+            params.T = samples[_p][nElectrodes];
+            params.energyDisorder = energyDisorder;
+            params.electrodeWidth = electrodeWidth;
+            params.minHopDistance = minHopDistance;
+            params.maxHopDistance = maxHopDistance;
+            params.Nr = Nr;
+            params.Nt = Nt;
+            params.distType = distType;
+            params.n_comps = n_comps;
+
+            uint64_t cfgSeed = mix(
+                stateSeed ^ 0x94D049BB133111EBULL                
+            );
+
+            Configuration config(params, cfgSeed);
+
+            State tempState(config, stateSeed);
+
+            tempState.updateBoundaries(voltages);
+
+            int s = 0;
+            for (s = 0; s < numOfSites; ++s) initEn[s + _p * tempState.numOfSites] = tempState.siteEnergies[s];
+            for (s = 0; s < nAcceptors; ++s) {
+                randEn[s + _p * tempState.nAcceptors] = tempState.randomEnergies[s];
+                accDonInt[s + _p * tempState.nAcceptors] = tempState.acceptorDonorInteraction[s];
+                accAccInt[s + _p * tempState.nAcceptors] = tempState.acceptorInteraction[s];
+            }
+
+            KMCSimulator kmc(tempState, kmcSeed);
+            /* Saving coords */
+            int u = 0;
+            for (u = 0; u < nAcceptors; ++u) {
+                accCoords[(u + _p * nAcceptors)*2] = tempState.acceptorCoordinates[u * 2];
+                accCoords[(u + _p * nAcceptors)*2 + 1] = tempState.acceptorCoordinates[u * 2 + 1];
+            }
+            for (u = 0; u < nDonors; ++u) {
+                donCoords[(u + _p * nDonors)*2] = tempState.donorCoordinates[u * 2];
+                donCoords[(u + _p * nDonors)*2 + 1] = tempState.donorCoordinates[u * 2 + 1];
+            }
+
+            /* Save rate prefactors into NxN shape */
+            for (int k = 0; k < tempState.jaggedArrayLengths.size() - 1; ++k) {
+                int start = tempState.jaggedArrayLengths[k];
+                int end = tempState.jaggedArrayLengths[k+1];
+
+                for (int l = start; l < end; ++l) {
+                    ratePref[_p * numOfSites * numOfSites + k * numOfSites + tempState.neighbourIndices[l]] = kmc.constantTransitionRates[l];
+                    adjMat[_p * numOfSites * numOfSites + k * numOfSites + tempState.neighbourIndices[l]] = 1;
+                }
+            }
+
+            /* Equilibrate */
+            kmc.simulate(tempState, eqSteps, false, false);
+            tempState.resetEventCounter();
+            tempState.stateTime = 0.0;
+
+            /* Calculating output current */
+            std::vector<double> averagedCurrent(nElectrodes, 0.0);
+            double totalTime = 0.0;
+            int intervalSteps = simSteps / numOfTasks;
+
+            std::vector<double> meanW(nElectrodes, 0.0);
+            std::vector<double> M2w(nElectrodes, 0.0);
+            std::vector<double> wSum(nElectrodes, 0.0);
+            std::vector<double> w2Sum(nElectrodes, 0.0);
+
+            int intervalCount = 0;
+            while (intervalCount < numOfTasks) 
+            {
+
+                double startClock = tempState.stateTime;
+                kmc.simulate(tempState, intervalSteps, false, true);
+                double endClock = tempState.stateTime; 
+
+                double elapsedTime = endClock - startClock;
+                totalTime += elapsedTime;
+                for (int electrode_idx = 0; electrode_idx < tempState.nElectrodes; ++electrode_idx) 
+                {
+                    int inEvents = 0;
+                    int outEvents = 0;
+                    
+                    for (int s = 0; s < tempState.numOfSites; ++s)
+                    {
+                        outEvents += tempState.eventCounter[(electrode_idx + tempState.nAcceptors) * tempState.numOfSites + s];
+                        inEvents += tempState.eventCounter[tempState.numOfSites * s + (electrode_idx + tempState.nAcceptors)];                    
+                    }
+
+                    double Ii = (elapsedTime > 0) 
+                        ? static_cast<double>(inEvents - outEvents) / elapsedTime : 0.0;
+                    averagedCurrent[electrode_idx] += Ii * elapsedTime;
+
+                    double w = elapsedTime;
+                    double prevMean = meanW[electrode_idx];
+                    wSum[electrode_idx] += w;
+                    meanW[electrode_idx] += w * (Ii - meanW[electrode_idx]) / wSum[electrode_idx];
+                    M2w[electrode_idx] += w * (Ii - prevMean) * (Ii - meanW[electrode_idx]);
+                    w2Sum[electrode_idx] += w * w;
+                }
+                tempState.resetEventCounter();
+                intervalCount++;
+            }
+
+            for (int electrode_idx = 0; electrode_idx < nElectrodes; ++electrode_idx)
+            {
+                averagedCurrent[electrode_idx] /= totalTime;
+                double weightedVar = (wSum[electrode_idx] > 0.0) 
+                    ? (M2w[electrode_idx] / wSum[electrode_idx]) : 0.0;
+                double sampleStd = std::sqrt(weightedVar);
+                double sem = (wSum[electrode_idx] > 0.0) 
+                    ? (sampleStd * std::sqrt(w2Sum[electrode_idx]) / wSum[electrode_idx]) : 0.0;
+
+                currentData[_p * nElectrodes + electrode_idx] = averagedCurrent[electrode_idx];
+                currentStd[_p * nElectrodes + electrode_idx] = sampleStd;
+                currentSem[_p * nElectrodes + electrode_idx] = sem;
+                
+            }
+
+            /* Saving voltage points */
+            for (int k = 0; k < nElectrodes; ++k) 
+            {
+                inputData[k + _p*nElectrodes] = voltages[k];
+            }
+            /* Saving temperature */
+            temps[_p] = params.T;
+
+            /* Dist parameters of the mixture */
+            if (distType == "gaussian_mixture")
+            {   
+                for (int l = 0; l < n_comps; ++l)
+                {
+                    variances[(_p*n_comps + l) * 3] = params.var11[l];
+                    variances[(_p*n_comps + l) * 3 + 1] = params.var22[l];
+                    variances[(_p*n_comps + l) * 3 + 2] = params.var12[l];
+
+                    means[(_p*n_comps + l) * 2] = params.m1[l];
+                    means[(_p*n_comps + l) * 2 + 1] = params.m2[l];
+
+                    normalized_weights[_p*n_comps + l] = params.normalized_weights[l];
+                }
+            }
+        }
+    }
+    /* input-output */
+    cnpy::npz_save(file, "out_idx", &outputIdx, {1}, "w");
+    cnpy::npz_save(file, "currents", currentData.data(), currentDataShape, "a");
+    cnpy::npz_save(file, "inputs", inputData.data(), inputDataShape, "a");
+    cnpy::npz_save(file, "sampleStd", currentStd.data(), currentStdShape, "a");
+    cnpy::npz_save(file, "sem", currentSem.data(), currentSemShape, "a");
+
+    /* Parameters */
+    cnpy::npz_save(file, "T", temps.data(), tempsShape, "a");
+    cnpy::npz_save(file, "sigma", &energyDisorder, {1}, "a");
+    cnpy::npz_save(file, "min_hop_dist", &minHopDistance, {1}, "a");
+    cnpy::npz_save(file, "max_hop_dist", &maxHopDistance, {1}, "a");
+    cnpy::npz_save(file, "a", &a, {1}, "a");
+    cnpy::npz_save(file, "nu0", &nu0, {1}, "a");
+    cnpy::npz_save(file, "radius", &radius, {1}, "a");
 
     /* coords */
     cnpy::npz_save(file, "acc_xy", accCoords.data(), accCoordsShape, "a");
@@ -1103,6 +1411,79 @@ int argParser(int argc, char* argv[]) {
             vm["nu0"].as<double>(),
             vm["a"].as<double>(),
             vm["T"].as<double>(),
+            vm["energyDisorder"].as<double>(),
+            vm["electrodeWidth"].as<double>(),
+            vm["minHopDistance"].as<double>(),
+            vm["maxHopDistance"].as<double>(),
+            vm["Nr"].as<int>(),
+            vm["Nt"].as<int>(),
+            vm["distType"].as<std::string>(),
+            vm["n_comps"].as<int>(),
+            vm["outputIdx"].as<int>(),
+            vm["eqSteps"].as<int>(),
+            vm["simSteps"].as<int>(),
+            vm["numOfTasks"].as<int>(),
+            vm["LHCSeed"].as<int>(),
+            vm["threadBaseSeed"].as<int>(),
+            vm["saveFolder"].as<std::string>(),
+            vm["fileName"].as<std::string>()
+        );
+
+        return 1;
+    }
+
+    if (firstCommand == "batchOfSamplesWTemp") {
+
+        boost::program_options::options_description options("Batch run options");
+        options.add_options()
+            ("batchSize", boost::program_options::value<int>()->required())
+            ("minVoltage", boost::program_options::value<double>()->required())
+            ("maxVoltage", boost::program_options::value<double>()->required())
+            ("Tmin", boost::program_options::value<double>()->required())
+            ("Tmax", boost::program_options::value<double>()->required())
+            ("nAcceptors", boost::program_options::value<int>()->required())
+            ("nElectrodes", boost::program_options::value<int>()->required())
+            ("nDonors", boost::program_options::value<int>()->required())
+            ("radius", boost::program_options::value<double>()->required())
+            ("nu0", boost::program_options::value<double>()->required())
+            ("a", boost::program_options::value<double>()->required())
+            ("energyDisorder", boost::program_options::value<double>()->required())
+            ("electrodeWidth", boost::program_options::value<double>()->required())
+            ("minHopDistance", boost::program_options::value<double>()->required())
+            ("maxHopDistance", boost::program_options::value<double>()->required())
+            ("Nr", boost::program_options::value<int>()->required())
+            ("Nt", boost::program_options::value<int>()->required())
+            ("distType", boost::program_options::value<std::string>()->required())
+            ("n_comps", boost::program_options::value<int>()->required())
+            ("outputIdx", boost::program_options::value<int>()->required())
+            ("eqSteps", boost::program_options::value<int>()->default_value(1e4))
+            ("simSteps", boost::program_options::value<int>()->required())
+            ("numOfTasks", boost::program_options::value<int>()->default_value(100))
+            ("LHCSeed", boost::program_options::value<int>()->required())
+            ("threadBaseSeed", boost::program_options::value<int>()->required())
+            ("saveFolder", boost::program_options::value<std::string>()->required())        
+            ("fileName", boost::program_options::value<std::string>()->required())
+        ;
+        
+        boost::program_options::variables_map vm;
+        boost::program_options::store(
+            boost::program_options::command_line_parser(
+                remainingCommand).options(options).run(),
+                vm);
+        boost::program_options::notify(vm);
+
+        batchOfSamplesWTemp(
+            vm["batchSize"].as<int>(),
+            vm["minVoltage"].as<double>(),
+            vm["maxVoltage"].as<double>(),
+            vm["Tmin"].as<double>(),
+            vm["Tmax"].as<double>(),
+            vm["nAcceptors"].as<int>(),
+            vm["nElectrodes"].as<int>(),
+            vm["nDonors"].as<int>(),
+            vm["radius"].as<double>(),
+            vm["nu0"].as<double>(),
+            vm["a"].as<double>(),
             vm["energyDisorder"].as<double>(),
             vm["electrodeWidth"].as<double>(),
             vm["minHopDistance"].as<double>(),

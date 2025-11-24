@@ -282,4 +282,21 @@ void batchOfMultipleStates(
     const std::string& saveFolder, const std::string& fileName
 );
 
+void batchOfSamplesWTemp(
+    int batchSize,
+    double minVoltage, double maxVoltage,
+    double Tmin, double Tmax,
+    int nAcceptors, int nElectrodes, int nDonors,
+    double radius, double nu0, double a,
+    double energyDisorder,
+    double electrodeWidth,
+    double minHopDistance, double maxHopDistance,
+    int Nr, int Nt,
+    std::string distType, int n_comps,
+    int inputIdx, int outputIdx,
+    int eqSteps, int simSteps, int numOfTasks,
+    int LHCSeed, int threadBaseSeed,
+    const std::string& saveFolder, const std::string& fileName
+);
+
 int argParser(int argc, char* argv[]);

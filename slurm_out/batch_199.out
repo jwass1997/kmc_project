@@ -1,8 +1,0 @@
-terminate called recursively
-terminate called recursively
-terminate called recursively
-terminate called recursively
-terminate called recursively
-terminate called recursively
-terminate called recursively
-terminate called after throwing an instance of '/var/spool/slurm/job10946692/slurm_script: line 10: 2875085 Aborted                 (core dumped) "$@"
