@@ -7,4 +7,4 @@
 
 PYTHON="$HOME/.conda/envs/py311/bin/python"
 
-$PYTHON scripts/python_scripts/run_multiple_optims.py --num_runs 200 --num_iters 100 --optim_type BO --target relu --file_id uni_run_0
+$PYTHON scripts/python_scripts/run_multiple_optims.py --num_runs 20 --num_iters 200 --optim_type BO --target cubic --file_id vMB_0

@@ -49,6 +49,33 @@ if f_target == 'relu':
             
         return m(x)
 
+elif f_target == 'tanh':
+    def target_function(x):
+    
+        m = nn.Tanh()
+            
+        return m(x)
+
+elif f_target == 'sigmoid':
+    def target_function(x):
+    
+        m = nn.Sigmoid()
+            
+        return m(x)
+
+elif f_target == 'parabola':
+    def target_function(x):
+            
+        return x ** 2
+
+elif f_target == 'cubic':
+    def target_function(x):
+            
+        return x ** 3
+
+else:
+    print('Function to optimize for not found')
+
 def mse_loss(x, y):
 
     x = x.float()
@@ -60,7 +87,7 @@ def mse_loss(x, y):
 
     return mse
 
-state_dict = torch.load("/gpfs/bwfor/work/ws/hd_gy283-my_data/models/sm_uni_na=200.pth", weights_only=False, map_location='cpu')
+state_dict = torch.load("/gpfs/bwfor/work/ws/hd_gy283-my_data/models/sm_vMB_na=200.pth", weights_only=False, map_location='cpu')
 
 model = CondSM(state_dict['layer_dims'], state_dict['dropout'], state_dict['batch_norm'])
 model.load_state_dict(state_dict['model_state_dict'])
@@ -128,4 +155,6 @@ optim_type = args.optim_type
 if __name__ == '__main__':
     if optim_type == 'BO':
         params, targets = multiple_runs(num_runs=args.num_runs, num_iter=args.num_iters)
-    np.save(f'/gpfs/bwfor/work/ws/hd_gy283-my_data/{optim_type}_{f_target}_{args.file_id}.npy', {'params': params, 'targets': targets})
+        np.save(f'/gpfs/bwfor/work/ws/hd_gy283-my_data/{optim_type}_{f_target}_{args.file_id}.npy', {'params': params, 'targets': targets})
+    else:
+        print('Optimization algorithm not found')
