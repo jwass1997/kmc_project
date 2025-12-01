@@ -1,4 +1,6 @@
+#include <chrono>
 #include <cstddef>
+#include <cstdint>
 #include <random>
 #include <algorithm>
 #include <omp.h>
@@ -86,6 +88,8 @@ void singleRun(
         throw std::invalid_argument("[singleRun]: No save folder specified !");
     }
 
+    auto start = std::chrono::high_resolution_clock::now();
+
     Configuration config(
         cfg, 
         acceptorCfg, 
@@ -153,6 +157,10 @@ void singleRun(
     }
 
     double total_time = state.stateTime;
+
+    auto end = std::chrono::high_resolution_clock::now();
+    auto elapsed_time = std::chrono::duration_cast<std::chrono::seconds>(end - start);
+    std::cout << elapsed_time.count() << std::endl;
 
     cnpy::npz_save(deviceName, "acc_xy", flattenedAcceptorCoordinates.data(), shapeFlattenedAcceptorCoordinates, "a");
     cnpy::npz_save(deviceName, "don_xy", flattenedDonorCoordinates.data(), shapeFlattenedDonorCoordinates, "a");
@@ -402,6 +410,8 @@ void batchFromSingleState(
         throw std::invalid_argument("[batchFromSingleState]: Save folder not found");
     }
 
+    auto start = std::chrono::high_resolution_clock::now();
+
     Configuration config(
         cfg, 
         accCfg, 
@@ -533,12 +543,16 @@ void batchFromSingleState(
             }
         }
     }
+
     /* Input-Output data */
     cnpy::npz_save(file, "outputIdx", &outputIdx, {1}, "w");
     cnpy::npz_save(file, "currents", currentData.data(), currentDataShape, "a");
     cnpy::npz_save(file, "inputs", inputData.data(), inputDataShape, "a");
     cnpy::npz_save(file, "sampleStd", currentStd.data(), currentStdShape, "a");
     cnpy::npz_save(file, "sem", currentSem.data(), currentSemShape, "a");
+
+    cnpy::npz_save(file, "T", &config.T, {1}, "a");
+    cnpy::npz_save(file, "sigma", &config.energyDisorder, {1}, "a");
 
     /* Save coords of equilState */
     std::vector<size_t> accCoordsShape = {static_cast<size_t>(initState.nAcceptors), 2};

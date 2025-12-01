@@ -73,6 +73,11 @@ elif f_target == 'cubic':
             
         return x ** 3
 
+elif f_target == 'rbf_gaussian':
+    def target_function(x):
+        
+        return -np.exp(-1*x**2)
+
 else:
     print('Function to optimize for not found')
 

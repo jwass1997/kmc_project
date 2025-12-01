@@ -14,6 +14,40 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from pathlib import Path
 
+def normalize_over_range(x):
+    
+    z = (x - x.mean()) / (x.std() + 1e-8) 
+    
+    return z
+
+def mse_loss_normalized(x, y):
+
+    if isinstance(x, torch.Tensor):
+        x = x.float()
+    if isinstance(y, torch.Tensor):
+        y = y.float()
+        
+    x_norm = (x - x.mean()) / (x.std() + 1e-8)
+    y_norm = (y - y.mean()) / (y.std() + 1e-8)
+    
+    mse = torch.mean((y_norm - x_norm)**2).item()
+
+    return mse
+
+def f_sm(X_np: np.ndarray, model):
+    with torch.no_grad():
+        X = torch.tensor(X_np, dtype=torch.float32)
+        y_full = model(X).squeeze(-1)
+    return y_full[:, 0].detach().cpu().numpy()
+
+
+def sample_X(N, d):
+    return np.random.uniform(
+        low=[-1.5 for i in range(d)],
+        high=[1.5 for i in range(d)],
+        size=(N, d)
+    )
+
 def create_config(n_a, n_d, n_e,
                   radius,
                   nu_0, a, T,
@@ -42,8 +76,33 @@ def create_config(n_a, n_d, n_e,
         f.write(f'Nr {Nr}\n')
         f.write(f'Nt {Nt}\n')       
 
+def Beta_von_Mises_sample(alpha, beta, mu, kappa, radius, N):
+    samples = []
+    
+    while len(samples) < N:
+        # propose a batch of points (oversample a bit for efficiency)
+        batch_size = max(100, N - len(samples))
 
+        u = np.random.beta(a=alpha, b=beta, size=batch_size)
+        r = radius * np.sqrt(u)
+        theta = np.random.vonmises(mu=mu, kappa=kappa, size=batch_size)
 
+        x = r * np.cos(theta)
+        y = r * np.sin(theta)
+        candidates = np.column_stack([x, y])
+        
+        # rejection step: keep only those inside the radius disc
+        # (norm <= radius). This is equivalent to r <= radius.
+        inside = np.linalg.norm(candidates, axis=1) <= radius
+        accepted = candidates[inside]
+
+        if accepted.size > 0:
+            samples.append(accepted)
+
+    # concatenate and trim to exactly N samples
+    samples = np.vstack(samples)[:N]
+    return samples
+    
 def create_dopant_configuration(radius, n_a, n_d, name_a, name_d, mode, eps, save_dir):
 
     acc_pos, don_pos = np.zeros((n_a, 2)), np.zeros((n_d, 2))

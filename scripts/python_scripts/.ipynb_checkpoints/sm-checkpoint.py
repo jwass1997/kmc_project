@@ -124,6 +124,6 @@ class LearnableActivationFunc(nn.Module):
         x_sc = self.affine_input_scaling(x)
         input_tensor = torch.cat([cntrl_params_left, x_sc, cntrl_params_right], dim=1)
 
-        out = self.sm(input_tensor)
+        out = self.sm(input_tensor)[:, 0]
 
         return out.reshape(orig_shape)
