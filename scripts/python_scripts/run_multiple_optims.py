@@ -3,6 +3,7 @@ import torch.nn as nn
 import numpy as np
 import matplotlib.pyplot as plt
 import argparse
+from pathlib import Path
 from bayes_opt import BayesianOptimization
 from models import CondSM
 
@@ -11,12 +12,19 @@ print(device)
 
 parser = argparse.ArgumentParser()
 
+parser.add_argument('--model', type=str)
 parser.add_argument('--num_runs', type=int)
 parser.add_argument('--num_iters', type=int)
 parser.add_argument('--optim_type', type=str)
 parser.add_argument('--target', type=str)
 parser.add_argument('--file_id', type=str)
 args = parser.parse_args()
+
+model_dir = Path(args.model)
+state_dict = torch.load(model_dir, weights_only=False, map_location='cpu')
+
+model = CondSM(state_dict['layer_dims'], state_dict['dropout'], state_dict['batch_norm'])
+model.load_state_dict(state_dict['model_state_dict'])
 
 def normalize_over_range(x):
     
@@ -91,11 +99,6 @@ def mse_loss(x, y):
     mse = torch.mean((y_norm - x_norm)**2).item()
 
     return mse
-
-state_dict = torch.load("/gpfs/bwfor/work/ws/hd_gy283-my_data/models/sm_vMB_na=200.pth", weights_only=False, map_location='cpu')
-
-model = CondSM(state_dict['layer_dims'], state_dict['dropout'], state_dict['batch_norm'])
-model.load_state_dict(state_dict['model_state_dict'])
 
 v_min = -1.5
 v_max = 1.5

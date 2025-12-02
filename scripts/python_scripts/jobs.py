@@ -408,7 +408,7 @@ if __name__ == "__main__":
             SLURM_OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
         ) """
     
-    for i in range(num_batches):
+    for i in range(200, 400):
         time.sleep(0.1)
         slurm_batch_from_single_state(
             batch_size=batch_size,
