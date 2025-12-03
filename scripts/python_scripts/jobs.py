@@ -388,7 +388,7 @@ if __name__ == "__main__":
         ) """
 
     num_batches = 200
-    batch_size = 1_000
+    batch_size = 1000
     """ for i in range(num_batches, 400):
         time.sleep(0.1)
         slurm_batch_from_single_state(
@@ -408,7 +408,7 @@ if __name__ == "__main__":
             SLURM_OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
         ) """
     
-    for i in range(200, 400):
+    for i in range(200):
         time.sleep(0.1)
         slurm_batch_from_single_state(
             batch_size=batch_size,
@@ -416,11 +416,11 @@ if __name__ == "__main__":
             output_idx=0,
             eq_steps=10_000, sim_steps=1_000_000, num_of_tasks=100,
             LHCSeed=np.random.randint(low=0, high=2**31 - 1), threadBaseSeed=np.random.randint(low=0, high=2**31 - 1),
-            cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_gradient_away_output/configs/config.txt"), 
-            acc_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_gradient_away_output/configs/vMB_gradient_away_output.txt"), 
-            don_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_gradient_away_output/configs/uniform_donors_1.txt"), 
-            ele_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_gradient_away_output/configs/electrodes.txt"),
-            save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_gradient_away_output"), 
+            cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring/configs/config.txt"), 
+            acc_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring/configs/vMB_ring.txt"), 
+            don_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring/configs/uniform_donors_1.txt"), 
+            ele_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring/configs/electrodes.txt"),
+            save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring"), 
             file_name=f"batch_{i}",
             BINARY = Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"), 
             SH_SCRIPT =Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/batch_script.sh"), 
@@ -450,25 +450,25 @@ if __name__ == "__main__":
     #control_volts = np.random.uniform(low=-1.5, high=1.5, size=len(c_indices)).tolist()#[0.2, 1.1, -0.5, -1, 0.5, 0.7]
     control_volts = [0.6219740359908369, 1.5, 1.329525906935132, 1.5, 1.239992586471815, 0.7976947763969898]
     N = 2000
-    steps = 10_000_000
+    steps = 1_000_000
     """ slurm_single_IV(
-        numOfPoints=N,
+        numOfPoints=100,
         inputIdx=1,
         outputIdx=0,
         control_indices=c_indices,
         control_volts=control_volts,
-        minVoltage=1.5,
+        minVoltage=-1.5,
         maxVoltage=1.5,
         eq_steps=10_000,
         sim_steps=steps,
         num_intervals=100,
         seed=np.random.randint(low=1, high=2**30),
-        cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_uni_0/configs/config.txt"),
+        cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/config.txt"),
         acc_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_uni_0/configs/uniform_acceptors_0.txt"),
         don_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_uni_0/configs/uniform_donors_0.txt"),
         ele_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_uni_0/configs/electrodes.txt"),
-        save_folder=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/kmc_steps_histograms"),
-        file_name=Path(f"steps={steps}"),
+        save_folder=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets"),
+        file_name=Path(f"a=5nm"),
         BINARY=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
         SH_SCRIPT=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
         OUT_DIR=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
