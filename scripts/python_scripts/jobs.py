@@ -8,8 +8,10 @@ from pathlib import Path
 def slurm_single_device(
         control_indices,
         control_volts,
+        output_idx,
         eq_steps,
         sim_steps,
+        num_intervals,
         seed,
         cfg,
         acc_cfg,
@@ -21,7 +23,7 @@ def slurm_single_device(
         SH_SCRIPT,
         OUT_DIR
 ):
-    DATA_DIR = Path(WS_DIR) / f"{save_folder}"
+    DATA_DIR = save_folder
     DATA_DIR.mkdir(parents=True, exist_ok=True)
 
     Path(OUT_DIR).mkdir(parents=True, exist_ok=True)
@@ -41,8 +43,10 @@ def slurm_single_device(
         f"{str(SH_SCRIPT)}",
         f"{str(BINARY)}",
         f"singleRun",
+        f"--outputIdx={output_idx}",
         f"--eqSteps={eq_steps}",
         f"--simSteps={sim_steps}",
+        f"--numIntervals={num_intervals}",
         f"--seed={seed}",
         f"--cfg={str(cfg)}",
         f"--accCfg={str(acc_cfg)}",
@@ -408,7 +412,7 @@ if __name__ == "__main__":
             SLURM_OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
         ) """
     
-    for i in range(200):
+    """ for i in range(200):
         time.sleep(0.1)
         slurm_batch_from_single_state(
             batch_size=batch_size,
@@ -416,16 +420,16 @@ if __name__ == "__main__":
             output_idx=0,
             eq_steps=10_000, sim_steps=1_000_000, num_of_tasks=100,
             LHCSeed=np.random.randint(low=0, high=2**31 - 1), threadBaseSeed=np.random.randint(low=0, high=2**31 - 1),
-            cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring/configs/config.txt"), 
-            acc_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring/configs/vMB_ring.txt"), 
-            don_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring/configs/uniform_donors_1.txt"), 
-            ele_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring/configs/electrodes.txt"),
-            save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring"), 
+            cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_grad_away_sig=0.05/configs/config.txt"), 
+            acc_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_grad_away_sig=0.05/configs/vMB_gradient_towards_output.txt"), 
+            don_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_grad_away_sig=0.05/configs/uniform_donors_1.txt"), 
+            ele_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/ddata_vMB_grad_away_sig=0.05/configs/electrodes.txt"),
+            save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_grad_away_sig=0.05"), 
             file_name=f"batch_{i}",
             BINARY = Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"), 
             SH_SCRIPT =Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/batch_script.sh"), 
             SLURM_OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
-        )
+        ) """
     
     """ for i in range(200):
         time.sleep(0.1)
@@ -498,11 +502,13 @@ if __name__ == "__main__":
         OUT_DIR=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
     ) """
     v = 0.0
-    """ slurm_single_device(
+    slurm_single_device(
         control_indices=[0, 1, 2, 3, 4, 5, 6, 7],
         control_volts = [0.0, v, -1.1192982948659904, 0.11237314251492486, -0.5453210281976734, -0.3224823080683447, 1.5, 0.860979202982826],
+        output_idx=0,
         eq_steps=100_000,
         sim_steps=1_000_000,
+        num_intervals=100,
         seed=np.random.randint(low=1, high=2**30),
         cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/data_vMB_own_pde_solver/vMB_configs/config_0.txt"),
         acc_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/data_vMB_own_pde_solver/vMB_configs/acceptors.txt"),
@@ -513,7 +519,7 @@ if __name__ == "__main__":
         BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
         SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/helix_single.sh"),
         OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
-    ) """
+    )
    
     """ slurm_single_IV(
         numOfPoints=50,

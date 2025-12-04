@@ -75,7 +75,9 @@ void singleRun(
     const std::string& ID, 
     int eqSteps, 
     int simSteps, 
+    int num_intervals,
     std::vector<double> voltages,
+    int outputIdx,
     const std::string& cfg, 
     const std::string& acceptorCfg,
     const std::string& donorCfg,
@@ -104,7 +106,56 @@ void singleRun(
     state.stateTime = 0.0;
 
     state.updateBoundaries(voltages);
-    kmc.simulate(state, simSteps, false, true);
+
+    double averagedCurrent = 0.0;
+    double totalTime = 0.0;
+    int intervalSteps = simSteps / num_intervals;
+
+    double meanW = 0.0;
+    double M2w = 0.0;
+    double wSum = 0.0;
+    double w2Sum = 0.0;
+
+    int intervalCount = 0;
+    while (intervalCount < num_intervals) 
+    {
+
+        double startClock = state.stateTime;
+        kmc.simulate(state, intervalSteps, false, true);
+        double endClock = state.stateTime; 
+
+        double elapsedTime = endClock - startClock;
+        int inEvents = 0;
+        int outEvents = 0;
+        for (int i = 0; i < state.numOfSites; ++i) {
+            outEvents += state.eventCounter[(outputIdx + state.nAcceptors)*state.numOfSites + i];
+            inEvents += state.eventCounter[state.numOfSites*i + (outputIdx + state.nAcceptors)];
+        }
+        totalTime += elapsedTime;
+
+        double Ii = e * static_cast<double>(inEvents-outEvents) / elapsedTime;
+        averagedCurrent += Ii*elapsedTime;
+        
+        /**
+            * weighted Welford update
+            */
+        double w = elapsedTime;
+        double prevMean = meanW;
+        wSum += w;
+        meanW += w * (Ii - meanW) / wSum;
+        M2w += w * (Ii - prevMean) * (Ii - meanW);
+        w2Sum += w * w;
+
+        state.resetEventCounter();
+
+        intervalCount++;
+    }
+
+    averagedCurrent /= totalTime;
+
+    double weightedVar = (wSum > 0.0) ? (M2w / wSum) : 0.0;
+    double sampleStd = std::sqrt(weightedVar);
+    double sem = (wSum > 0.0) ? (sampleStd * std::sqrt(w2Sum) / wSum) : 0.0;
 
     int nAcceptors = state.nAcceptors;
     int nElectrodes = state.nElectrodes;
@@ -126,6 +177,7 @@ void singleRun(
 
     std::string deviceName = saveFolderPath + "/" + ID + ".npz";
     cnpy::npz_save(deviceName, "ID", &ID, {1}, "w"); 
+    cnpy::npz_save(deviceName, "current", &averagedCurrent, {1}, "a");
 
     for (int i = 0; i < nAcceptors; ++i) 
     {
@@ -158,9 +210,9 @@ void singleRun(
 
     double total_time = state.stateTime;
 
-    auto end = std::chrono::high_resolution_clock::now();
-    auto elapsed_time = std::chrono::duration_cast<std::chrono::seconds>(end - start);
-    std::cout << elapsed_time.count() << std::endl;
+    //auto end = std::chrono::high_resolution_clock::now();
+    //auto elapsed_time = std::chrono::duration_cast<std::chrono::seconds>(end - start);
+    //std::cout << elapsed_time.count() << std::endl;
 
     cnpy::npz_save(deviceName, "acc_xy", flattenedAcceptorCoordinates.data(), shapeFlattenedAcceptorCoordinates, "a");
     cnpy::npz_save(deviceName, "don_xy", flattenedDonorCoordinates.data(), shapeFlattenedDonorCoordinates, "a");
@@ -1219,8 +1271,10 @@ int argParser(int argc, char* argv[]) {
             ("saveFolder", boost::program_options::value<std::string>()->required())
             ("eqSteps", boost::program_options::value<int>()->default_value(1e4))
             ("simSteps", boost::program_options::value<int>()->required())
+            ("numIntervals", boost::program_options::value<int>()->required())
             ("seed", boost::program_options::value<int>()->required())
             ("fileName", boost::program_options::value<std::string>()->required())
+            ("outputIdx", boost::program_options::value<int>()->required())
             ("c_v", boost::program_options::value<std::vector<std::string>>()->composing(), "electrode index=value")
         ;
 
@@ -1245,7 +1299,9 @@ int argParser(int argc, char* argv[]) {
             vm["fileName"].as<std::string>(),
             vm["eqSteps"].as<int>(),
             vm["simSteps"].as<int>(),
+            vm["numIntervals"].as<int>(),
             voltages,
+            vm["outputIdx"].as<int>(),
             vm["cfg"].as<std::string>(),
             vm["accCfg"].as<std::string>(),
             vm["donCfg"].as<std::string>(),
