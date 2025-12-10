@@ -41,10 +41,10 @@ def f_sm(X_np: np.ndarray, model):
     return y_full[:, 0].detach().cpu().numpy()
 
 
-def sample_X(N, d):
+def sample_X(N, min_v, max_v, d):
     return np.random.uniform(
-        low=[-1.5 for i in range(d)],
-        high=[1.5 for i in range(d)],
+        low=[min_v for i in range(d)],
+        high=[max_v for i in range(d)],
         size=(N, d)
     )
 

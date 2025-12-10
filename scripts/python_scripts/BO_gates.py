@@ -1,6 +1,8 @@
 import numpy as np
 import os
+import subprocess
 import time
+import torch
 from pathlib import Path
 from jobs import slurm_single_device
 from bayes_opt import BayesianOptimization
@@ -25,12 +27,12 @@ BINARY_PATH = Path('/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project')
 SH_SCRIPT_PATH = Path('/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/helix_single.sh')
 OUT_DIR_PATH = Path('/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out')
 
-SAVE_FOLDER_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/BO_test')
+SAVE_FOLDER_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/BO_gm_XOR')
 
-CFG_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/data_uni/uni_configs/config.txt')
-ACC_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/data_uni/uni_configs/acceptors.txt')
-DON_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/data_uni/uni_configs/donors.txt')
-ELE_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/data_uni/uni_configs/electrodes.txt')
+CFG_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_gm_0/configs/config.txt')
+ACC_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_gm_0/configs/gm_acceptors_0.txt')
+DON_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_gm_0/configs/uniform_donors_0.txt')
+ELE_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_gm_0/configs/electrodes.txt')
 
 class GateObjective:
     def __init__(self):
@@ -49,14 +51,14 @@ class GateObjective:
         cv_list = [kwargs[f'x_{i}'] for i in control_indices]
 
         input_pairs = [
-            [0.0, 0.5],
             [0.0, 0.0],
-            [0.5, 0.5],
-            [0.5, 0.0]
+            [0.0, 1.0],
+            [1.0, 0.0],
+            [1.0, 1.0]
         ]
 
         truth = [
-            1,
+            0,
             0,
             0,
             1
@@ -84,9 +86,9 @@ class GateObjective:
                 control_volts=full_voltage_list,
                 output_idx = output_index,
                 eq_steps=10_000,
-                sim_steps=1_000_000,
+                sim_steps=100_000,
                 num_intervals=100,
-                seed=42,
+                seed=np.random.randint(0, 2 ** 31 - 1),
                 cfg=CFG_PATH,
                 acc_cfg=ACC_PATH,
                 don_cfg=DON_PATH,
@@ -97,6 +99,29 @@ class GateObjective:
                 SH_SCRIPT=SH_SCRIPT_PATH,
                 OUT_DIR=OUT_DIR_PATH
             )
+            """args = [
+                BINARY_PATH,
+                f"singleRun",        
+                f"--outputIdx={output_index}",
+                f"--eqSteps={10_000}",
+                f"--simSteps={100_000}",
+                f"--numIntervals={100}",
+                f"--seed={31}",
+                f"--cfg={str(CFG_PATH)}",
+                f"--accCfg={str(ACC_PATH)}",
+                f"--donCfg={str(DON_PATH)}",
+                f"--eleCfg={str(ELE_PATH)}",
+                f"--saveFolder={str(ITER_PATH)}",
+                f"--fileName={str(FILE_NAME)}"
+            ]
+            
+            voltage_args = [
+                f"--c_v={idx}={volt}"
+                for idx, volt in enumerate(full_voltage_list)
+            ]
+
+            cmd_args = args + voltage_args
+            subprocess.run(args=cmd_args)"""
             
         timeout = 600     
         t0 = time.time()
@@ -114,11 +139,19 @@ class GateObjective:
         
         for pair, y in zip(input_pairs, truth):
             data = np.load(file_map[(pair[0], pair[1])])
-            currents.append(float(data['current']) * 1e12 * 1e9)
+            currents.append(np.array(data['current']).item() * 1e21)
             desired.append(y)
-        #highs = [c for c, t in zip(currents, desired) if t == 1]
-        #lows = [c for c, t in zip(currents, desired) if t == 0]
+        """  highs = np.array([c for c, t in zip(currents, desired) if t == 1])
+        lows = np.array([c for c, t in zip(currents, desired) if t == 0])
+        
+        margin = highs.min() - lows.max()
+        Ion = highs.mean()
+        Ioff = lows.mean()
+        ratio = Ion / (Ioff + 1e-12)
+        score = np.maximum(margin, 0.0) * ratio
 
+        return score """
+    
         I_min = min(currents)
         I_max = max(currents)
 
@@ -194,9 +227,16 @@ if __name__ == '__main__':
         f=gate_objective,
         pbounds=pbounds,
         verbose=2,
-        random_state=0,
+        random_state=np.random.randint(0, 2 ** 31 - 1),
     )
     optimizer.maximize(
-        init_points=10,
+        init_points=5,
         n_iter=50,
     )
+
+    opt_param_list = []
+    target_list = []
+    opt_param_list.append(np.array(list(optimizer.max['params'].values())).tolist())
+    target_list.append(float(optimizer.max['target']))
+
+    np.save(str(SAVE_FOLDER_PATH / 'results.npy'), {'params': np.stack(opt_param_list), 'targets': np.stack(target_list)})

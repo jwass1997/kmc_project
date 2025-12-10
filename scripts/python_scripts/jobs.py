@@ -59,7 +59,7 @@ def slurm_single_device(
     cmd = args + control_volts_args
 
     result = subprocess.run(cmd, capture_output=True, text=True)
-    print("Running command:", " ".join(cmd))
+    #print("Running command:", " ".join(cmd))
     if result.returncode != 0:
         print("sbatch failed with stderr:\n", result.stderr)
     else:
@@ -401,11 +401,11 @@ if __name__ == "__main__":
             output_idx=0,
             eq_steps=10_000, sim_steps=1_000_000, num_of_tasks=100,
             LHCSeed=np.random.randint(low=0, high=2**31 - 1), threadBaseSeed=np.random.randint(low=0, high=2**31 - 1),
-            cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_gm_0/configs/config.txt"), 
-            acc_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_gm_0/configs/gm_acceptors_0.txt"), 
-            don_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_gm_0/configs/uniform_donors_0.txt"), 
-            ele_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_gm_0/configs/electrodes.txt"),
-            save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_gm_0"), 
+            cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_grad_away_sig=0.05/configs/config.txt"), 
+            acc_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_grad_away_sig=0.05/configs/vMB_gradient_away_output.txt"), 
+            don_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_grad_away_sig=0.05/configs/uniform_donors_1.txt"), 
+            ele_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_grad_away_sig=0.05/configs/electrodes.txt"),
+            save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_grad_away_sig=0.05"), 
             file_name=f"batch_{i}",
             BINARY = Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"), 
             SH_SCRIPT =Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/batch_script.sh"), 
@@ -502,7 +502,7 @@ if __name__ == "__main__":
         OUT_DIR=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
     ) """
     v = 0.0
-    slurm_single_device(
+    """ slurm_single_device(
         control_indices=[0, 1, 2, 3, 4, 5, 6, 7],
         control_volts = [0.0, v, -1.1192982948659904, 0.11237314251492486, -0.5453210281976734, -0.3224823080683447, 1.5, 0.860979202982826],
         output_idx=0,
@@ -519,9 +519,9 @@ if __name__ == "__main__":
         BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
         SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/helix_single.sh"),
         OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
-    )
-   
-    """ slurm_single_IV(
+    ) """
+    c_volts = [-1.5000,  0.8433,  1.0561, -0.0830, -1.3701, -0.3543,  1.4880]
+    slurm_single_IV(
         numOfPoints=50,
         inputIdx=1,
         outputIdx=0,
@@ -533,16 +533,16 @@ if __name__ == "__main__":
         sim_steps=1_000_000,
         num_intervals=100,
         seed=np.random.randint(low=1, high=2**30),
-        cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/config.txt"),
-        acc_cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/configs/radial_distribution.txt"),
-        don_cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/donors_0.txt"),
-        ele_cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/electrodes.txt"),
-        save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/radial"),
-        file_name=Path(f"sim_0"),
+        cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_gm_0/configs/config.txt"),
+        acc_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_gm_0/configs/gm_acceptors_0.txt"),
+        don_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_gm_0/configs/uniform_donors_0.txt"),
+        ele_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_gm_0/configs/electrodes.txt"),
+        save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/"),
+        file_name=Path(f"gm_sim_1"),
         BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
         SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
         OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
-    ) """
+    )
 
     """ for n in noise_levels:
         seed = np.random.randint(low=1, high=2**15)
@@ -571,10 +571,12 @@ if __name__ == "__main__":
     volts = [0.0, -1.0, 0.2, 1.1, -0.5, -1, 0.5, 0.7]
     """ slurm_single_device(
         control_indices=[0, 1, 2, 3, 4, 5, 6, 7],
-        control_volts = volts,#np.random.uniform(low=-1.5, high=1.5, size=8).tolist(),
+        control_volts = volts,
+        output_idx=0,
         eq_steps=100_000,
         sim_steps=1_000_000,
-        seed=np.random.randint(low=1, high=2**30),
+        num_intervals=100,
+        seed=np.random.randint(low=1, high=2**31 - 1),
         cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/config.txt"),
         acc_cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/acceptors_0.txt"),
         don_cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/donors_0.txt"),
