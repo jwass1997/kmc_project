@@ -27,12 +27,12 @@ BINARY_PATH = Path('/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project')
 SH_SCRIPT_PATH = Path('/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/helix_single.sh')
 OUT_DIR_PATH = Path('/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out')
 
-SAVE_FOLDER_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/BO_gm_XOR')
+SAVE_FOLDER_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/BO_vMB_ring_XOR')
 
-CFG_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_gm_0/configs/config.txt')
-ACC_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_gm_0/configs/gm_acceptors_0.txt')
-DON_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_gm_0/configs/uniform_donors_0.txt')
-ELE_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_gm_0/configs/electrodes.txt')
+CFG_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/configs/config.txt')
+ACC_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/configs/vMB_ring.txt')
+DON_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/configs/uniform_donors_1.txt')
+ELE_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/configs/electrodes.txt')
 
 class GateObjective:
     def __init__(self):
@@ -52,16 +52,16 @@ class GateObjective:
 
         input_pairs = [
             [0.0, 0.0],
-            [0.0, 1.0],
-            [1.0, 0.0],
-            [1.0, 1.0]
+            [0.0, .5],
+            [.5, 0.0],
+            [.5, .5]
         ]
 
         truth = [
             0,
-            0,
-            0,
-            1
+            1,
+            1,
+            0
         ]
 
         file_map = {}
@@ -86,7 +86,7 @@ class GateObjective:
                 control_volts=full_voltage_list,
                 output_idx = output_index,
                 eq_steps=10_000,
-                sim_steps=100_000,
+                sim_steps=1_000_000,
                 num_intervals=100,
                 seed=np.random.randint(0, 2 ** 31 - 1),
                 cfg=CFG_PATH,

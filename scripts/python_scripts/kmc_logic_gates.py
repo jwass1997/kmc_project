@@ -20,7 +20,7 @@ gate_inputs = [
 ]
 
 control_indices = [1, 2, 4, 6, 7]
-control_voltages = [0.8218206,  -0.86646502,  0.3514171,   1.22526175,  0.84657191]
+control_voltages = [0.8218206, -0.86646502, 0.3514171, 1.22526175, 0.84657191]
 
 CFG_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/data_vMB_own_pde_solver/vMB_configs/config.txt')
 ACC_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/data_vMB_own_pde_solver/vMB_configs/acceptors.txt')
