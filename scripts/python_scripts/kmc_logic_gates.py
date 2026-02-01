@@ -11,7 +11,7 @@ num_voltages = 8
 GATE = 'XOR'
 
 min_v = -0.5
-max_v = 1.0
+max_v = 1.5
 gate_inputs = [
     [0.0, 0.0],
     [0.0, max_v],
@@ -20,12 +20,12 @@ gate_inputs = [
 ]
 
 control_indices = [1, 2, 4, 6, 7]
-control_voltages = [0.8218206, -0.86646502, 0.3514171, 1.22526175, 0.84657191]
+control_voltages = [-0.19557869, -0.78862113, -1.11523697, 0.99844417, -1.44972628]
 
-CFG_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/data_vMB_own_pde_solver/vMB_configs/config.txt')
-ACC_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/data_vMB_own_pde_solver/vMB_configs/acceptors.txt')
-DON_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/data_vMB_own_pde_solver/vMB_configs/donors.txt')
-ELE_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/data_vMB_own_pde_solver/vMB_configs/electrodes.txt')
+CFG_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/config.txt')
+ACC_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/vMB_ring.txt')
+DON_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/uniform_donors_1.txt')
+ELE_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/electrodes.txt')
 
 if __name__ == '__main__':
 
@@ -42,7 +42,7 @@ if __name__ == '__main__':
             control_indices=[0, 1, 2, 3, 4, 5, 6, 7],
             control_volts = voltages,
             output_idx=output_idx,
-            eq_steps=10_000,
+            eq_steps=100_000,
             sim_steps=1_000_000,
             num_intervals=100,
             seed=np.random.randint(low=1, high=2**31 - 1),
