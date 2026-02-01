@@ -369,8 +369,11 @@ void singleIVCurve(
                 uint64_t(outputIdx) ^
                 uint64_t(simSteps) ^
                 uint64_t(numOfTasks) ^
-                uint64_t(threadID)
+                uint64_t(threadID) ^
+                uint64_t(v) ^
+                uint64_t(seed)
             );
+            
 
             KMCSimulator kmc(equilState, kmc_seed);
 
@@ -381,10 +384,8 @@ void singleIVCurve(
             int intervalSteps = simSteps / numOfTasks;
             int netEvents = 0;
 
-            double meanW = 0.0;
-            double M2w = 0.0;
-            double wSum = 0.0;
-            double w2Sum = 0.0;
+            std::vector<double> Ii(numOfTasks, 0.0);
+            std::vector<double> wi(numOfTasks, 0.0);
 
             int intervalCount = 0;
             while (intervalCount < numOfTasks) {
@@ -401,33 +402,54 @@ void singleIVCurve(
                     inEvents += equilState.eventCounter[equilState.numOfSites*i + (outputIdx + equilState.nAcceptors)];
                 }
                 totalTime += elapsedTime;
-                netEvents += inEvents-outEvents;
+                //netEvents += inEvents-outEvents;
 
-                double Ii = e * static_cast<double>(inEvents-outEvents) / elapsedTime;
-                averagedCurrent += Ii*elapsedTime;
+                double Ii_here = e * static_cast<double>(inEvents-outEvents) / elapsedTime;
+                averagedCurrent += Ii_here*elapsedTime;
+
+                Ii[intervalCount] = Ii_here;
+                wi[intervalCount] = elapsedTime;
                 
-                /**
-                 * weighted Welford update
-                 */
-                double w = elapsedTime;
-                double prevMean = meanW;
-                wSum += w;
-                meanW += w * (Ii - meanW) / wSum;
-                M2w += w * (Ii - prevMean) * (Ii - meanW);
-                w2Sum += w * w;
-
                 equilState.resetEventCounter();
 
                 intervalCount++;
             }
 
-            averagedCurrent /= totalTime;
+            // finalize time-averaged current
+            averagedCurrent = (totalTime > 0.0) ? (averagedCurrent / totalTime) : 0.0;
 
-            double weightedVar = (wSum > 0.0) ? (M2w / wSum) : 0.0;
-            double sampleStd = std::sqrt(weightedVar);
-            double sem = (wSum > 0.0) ? (sampleStd * std::sqrt(w2Sum) / wSum) : 0.0;
+            // ---------- ERROR CALC OUTSIDE THE LOOP (independent intervals) ----------
 
-            currentData[v] = averagedCurrent;
+            // weights sums
+            double wSum = 0.0, w2Sum = 0.0;
+            for (int i = 0; i < numOfTasks; ++i) {
+                wSum  += wi[i];
+                w2Sum += wi[i] * wi[i];
+            }
+
+            // weighted mean (should match averagedCurrent; use the time-average)
+            double mean = averagedCurrent;
+
+            // weighted sum of squares around mean
+            double S = 0.0;
+            for (int i = 0; i < numOfTasks; ++i) {
+                double d = Ii[i] - mean;
+                S += wi[i] * d * d;
+            }
+
+            // unbiased-ish weighted sample variance (reliability weights)
+            // denom = sum(w) - sum(w^2)/sum(w)
+            double denom = (wSum > 0.0) ? (wSum - (w2Sum / wSum)) : 0.0;
+            double var_unbiased = (denom > 0.0) ? (S / denom) : 0.0;
+            double sampleStd = std::sqrt(var_unbiased);
+
+            // effective sample size
+            double nEff = (w2Sum > 0.0) ? (wSum * wSum / w2Sum) : 0.0;
+
+            // SEM of weighted mean using ESS
+            double sem = (nEff > 0.0) ? (sampleStd / std::sqrt(nEff)) : 0.0;
+
+            currentData[v] = mean;
             currentStd[v] = sampleStd;
             currentSem[v] = sem;
         }
