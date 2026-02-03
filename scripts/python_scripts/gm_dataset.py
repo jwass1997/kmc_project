@@ -5,10 +5,10 @@ from jobs import slurm_batch_from_single_state
 
 batch_size = 2000
 
-CFG = Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/uni_a=5_ed=0.1_1e7/configs/config.txt")
-ACC_CFG = Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/uni_a=5_ed=0.1_1e7/configs/uniform_acceptors_0.txt")
-DON_CFG = Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/uni_a=5_ed=0.1_1e7/configs/uniform_donors_0.txt")
-ELE_CFG = Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/uni_a=5_ed=0.1_1e7/configs/electrodes.txt")
+CFG = Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_away_ed=0.01_T=293/configs/config.txt")
+ACC_CFG = Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_away_ed=0.01_T=293/configs/vMB_gradient_away_output.txt")
+DON_CFG = Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_away_ed=0.01_T=293/configs/uniform_donors_1.txt")
+ELE_CFG = Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_away_ed=0.01_T=293/configs/electrodes.txt")
 
 if __name__ == '__main__':
     for i in range(100):
@@ -23,7 +23,7 @@ if __name__ == '__main__':
             acc_cfg=ACC_CFG,
             don_cfg=DON_CFG,
             ele_cfg=ELE_CFG,
-            save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/uni_a=5_ed=0.1_1e7"),
+            save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_away_ed=0.01_T=293"),
             file_name=f"batch_{i}",
             BINARY = Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"), 
             SH_SCRIPT =Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/batch_script.sh"), 

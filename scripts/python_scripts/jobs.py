@@ -189,6 +189,62 @@ def slurm_batch_from_single_state(
     else:
         print("sbatch submission output:\n", result.stdout)
 
+def slurm_batch_from_single_state(
+        batch_size,
+        min_V,
+        max_V,
+        output_idx,
+        eq_steps,
+        sim_steps,
+        num_of_tasks,
+        LHCSeed,
+        threadBaseSeed,
+        cfg,
+        acc_cfg,
+        don_cfg,
+        ele_cfg,
+        save_folder,
+        file_name,
+        BINARY,
+        SH_SCRIPT,
+        SLURM_OUT_DIR
+):
+    DATA_DIR = Path(save_folder)
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+    Path(SLURM_OUT_DIR).mkdir(parents=True, exist_ok=True)
+    output_file_name = SLURM_OUT_DIR / f"{file_name}.out"
+
+    cmd = [
+        "sbatch",
+        f"--output={output_file_name}",
+        str(SH_SCRIPT),
+        str(BINARY),
+        "batchFromSingleState_sem",
+        f"--batchSize={batch_size}",
+        f"--minVoltage={min_V}",
+        f"--maxVoltage={max_V}",
+        f"--outputIdx={output_idx}",
+        f"--eqSteps={eq_steps}",
+        f"--simSteps={sim_steps}",
+        f"--numOfDevices={num_of_tasks}",
+        f"--LHCSeed={LHCSeed}",
+        f"--threadBaseSeed={threadBaseSeed}",
+        f"--cfg={cfg}",
+        f"--accCfg={acc_cfg}",
+        f"--donCfg={don_cfg}",
+        f"--eleCfg={ele_cfg}",
+        f"--saveFolder={str(DATA_DIR)}",
+        f"--fileName={file_name}"
+    ]
+
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    print("Running command:", " ".join(cmd))
+    if result.returncode != 0:
+        print("sbatch failed with stderr:\n", result.stderr)
+    else:
+        print("sbatch submission output:\n", result.stdout)
+
 def slurm_batch_of_independant_states(
         batch_size,
         min_V,
@@ -357,7 +413,26 @@ if __name__ == "__main__":
     BINARY = ROOT / "build" / "kmc_project"
     SH_SCRIPT = ROOT / "scripts" / "slurm" / "single_curve.sh"
 
-    """ for i in range(200):
+    for i in range(0, 1):
+        time.sleep(0.1)
+        slurm_batch_from_single_state(
+            batch_size=100,
+            min_V=-1.5, max_V=1.5,
+            output_idx=0,
+            eq_steps=100_000, sim_steps=1_000_000, num_of_tasks=100,
+            LHCSeed=np.random.randint(low=0, high=2**31 - 1), threadBaseSeed=np.random.randint(low=0, high=2**31 - 1),
+            cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/uni_1e6_with_sem_test_batch/configs/config.txt"), 
+            acc_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/uni_1e6_with_sem_test_batch/configs/uniform_acceptors_0.txt"), 
+            don_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/uni_1e6_with_sem_test_batch/configs/uniform_donors_0.txt"), 
+            ele_cfg=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/uni_1e6_with_sem_test_batch/configs/electrodes.txt"),
+            save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/uni_1e6_with_sem_test_batch"), 
+            file_name=f"batch_{i}",
+            BINARY = Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"), 
+            SH_SCRIPT =Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/batch_script.sh"), 
+            SLURM_OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
+        )
+
+    """for i in range(200):
         time.sleep(0.1)
         slurm_batch_of_independant_states(
             batch_size=1000,
@@ -376,20 +451,20 @@ if __name__ == "__main__":
             max_hop_distance=60.0,
             Nr=257,
             Nt=1440,
-            dist_type="gaussian_mixture",
+            dist_type="uniform",
             n_comps=8,
             output_idx=0,
-            eq_steps=10_000,
+            eq_steps=100_000,
             sim_steps=1_000_000,
             num_of_tasks=100,
             LHCSeed=np.random.randint(low=0, high=2**31),
             threadBaseSeed=np.random.randint(low=0, high=2**31),
-            save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/data_gmm_params"),
+            save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/uni_cfg_samples_1e7"),
             file_name=f"batch_{i}",
             BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
             SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/batch_script.sh"),
             SLURM_OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
-        ) """
+        )"""
 
     num_batches = 200
     batch_size = 1000
@@ -521,7 +596,7 @@ if __name__ == "__main__":
         OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
     ) """
     #c_volts = [-0.1381, -0.9105,  1.2631, -0.4615, -1.0557, -1.2425]
-    slurm_single_IV(
+    """slurm_single_IV(
         numOfPoints=50,
         inputIdx=1,
         outputIdx=0,
@@ -542,7 +617,7 @@ if __name__ == "__main__":
         BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
         SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
         OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
-    )
+    )"""
 
     """slurm_single_IV(
         numOfPoints=50,
@@ -585,6 +660,52 @@ if __name__ == "__main__":
         ele_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/uni_1e7/configs/electrodes.txt"),
         save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/"),
         file_name=Path(f"uni_sm_evaluation_44"),
+        BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
+        SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
+        OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
+    )"""
+
+    """slurm_single_IV(
+        numOfPoints=50,
+        inputIdx=1,
+        outputIdx=0,
+        control_indices=c_indices,
+        control_volts=[ 0.6588,  0.6920,  0.9834, -1.0970,  0.3839,  0.6892],
+        minVoltage=-1.5,
+        maxVoltage=1.5,
+        eq_steps=100_000,
+        sim_steps=1_000_000,
+        num_intervals=100,
+        seed=np.random.randint(low=1, high=2**30),
+        cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_towards_1e7/configs/config.txt"),
+        acc_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_towards_1e7/configs/vMB_gradient_towards_output.txt"),
+        don_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_towards_1e7/configs/uniform_donors_1.txt"),
+        ele_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_towards_1e7/configs/electrodes.txt"),
+        save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/"),
+        file_name=Path(f"grad_towards_sm_evaluation_44"),
+        BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
+        SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
+        OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
+    )"""
+
+    """slurm_single_IV(
+        numOfPoints=50,
+        inputIdx=1,
+        outputIdx=0,
+        control_indices=c_indices,
+        control_volts=[ 0.6588,  0.6920,  0.9834, -1.0970,  0.3839,  0.6892],
+        minVoltage=-1.5,
+        maxVoltage=1.5,
+        eq_steps=100_000,
+        sim_steps=1_000_000,
+        num_intervals=100,
+        seed=np.random.randint(low=1, high=2**30),
+        cfg=Path(f"//home/hd/hd_hd/hd_gy283/kmc_project/configs/config.txt"),
+        acc_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/uni_1e7/configs/uniform_acceptors_0.txt"),
+        don_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/uni_1e7/configs/uniform_donors_0.txt"),
+        ele_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/uni_1e7/configs/electrodes.txt"),
+        save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/"),
+        file_name=Path(f"uni_sm_evaluation_torch_seed_44_ed=0.1"),
         BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
         SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
         OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")

@@ -250,6 +250,24 @@ void singleIVCurve(
     const std::string& fileName
 );
 
+void batchFromSingleState_sem(
+    int batchSize,
+    double minVoltage,
+    double maxVoltage,
+    int outputIdx,
+    int eqSteps,
+    int simSteps,
+    int numOfDevices,
+    int LHCSeed,
+    int threadBaseSeed,
+    const std::string& cfg,
+    const std::string& accCfg,
+    const std::string& donCfg,
+    const std::string& eleCfg,
+    const std::string& saveFolder,
+    const std::string& fileName
+);
+
 void batchFromSingleState(
     int batchSize,
     double minVoltage,

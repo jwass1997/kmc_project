@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <random>
 #include <algorithm>
+#include <limits>
+#include <cmath>
 #include <omp.h>
 #include <boost/program_options.hpp>
 #include <vector>
@@ -461,6 +463,225 @@ void singleIVCurve(
     cnpy::npz_save(file, "control", controlData.data(), controlDataShape, "a");
     cnpy::npz_save(file, "inputIdx", &inputIdx, {1}, "a");
     cnpy::npz_save(file, "outputIdx", &outputIdx, {1}, "a");
+}
+
+void batchFromSingleState_sem(
+    int batchSize,
+    double minVoltage,
+    double maxVoltage,
+    int outputIdx,
+    int eqSteps,
+    int simSteps,
+    int numOfDevices,
+    int LHCSeed,
+    int threadBaseSeed,
+    const std::string& cfg,
+    const std::string& accCfg,
+    const std::string& donCfg,
+    const std::string& eleCfg,
+    const std::string& saveFolder,
+    const std::string& fileName
+) {
+    if (saveFolder.empty()) {
+        throw std::invalid_argument("[batchFromSingleState]: Save folder not found");
+    }
+
+    auto start = std::chrono::high_resolution_clock::now();
+
+    Configuration config(
+        cfg, 
+        accCfg, 
+        donCfg, 
+        eleCfg
+    );
+
+    std::string file = saveFolder + "/" + fileName + ".npz";
+    /* Output is only current right now (1D since only one output electrode) */
+    std::vector<double> currentData(batchSize, 0.0);
+    std::vector<size_t> currentDataShape = {static_cast<size_t>(batchSize)};
+
+    std::vector<double> currentStd(batchSize, 0.0);
+    std::vector<size_t> currentStdShape = {static_cast<size_t>(batchSize)};
+
+    std::vector<double> currentSem(batchSize, 0.0);
+    std::vector<size_t> currentSemShape = {static_cast<size_t>(batchSize)};
+
+    /* Input 8D (8 inputs voltages with output set to ground) */
+    std::vector<double> inputData(batchSize*config.nElectrodes, 0.0);
+    std::vector<size_t> inputDataShape = {static_cast<size_t>(batchSize), static_cast<size_t>(config.nElectrodes)};
+    /* LHC sampled voltages */
+    std::vector<double> mins(config.nElectrodes, minVoltage);
+    std::vector<double> maxs(config.nElectrodes, maxVoltage);
+    std::vector<std::vector<double>> samples = scaledLHC(
+        batchSize,
+        config.nElectrodes,
+        mins,
+        maxs,
+        LHCSeed 
+    );
+    /* Shared initial state */
+    uint64_t init_state_seed = mix(uint64_t(threadBaseSeed) ^ 0xA54FF53A5F1D36F1ULL);
+    State initState(config, init_state_seed);
+
+    uint64_t init_kmc_seed = mix(init_state_seed ^ 0x9E3779B97F4A7C15ULL);
+    KMCSimulator init_kmc(initState, init_kmc_seed);
+
+    init_kmc.simulate(initState, eqSteps, false, false);
+    initState.resetEventCounter();
+    initState.stateTime = 0.0;
+
+    /* Vector for saving initial site energies */
+    std::vector<double> initialEnergies(batchSize*initState.numOfSites, 0.0);
+
+    #pragma omp parallel
+    {
+        int threadID = omp_get_thread_num();
+
+        #pragma omp for
+        for (int ivPoint = 0; ivPoint < batchSize; ++ivPoint) {
+
+            uint64_t kmcSeed = mix(
+                uint64_t(threadBaseSeed) ^
+                (uint64_t(threadID) << 32) ^
+                uint64_t(ivPoint) ^
+                0xD1B54A32D192ED03ULL
+            );
+
+            std::vector<double> voltages = samples[ivPoint];
+            voltages[outputIdx] = 0.0;
+            
+            State equilState(initState);
+
+            equilState.updateBoundaries(voltages);
+
+            for (int _s = 0; _s < equilState.numOfSites; ++_s) {
+                initialEnergies[_s + ivPoint*equilState.numOfSites] = equilState.siteEnergies[_s];
+            }
+
+            KMCSimulator kmc(equilState, kmcSeed);
+
+            equilState.resetEventCounter();
+
+            double weightedMeanCurrent = 0.0;
+            double sampleStd = 0.0;
+            double sem = 0.0;
+
+            std::vector<double> I(numOfDevices, 0.0);
+            std::vector<double> w(numOfDevices, 0.0);
+
+            for (int p=0; p < numOfDevices; ++p) 
+            {
+                double startClock = equilState.stateTime;
+                kmc.simulate(equilState, simSteps, false, true);
+                double endClock = equilState.stateTime; 
+
+                double elapsedTime = endClock - startClock;
+                int inEvents = 0;
+                int outEvents = 0;
+                for (int i = 0; i < equilState.numOfSites; ++i) {
+                    outEvents += equilState.eventCounter[(outputIdx + equilState.nAcceptors)*equilState.numOfSites + i];
+                    inEvents += equilState.eventCounter[equilState.numOfSites*i + (outputIdx + equilState.nAcceptors)];
+                }
+                
+                I[p] = static_cast<double>(inEvents - outEvents) / elapsedTime;
+                w[p] = elapsedTime;
+                
+                equilState.resetEventCounter();
+            }
+
+            // ---- weighted mean ----
+            double W = 0.0;   // sum w
+            double Wx = 0.0;  // sum w * I
+            double W2 = 0.0;  // sum w^2
+
+            for (int p = 0; p < numOfDevices; ++p) {
+                const double wp = w[p];
+                const double xp = I[p];
+                W  += wp;
+                Wx += wp * xp;
+                W2 += wp * wp;
+            }
+
+            if (W > 0.0) {
+                weightedMeanCurrent = Wx / W;
+            
+                // ---- weighted (approx. unbiased) sample std via effective sample size ----
+                // Neff = (sum w)^2 / sum(w^2)
+                const double Neff = (W2 > 0.0) ? (W * W / W2) : 0.0;
+            
+                // Weighted SSE: sum w*(x-mean)^2
+                double sse_w = 0.0;
+                for (int p = 0; p < numOfDevices; ++p) {
+                    const double wp = w[p];
+                    const double xp = I[p];
+                    const double d = xp - weightedMeanCurrent;
+                    sse_w += wp * d * d;
+                }
+            
+                // Weighted variance estimate:
+                // var_w = (sse_w / W) * (Neff / (Neff - 1))  when Neff > 1
+                if (Neff > 1.0) {
+                    const double var_w = (sse_w / W) * (Neff / (Neff - 1.0));
+                    sampleStd = std::sqrt(std::max(0.0, var_w));
+                    sem = sampleStd / std::sqrt(Neff);
+                }
+
+                currentData[ivPoint] = weightedMeanCurrent;
+                currentStd[ivPoint]  = sampleStd;
+                currentSem[ivPoint]  = sem;
+            }
+        }
+    }
+
+    /* Input-Output data */
+    cnpy::npz_save(file, "outputIdx", &outputIdx, {1}, "w");
+    cnpy::npz_save(file, "currents", currentData.data(), currentDataShape, "a");
+    cnpy::npz_save(file, "inputs", inputData.data(), inputDataShape, "a");
+    cnpy::npz_save(file, "sampleStd", currentStd.data(), currentStdShape, "a");
+    cnpy::npz_save(file, "sem", currentSem.data(), currentSemShape, "a");
+
+    cnpy::npz_save(file, "T", &config.T, {1}, "a");
+    cnpy::npz_save(file, "sigma", &config.energyDisorder, {1}, "a");
+
+    /* Save coords of equilState */
+    std::vector<size_t> accCoordsShape = {static_cast<size_t>(initState.nAcceptors), 2};
+    std::vector<size_t> donCoordsShape = {static_cast<size_t>(initState.nDonors), 2};
+    std::vector<size_t> eleCoordsShape = {static_cast<size_t>(initState.nElectrodes), 2};
+    cnpy::npz_save(file, "acc_xy", initState.acceptorCoordinates.data(), accCoordsShape, "a");
+    cnpy::npz_save(file, "don_xy", initState.donorCoordinates.data(), donCoordsShape, "a");
+    cnpy::npz_save(file, "ele_xy", initState.electrodeCoordinates.data(), eleCoordsShape, "a");
+
+    /* Neighbouring */
+    std::vector<size_t> jaggedArrayLengthsShape = {static_cast<size_t>(initState.jaggedArrayLengths.size())};
+    std::vector<size_t> neighbourIndicesShape = {static_cast<size_t>(initState.neighbourIndices.size())};
+    cnpy::npz_save(file, "jagged_lengths", initState.jaggedArrayLengths.data(), jaggedArrayLengthsShape, "a");
+    cnpy::npz_save(file, "neighbour_indices", initState.neighbourIndices.data(), neighbourIndicesShape, "a");
+
+    /* Initial site energies and different energy parts */
+    std::vector<size_t> initialEnergiesShape = {static_cast<size_t>(batchSize), static_cast<size_t>(initState.numOfSites)};
+    std::vector<size_t> accDonInteractionShape = {static_cast<size_t>(initState.nAcceptors)};
+    std::vector<size_t> accInteractionShape = {static_cast<size_t>(initState.nAcceptors)};
+    std::vector<size_t> randomEnergiesShape = {static_cast<size_t>(initState.nAcceptors)};
+    cnpy::npz_save(file, "init_energies", initialEnergies.data(), initialEnergiesShape, "a");
+    cnpy::npz_save(file, "acc_don_int", initState.acceptorDonorInteraction.data(), accDonInteractionShape, "a");
+    cnpy::npz_save(file, "acc_acc_int", initState.acceptorInteraction.data(), accInteractionShape, "a");
+    cnpy::npz_save(file, "rand_energies", initState.randomEnergies.data(), randomEnergiesShape, "a");
+
+    /* Constant rate part */
+    std::vector<double> ratePrefactors(initState.numOfSites*initState.numOfSites, 0.0);
+    std::vector<size_t> ratePrefactorsShape = {static_cast<size_t>(initState.numOfSites), static_cast<size_t>(initState.numOfSites)};
+    /* Reconstructing NxN matrix from jagged arrays */
+    for (int l = 0; l < initState.jaggedArrayLengths.size()-1; ++l) {
+
+        int jaggedLength = initState.jaggedArrayLengths[l+1] - initState.jaggedArrayLengths[l];
+
+        for (int m = initState.jaggedArrayLengths[l]; m < initState.jaggedArrayLengths[l+1]; ++m) {
+
+            ratePrefactors[initState.neighbourIndices[m] + l*initState.numOfSites] = init_kmc.constantTransitionRates[m];
+
+        }
+    }
+    cnpy::npz_save(file, "rate_prefactors", ratePrefactors.data(), ratePrefactorsShape, "a");
 }
 
 void batchFromSingleState(
@@ -1393,6 +1614,55 @@ int argParser(int argc, char* argv[]) {
             vm["numIntervals"].as<int>(),
             vm["seed"].as<int>(),
             voltages,
+            vm["cfg"].as<std::string>(),
+            vm["accCfg"].as<std::string>(),
+            vm["donCfg"].as<std::string>(),
+            vm["eleCfg"].as<std::string>(),
+            vm["saveFolder"].as<std::string>(),
+            vm["fileName"].as<std::string>()
+        );
+
+        return 1;
+    }
+    
+    if (firstCommand == "batchFromSingleState_sem") {
+
+        boost::program_options::options_description options("Batch run options");
+        options.add_options()
+            ("batchSize", boost::program_options::value<int>()->required())
+            ("minVoltage", boost::program_options::value<double>()->required())
+            ("maxVoltage", boost::program_options::value<double>()->required())
+            ("outputIdx", boost::program_options::value<int>()->required())
+            ("eqSteps", boost::program_options::value<int>()->default_value(1e4))
+            ("simSteps", boost::program_options::value<int>()->required())
+            ("numOfDevices", boost::program_options::value<int>()->default_value(100))
+            ("LHCSeed", boost::program_options::value<int>()->required())
+            ("threadBaseSeed", boost::program_options::value<int>()->required())
+            ("cfg", boost::program_options::value<std::string>()->required())
+            ("accCfg", boost::program_options::value<std::string>()->required())
+            ("donCfg", boost::program_options::value<std::string>()->required())
+            ("eleCfg", boost::program_options::value<std::string>()->required())
+            ("saveFolder", boost::program_options::value<std::string>()->required())        
+            ("fileName", boost::program_options::value<std::string>()->required())
+        ;
+        
+        boost::program_options::variables_map vm;
+        boost::program_options::store(
+            boost::program_options::command_line_parser(
+                remainingCommand).options(options).run(),
+                vm);
+        boost::program_options::notify(vm);
+
+        batchFromSingleState_sem(
+            vm["batchSize"].as<int>(),
+            vm["minVoltage"].as<double>(),
+            vm["maxVoltage"].as<double>(),
+            vm["outputIdx"].as<int>(),
+            vm["eqSteps"].as<int>(),
+            vm["simSteps"].as<int>(),
+            vm["numOfDevices"].as<int>(),
+            vm["LHCSeed"].as<int>(),
+            vm["threadBaseSeed"].as<int>(),
             vm["cfg"].as<std::string>(),
             vm["accCfg"].as<std::string>(),
             vm["donCfg"].as<std::string>(),
