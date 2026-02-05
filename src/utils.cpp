@@ -88,7 +88,8 @@ void singleRun(
     const std::string& saveFolderPath
 ) {
 
-    if(saveFolderPath.empty()) {
+    if(saveFolderPath.empty()) 
+    {
         throw std::invalid_argument("[singleRun]: No save folder specified !");
     }
 
@@ -119,6 +120,7 @@ void singleRun(
     double w2Sum = 0.0;
 
     int intervalCount = 0;
+    std::vector<long long> totalEventCounts(state.numOfSites * state.numOfSites, 0);
     while (intervalCount < num_intervals) 
     {
 
@@ -126,12 +128,20 @@ void singleRun(
         kmc.simulate(state, intervalSteps, false, true);
         double endClock = state.stateTime; 
 
+        for (int j = 0; j < state.numOfSites; ++j) 
+        {
+            for (int i = 0; i < state.numOfSites; ++i) 
+            {
+                totalEventCounts[j * state.numOfSites + i] += state.eventCounter[j * state.numOfSites + i];
+            }
+        }
+
         double elapsedTime = endClock - startClock;
         int inEvents = 0;
         int outEvents = 0;
-        for (int i = 0; i < state.numOfSites; ++i) {
-            outEvents += state.eventCounter[(outputIdx + state.nAcceptors)*state.numOfSites + i];
-            inEvents += state.eventCounter[state.numOfSites*i + (outputIdx + state.nAcceptors)];
+        for (int k = 0; k < state.numOfSites; ++k) {
+            outEvents += state.eventCounter[(outputIdx + state.nAcceptors)*state.numOfSites + k];
+            inEvents += state.eventCounter[state.numOfSites*k + (outputIdx + state.nAcceptors)];
         }
         totalTime += elapsedTime;
 
@@ -151,7 +161,7 @@ void singleRun(
         state.resetEventCounter();
 
         intervalCount++;
-    }
+    }    
 
     averagedCurrent /= totalTime;
 
@@ -166,7 +176,6 @@ void singleRun(
     std::vector<double> flattenedAcceptorCoordinates(2*state.nAcceptors, 0.0);
     std::vector<double> flattenedDonorCoordinates(2*state.nDonors, 0.0);
     std::vector<double> flattenedElectrodeCoordinates(2*state.nElectrodes, 0.0);    
-    std::vector<int> flattenedEventCounts(state.numOfSites*state.numOfSites, 0);
     std::vector<double> flattenedEnergies(state.numOfSites, 0.0);
     std::vector<double> inputVoltages(nElectrodes, 0.0);
 
@@ -197,14 +206,6 @@ void singleRun(
         flattenedElectrodeCoordinates[i*2 + 1] = state.electrodeCoordinates[i*2 + 1];
     }
 
-    for (int j = 0; j < nAcceptors+nElectrodes; ++j) 
-    {
-        for (int i = 0; i <nAcceptors+nElectrodes; ++i) 
-        {
-            flattenedEventCounts[j*state.numOfSites + i] = state.eventCounter[j*state.numOfSites + i];
-        }
-    }
-
     for (int i = 0; i < state.numOfSites; ++i)
     {
         flattenedEnergies[i] = state.siteEnergies[i];
@@ -219,7 +220,7 @@ void singleRun(
     cnpy::npz_save(deviceName, "acc_xy", flattenedAcceptorCoordinates.data(), shapeFlattenedAcceptorCoordinates, "a");
     cnpy::npz_save(deviceName, "don_xy", flattenedDonorCoordinates.data(), shapeFlattenedDonorCoordinates, "a");
     cnpy::npz_save(deviceName, "ele_xy", flattenedElectrodeCoordinates.data(), shapeFlattenedElectrodeCoordinates, "a");
-    cnpy::npz_save(deviceName, "event_matrix", flattenedEventCounts.data(), shapeFlattenedEventCounts, "a");
+    cnpy::npz_save(deviceName, "event_matrix", totalEventCounts.data(), shapeFlattenedEventCounts, "a");
     cnpy::npz_save(deviceName, "energies", flattenedEnergies.data(), shapeFlattenedEnergies, "a");
     cnpy::npz_save(deviceName, "sim_time", &total_time, {1}, "a");
     cnpy::npz_save(deviceName, "inputs", inputVoltages.data(), shapeInputVoltages, "a");

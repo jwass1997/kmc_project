@@ -10,6 +10,7 @@ from matplotlib.colors import LogNorm
 from visualize_hops import visualize_current, current_snapshot
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.cm import ScalarMappable
+from matplotlib.ticker import LogFormatterSciNotation
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from pathlib import Path
@@ -273,10 +274,25 @@ def current_distribution(ax, add_cbar, device_data, alpha_cutoff):
     n_A = acc_xy.shape[0]
     n_E = ele_xy.shape[0]
 
+    e_0 = 1.60217663e-19
+    current_scaling_factor = 1e9*1e12 # nanon ampere and time to secondes 
+
     net_events = (events - events.T)
     dir_rows, dir_cols = np.where(net_events > 0)
     #lower_half_currents = np.abs(np.tril(net_events, k=-1))
-    abs_current = np.abs(net_events) / simulation_time
+    abs_current = np.abs(net_events) / simulation_time * e_0 * current_scaling_factor
+
+    positive = abs_current[abs_current > 0]
+    vmin = positive.min()
+    vmax = positive.max()
+    curr_norm = LogNorm(vmin=vmin, vmax=vmax)
+    curr_cmap = plt.get_cmap('Greys')
+    
+    def alpha_from_current(I, vmin, vmax, a_min=0.05, a_max=0.95):
+        # map current to [0,1] in log space, then to [a_min, a_max]
+        t = (np.log10(I) - np.log10(vmin)) / (np.log10(vmax) - np.log10(vmin))
+        t = np.clip(t, 0.0, 1.0)
+        return a_min + t * (a_max - a_min)
 
     min_current = abs_current.min()
     max_current = abs_current.max()
@@ -284,7 +300,7 @@ def current_distribution(ax, add_cbar, device_data, alpha_cutoff):
     #print(max_current)
     #print(events.sum())
 
-    abs_current_normalized = abs_current / max_current
+    abs_current_normalized = abs_current #/ max_current
     #abs_current_normalized = log_scaling(abs_current, None)
 
     acc_face_clr = (0, 0.6, 0, 1)
@@ -358,17 +374,43 @@ def current_distribution(ax, add_cbar, device_data, alpha_cutoff):
     """ Plot currents between acceptors """
     for i in range(n_A):
         for j in range(n_A):
-            a_val = abs_current_normalized[i, j]
+            I = abs_current[i, j]  # current in nA
+            if I <= 0:
+                continue
+            
+            # IMPORTANT: alpha_cutoff is now interpreted in nA
+            if I < alpha_cutoff:
+                continue
+            
+            a = alpha_from_current(I, vmin, vmax)
+            fc = curr_cmap(curr_norm(I))  # color encodes current too (matches colorbar)
+            
+            if net_events[i, j] > 0:
+                src = acc_xy[i]
+                dest = acc_xy[j]
+                tri = triangle_from_src_to_dst(src, dest, base_width)
+            elif net_events[i, j] < 0:
+                src = acc_xy[j]
+                dest = acc_xy[i]
+                tri = triangle_from_src_to_dst(src, dest, base_width)
+            else:
+                continue
+            
+            if tri is None:
+                continue
+            
+            ax.add_patch(
+                ps.Polygon(
+                    tri,
+                    closed=True,
+                    facecolor=fc,      # was 'black'
+                    edgecolor='none',
+                    alpha=a,           # was a_val (way too large / not in [0,1])
+                    zorder=3
+                )
+            )
+            """a_val = abs_current_normalized[i, j]
             if a_val > alpha_cutoff:
-                """ax.plot(
-                    [acc_xy[i, 0], acc_xy[j, 0]],
-                    [acc_xy[i, 1], acc_xy[j, 1]],
-                    color='black',
-                    alpha=abs_current_normalized[i, j],
-                    zorder=3,
-                    lw=1.5
-                )"""
-
                 if net_events[i, j] > 0:
                     src = acc_xy[i]
                     dest = acc_xy[j]
@@ -400,24 +442,33 @@ def current_distribution(ax, add_cbar, device_data, alpha_cutoff):
                             alpha=a_val,#alpha=np.sqrt(a_val),
                             zorder=3
                         )
-                    )
-
-    cbar = None
-
-    if add_cbar is not None:
-        sm = ScalarMappable(norm=norm, cmap=cmap)
-        sm.set_array([])
-        divider = make_axes_locatable(ax)
-        cax = divider.append_axes('right', size='5%', pad=0.3)
-        fig = ax.figure
-        cbar = fig.colorbar(sm, cax=cax)
-        cbar.set_label(f'$E / k_b T$')
+                    )"""
+    cbar_E = None
+    cbar_I = None
     
+    if add_cbar is not None:
+        divider = make_axes_locatable(ax)
+    
+        # Put current colorbar on the RIGHT
+        cax_I = divider.append_axes('right', size='5%', pad=0.25)
+        sm_I = ScalarMappable(norm=curr_norm, cmap=curr_cmap)
+        sm_I.set_array([])
+        fig = ax.figure
+        cbar_I = fig.colorbar(sm_I, cax=cax_I, format=LogFormatterSciNotation())
+        cbar_I.set_label(r"Current (nA)")
+    
+        # Put energy colorbar further RIGHT (second bar)
+        cax_E = divider.append_axes('right', size='5%', pad=0.90)
+        sm_E = ScalarMappable(norm=norm, cmap=cmap)
+        sm_E.set_array([])
+        cbar_E = fig.colorbar(sm_E, cax=cax_E)
+        cbar_E.set_label(r"$E / k_b T$")
+        
     ax.set_xlim(-radius - 0.5, radius + 0.5)
     ax.set_ylim(-radius - 0.5, radius + 0.5)
     ax.axis('off')
     
-    return ax, cbar
+    return ax, cbar_E, cbar_I
 
 def pred_vs_true(ax, test_input, test_target, model, bins=140, use_log=True):
 
