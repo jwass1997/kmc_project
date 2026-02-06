@@ -1,0 +1,2 @@
+slurmstepd: error: _xgetaddrinfo: getaddrinfo(slurm-ctrl.service.consul:7005) failed: Name or service not known
+slurmstepd: error: slurm_set_addr: Unable to resolve "slurm-ctrl.service.consul"

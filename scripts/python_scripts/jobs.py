@@ -430,41 +430,41 @@ if __name__ == "__main__":
             BINARY = Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"), 
             SH_SCRIPT =Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/batch_script.sh"),   
             SLURM_OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
-        )""" 
-
-    """for i in range(200, 300):
-        time.sleep(0.1)
-        slurm_batch_of_independant_states(
-            batch_size=500,
-            min_V=-1.5,
-            max_V=1.5,
-            n_acceptors=200,
-            n_electrodes=8,
-            n_donors=3,
-            radius=150.0,
-            nu0=1.0,
-            a=20.0,
-            T=77.0,
-            energy_disorder=0.01,
-            electrode_width=60.0,
-            min_hop_distance=1.5,
-            max_hop_distance=60.0,
-            Nr=257,
-            Nt=1440,
-            dist_type="uniform",
-            n_comps=8,
-            output_idx=0,
-            eq_steps=100_000,
-            sim_steps=10_000_000,
-            num_of_tasks=100,
-            LHCSeed=np.random.randint(low=0, high=2**31),
-            threadBaseSeed=np.random.randint(low=0, high=2**31),
-            save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/uni_cfg_samples_1e7"),
-            file_name=f"batch_{i}",
-            BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
-            SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/batch_script.sh"),
-            SLURM_OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
         )"""
+
+    # for i in range(200, 400):
+    #     time.sleep(0.1)
+    #     slurm_batch_of_independant_states(
+    #         batch_size=500,
+    #         min_V=-1.5,
+    #         max_V=1.5,
+    #         n_acceptors=200,
+    #         n_electrodes=8,
+    #         n_donors=3,
+    #         radius=150.0,
+    #         nu0=1.0,
+    #         a=20.0,
+    #         T=77.0,
+    #         energy_disorder=0.01,
+    #         electrode_width=60.0,
+    #         min_hop_distance=1.5,
+    #         max_hop_distance=60.0,
+    #         Nr=257,
+    #         Nt=1440,
+    #         dist_type="uniform",
+    #         n_comps=8,
+    #         output_idx=0,
+    #         eq_steps=100_000,
+    #         sim_steps=10_000_000,
+    #         num_of_tasks=100,
+    #         LHCSeed=np.random.randint(low=0, high=2**31),
+    #         threadBaseSeed=np.random.randint(low=0, high=2**31),
+    #         save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/uni_cfg_samples_1e7"),
+    #         file_name=f"batch_{i}",
+    #         BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
+    #         SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/batch_script.sh"),
+    #         SLURM_OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
+    #     )
 
     num_batches = 200
     batch_size = 1000
@@ -530,7 +530,7 @@ if __name__ == "__main__":
     control_volts = [0.6219740359908369, 1.5, 1.329525906935132, 1.5, 1.239992586471815, 0.7976947763969898]
     N = 2000
 
-    steps = [100_000, 1_000_000, 10_000_000]
+    steps = [100_000, 1_000_000]
 
     for s in steps:
         slurm_single_IV(
@@ -550,7 +550,7 @@ if __name__ == "__main__":
             don_cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/donors.txt"),
             ele_cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/electrodes.txt"),
             save_folder=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets"),
-            file_name=Path(f"a=5nm"),
+            file_name=Path(f"steps={s}"),
             BINARY=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
             SH_SCRIPT=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
             OUT_DIR=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
