@@ -73,6 +73,198 @@ std::vector<std::vector<double>> scaledLHC(
     return samples;
 }
 
+/*void singleRun(
+    const std::string& ID, 
+    int eqSteps, 
+    int simSteps, 
+    int numOfDevices,
+    std::vector<double> voltages,
+    int outputIdx,
+    const std::string& cfg, 
+    const std::string& acceptorCfg,
+    const std::string& donorCfg,
+    const std::string& electrodeCfg,
+    int seed,
+    const std::string& saveFolderPath
+) {
+
+    if(saveFolderPath.empty()) 
+    {
+        throw std::invalid_argument("[singleRun]: No save folder specified !");
+    }
+
+    auto start = std::chrono::high_resolution_clock::now();
+
+    Configuration config(
+        cfg, 
+        acceptorCfg, 
+        donorCfg, 
+        electrodeCfg
+    );
+
+    State state(config, seed);
+    KMCSimulator kmc(state, seed);
+    kmc.simulate(state, eqSteps, false, false);
+    state.resetEventCounter();
+    state.stateTime = 0.0;
+
+    state.updateBoundaries(voltages);
+
+    double outputCurrent = 0.0;
+    double outputCurrentStd = 0.0;
+    double outputCurrentSem = 0.0;
+
+    std::vector<long long> totalEventCounts(state.numOfSites * state.numOfSites, 0);
+
+    #pragma omp parallel
+    {
+        int threadID = omp_get_thread_num();
+        uint64_t kmcSeed = mix(
+            uint64_t(seed) ^
+            (uint64_t(threadID) << 32) ^
+            0xD1B54A32D192ED03ULL
+        );
+
+        State equilState(state);
+        equilState.updateBoundaries(voltages);
+
+        KMCSimulator kmc_simulator(equilState, kmcSeed);
+        equilState.resetEventCounter();
+
+        double weightedMeanCurrent = 0.0;
+        double sampleStd = 0.0;
+        double sem = 0.0;
+
+        std::vector<double> I(numOfDevices, 0.0);
+        std::vector<double> w(numOfDevices, 0.0);
+
+        for (int p = 0; p < numOfDevices; ++p)
+        {   
+            if (p == 0)
+            {
+                for (int j = 0; j < state.numOfSites; ++j) 
+                {
+                    for (int i = 0; i < state.numOfSites; ++i) 
+                    {
+                        totalEventCounts[j * state.numOfSites + i] += state.eventCounter[j * state.numOfSites + i];
+                    }
+                }
+            }
+            double startClock = state.stateTime;
+            kmc_simulator.simulate(state, simSteps, false, true);
+            double endClock = state.stateTime;  
+            
+            double elapsedTime = endClock - startClock;
+            int inEvents = 0;
+            int outEvents = 0;
+            for (int i = 0; i < equilState.numOfSites; ++i) {
+                outEvents += equilState.eventCounter[(outputIdx + equilState.nAcceptors)*equilState.numOfSites + i];
+                inEvents += equilState.eventCounter[equilState.numOfSites*i + (outputIdx + equilState.nAcceptors)];
+            }
+
+            I[p] = static_cast<double>(inEvents - outEvents) / elapsedTime;
+            w[p] = elapsedTime;
+        }
+        // ---- weighted mean ----
+        double W = 0.0;   // sum w
+        double Wx = 0.0;  // sum w * I
+        double W2 = 0.0;  // sum w^2
+
+        for (int p = 0; p < numOfDevices; ++p) {
+            const double wp = w[p];
+            const double xp = I[p];
+            W  += wp;
+            Wx += wp * xp;
+            W2 += wp * wp;
+        }
+
+        if (W > 0.0) {
+            weightedMeanCurrent = Wx / W;
+        
+            // ---- weighted (approx. unbiased) sample std via effective sample size ----
+            // Neff = (sum w)^2 / sum(w^2)
+            const double Neff = (W2 > 0.0) ? (W * W / W2) : 0.0;
+        
+            // Weighted SSE: sum w*(x-mean)^2
+            double sse_w = 0.0;
+            for (int p = 0; p < numOfDevices; ++p) {
+                const double wp = w[p];
+                const double xp = I[p];
+                const double d = xp - weightedMeanCurrent;
+                sse_w += wp * d * d;
+            }
+        
+            // Weighted variance estimate:
+            // var_w = (sse_w / W) * (Neff / (Neff - 1))  when Neff > 1
+            if (Neff > 1.0) {
+                const double var_w = (sse_w / W) * (Neff / (Neff - 1.0));
+                sampleStd = std::sqrt(std::max(0.0, var_w));
+                sem = sampleStd / std::sqrt(Neff);
+            }
+
+            outputCurrent = weightedMeanCurrent;
+            outputCurrentStd  = sampleStd;
+            outputCurrentSem  = sem;
+        }
+    }
+
+    int nAcceptors = state.nAcceptors;
+    int nElectrodes = state.nElectrodes;
+    int nDonors = state.nDonors;
+
+    std::vector<double> flattenedAcceptorCoordinates(2*state.nAcceptors, 0.0);
+    std::vector<double> flattenedDonorCoordinates(2*state.nDonors, 0.0);
+    std::vector<double> flattenedElectrodeCoordinates(2*state.nElectrodes, 0.0);    
+    std::vector<double> flattenedEnergies(state.numOfSites, 0.0);
+    std::vector<double> inputVoltages(nElectrodes, 0.0);
+
+    std::vector<size_t> shapeFlattenedAcceptorCoordinates = {static_cast<size_t>(nAcceptors), 2};
+    std::vector<size_t> shapeFlattenedDonorCoordinates = {static_cast<size_t>(nDonors), 2};
+    std::vector<size_t> shapeFlattenedElectrodeCoordinates = {static_cast<size_t>(nElectrodes), 2};
+    std::vector<size_t> shapeFlattenedEventCounts = {static_cast<size_t>(nAcceptors+nElectrodes), static_cast<size_t>(nAcceptors+nElectrodes)};
+    std::vector<size_t> shapeFlattenedEnergies = {static_cast<size_t>(state.numOfSites)};
+    std::vector<size_t> shapeInputVoltages = {static_cast<size_t>(nElectrodes)};
+
+    std::string deviceName = saveFolderPath + "/" + ID + ".npz";
+    cnpy::npz_save(deviceName, "ID", &ID, {1}, "w"); 
+    cnpy::npz_save(deviceName, "current", &outputCurrent, {1}, "a");
+
+    for (int i = 0; i < nAcceptors; ++i) 
+    {
+        flattenedAcceptorCoordinates[i*2] = state.acceptorCoordinates[i*2];
+        flattenedAcceptorCoordinates[i*2 + 1] = state.acceptorCoordinates[i*2 + 1];
+    }
+    for (int i = 0; i < nDonors; ++i) 
+    {
+        flattenedDonorCoordinates[i*2] = state.donorCoordinates[i*2];
+        flattenedDonorCoordinates[i*2 + 1] = state.donorCoordinates[i*2 + 1];
+    }
+    for (int i = 0; i < nElectrodes; ++i) 
+    {
+        flattenedElectrodeCoordinates[i*2] = state.electrodeCoordinates[i*2];
+        flattenedElectrodeCoordinates[i*2 + 1] = state.electrodeCoordinates[i*2 + 1];
+    }
+
+    for (int i = 0; i < state.numOfSites; ++i)
+    {
+        flattenedEnergies[i] = state.siteEnergies[i];
+    }
+
+    double total_time = state.stateTime;
+
+    //auto end = std::chrono::high_resolution_clock::now();
+    //auto elapsed_time = std::chrono::duration_cast<std::chrono::seconds>(end - start);
+    //std::cout << elapsed_time.count() << std::endl;
+
+    cnpy::npz_save(deviceName, "acc_xy", flattenedAcceptorCoordinates.data(), shapeFlattenedAcceptorCoordinates, "a");
+    cnpy::npz_save(deviceName, "don_xy", flattenedDonorCoordinates.data(), shapeFlattenedDonorCoordinates, "a");
+    cnpy::npz_save(deviceName, "ele_xy", flattenedElectrodeCoordinates.data(), shapeFlattenedElectrodeCoordinates, "a");
+    cnpy::npz_save(deviceName, "event_matrix", totalEventCounts.data(), shapeFlattenedEventCounts, "a");
+    cnpy::npz_save(deviceName, "energies", flattenedEnergies.data(), shapeFlattenedEnergies, "a");
+    cnpy::npz_save(deviceName, "sim_time", &total_time, {1}, "a");
+    cnpy::npz_save(deviceName, "inputs", inputVoltages.data(), shapeInputVoltages, "a");
+}*/
+
 void singleRun(
     const std::string& ID, 
     int eqSteps, 
@@ -80,7 +272,7 @@ void singleRun(
     int num_intervals,
     std::vector<double> voltages,
     int outputIdx,
-    const std::string& cfg, 
+    const std::string& cfg,             
     const std::string& acceptorCfg,
     const std::string& donorCfg,
     const std::string& electrodeCfg,
@@ -177,7 +369,7 @@ void singleRun(
     std::vector<double> flattenedDonorCoordinates(2*state.nDonors, 0.0);
     std::vector<double> flattenedElectrodeCoordinates(2*state.nElectrodes, 0.0);    
     std::vector<double> flattenedEnergies(state.numOfSites, 0.0);
-    std::vector<double> inputVoltages(nElectrodes, 0.0);
+    //std::vector<double> inputVoltages(nElectrodes, 0.0);
 
     std::vector<size_t> shapeFlattenedAcceptorCoordinates = {static_cast<size_t>(nAcceptors), 2};
     std::vector<size_t> shapeFlattenedDonorCoordinates = {static_cast<size_t>(nDonors), 2};
@@ -223,7 +415,7 @@ void singleRun(
     cnpy::npz_save(deviceName, "event_matrix", totalEventCounts.data(), shapeFlattenedEventCounts, "a");
     cnpy::npz_save(deviceName, "energies", flattenedEnergies.data(), shapeFlattenedEnergies, "a");
     cnpy::npz_save(deviceName, "sim_time", &total_time, {1}, "a");
-    cnpy::npz_save(deviceName, "inputs", inputVoltages.data(), shapeInputVoltages, "a");
+    cnpy::npz_save(deviceName, "inputs", voltages.data(), shapeInputVoltages, "a");
 }
 
 double singleIVPoint(
@@ -292,7 +484,7 @@ void singleIVCurve(
     if (saveFolder.empty()) {
         throw std::invalid_argument("[singleIVCurve]: Save folder not found");
     }
-
+    auto start = std::chrono::steady_clock::now();
     std::string file = saveFolder + "/" + fileName + ".npz";
 
     std::vector<double> currentData(numOfPoints, 0.0);
@@ -457,6 +649,13 @@ void singleIVCurve(
             currentSem[v] = sem;
         }
     }
+    auto end = std::chrono::steady_clock::now();
+
+    auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+    auto us = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+    std::cout << "Elapsed: " << ns << " ns (" << us << " us, " << ms << " ms)\n";
 
     cnpy::npz_save(file, "current", currentData.data(), currentDataShape, "w");
     cnpy::npz_save(file, "currentStd", currentStd.data(), currentStdShape, "a");

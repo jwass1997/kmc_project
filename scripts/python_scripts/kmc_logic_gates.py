@@ -20,12 +20,12 @@ gate_inputs = [
 ]
 
 control_indices = [1, 2, 4, 6, 7]
-control_voltages = [-0.19557869, -0.78862113, -1.11523697, 0.99844417, -1.44972628]
+control_voltages = [-0.19674096, -0.85058564, -1.16885727, -0.20346563,  1.46270051]
 
-CFG_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/config.txt')
-ACC_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/vMB_ring.txt')
-DON_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/uniform_donors_1.txt')
-ELE_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/electrodes.txt')
+CFG_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/configs/config.txt')
+ACC_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/configs/vMB_ring.txt')
+DON_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/configs/uniform_donors_1.txt')
+ELE_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/configs/electrodes.txt')
 
 if __name__ == '__main__':
 
@@ -43,7 +43,7 @@ if __name__ == '__main__':
             control_volts = voltages,
             output_idx=output_idx,
             eq_steps=100_000,
-            sim_steps=1_000_000,
+            sim_steps=10_000_000,
             num_intervals=100,
             seed=np.random.randint(low=1, high=2**31 - 1),
             cfg=CFG_PATH,
@@ -51,7 +51,7 @@ if __name__ == '__main__':
             don_cfg=DON_PATH,
             ele_cfg=ELE_PATH,
             save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data"),
-            file_name=Path(f"gate={GATE}_{pair[0]}_{pair[1]}"),
+            file_name=Path(f"data_vMB_ring_1e7_gate={GATE}_{pair[0]}_{pair[1]}"),
             BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
             SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/helix_single.sh"),
             OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
