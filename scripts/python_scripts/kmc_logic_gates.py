@@ -8,7 +8,7 @@ output_idx = 0
 
 num_voltages = 8
 
-GATE = 'XOR'
+GATE = 'OR'
 
 max_v = 0.5
 gate_inputs = [
@@ -19,7 +19,7 @@ gate_inputs = [
 ]
 
 control_indices = [1, 2, 4, 6, 7]
-control_voltages = [-0.40679196, -0.9318893,   0.50597011,  0.68725788, -0.94280596]
+control_voltages = [-0.23652694, -0.74202556, -0.04694572, 0.40977432, 0.74001173]
 
 data_type='uni_1e7'
 
