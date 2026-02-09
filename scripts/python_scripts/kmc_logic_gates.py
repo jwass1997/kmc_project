@@ -10,8 +10,7 @@ num_voltages = 8
 
 GATE = 'XOR'
 
-min_v = -0.5
-max_v = 1.5
+max_v = 0.5
 gate_inputs = [
     [0.0, 0.0],
     [0.0, max_v],
@@ -20,12 +19,19 @@ gate_inputs = [
 ]
 
 control_indices = [1, 2, 4, 6, 7]
-control_voltages = [-0.19674096, -0.85058564, -1.16885727, -0.20346563,  1.46270051]
+control_voltages = [-0.40679196, -0.9318893,   0.50597011,  0.68725788, -0.94280596]
 
-CFG_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/configs/config.txt')
-ACC_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/configs/vMB_ring.txt')
-DON_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/configs/uniform_donors_1.txt')
-ELE_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/configs/electrodes.txt')
+data_type='uni_1e7'
+
+# CFG_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/configs/config.txt')
+# ACC_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/configs/vMB_ring.txt')
+# DON_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/configs/uniform_donors_1.txt')
+# ELE_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/configs/electrodes.txt')
+
+CFG_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/uni_1e7/configs/config.txt')
+ACC_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/uni_1e7/configs/uniform_acceptors_0.txt')
+DON_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/uni_1e7/configs/uniform_donors_0.txt')
+ELE_PATH = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/uni_1e7/configs/electrodes.txt')
 
 if __name__ == '__main__':
 
@@ -51,8 +57,8 @@ if __name__ == '__main__':
             don_cfg=DON_PATH,
             ele_cfg=ELE_PATH,
             save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data"),
-            file_name=Path(f"data_vMB_ring_1e7_gate={GATE}_{pair[0]}_{pair[1]}"),
+            file_name=Path(f"{data_type}_gate={GATE}_{pair[0]}_{pair[1]}"),
             BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
             SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/helix_single.sh"),
             OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
-        )
+        )   
