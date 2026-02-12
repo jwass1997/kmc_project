@@ -25,12 +25,13 @@ if __name__ == "__main__":
                   no_dim=1,
                   Nr=257, Nt=1440,
                   name='test_config', save_dir='/home/hd/hd_hd/hd_gy283/kmc_project/configs')"""
-    save_dir = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/iv_exp_from_paper')
+    save_dir = Path('/gpfs/bwfor/work/ws/hd_gy283-my_data/iv_with_T_my_params')
     save_dir.mkdir(parents=True, exist_ok=True)
 
     #for i in range(num_geom):
     #    create_dopant_configuration(radius=150.0, n_a=200, n_d=3, name_a=f'acc_{i}', name_d=f'don_{i}', mode='uniform', eps=None, save_dir='/gpfs/bwfor/work/ws/hd_gy283-my_data/iv_exp_from_paper')
-    en_dis = 0.0
+    T=77
+    en_dis = 0.01
     for j in electrode_pairs:
         input_idx, output_idx = j[1], j[0]
         c_indices = [c_idx for c_idx in range(num_electrodes) if c_idx not in (input_idx, output_idx)]
@@ -43,16 +44,16 @@ if __name__ == "__main__":
                 control_volts=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                 minVoltage=-1.5,
                 maxVoltage=1.5,
-                eq_steps=10_000,
+                eq_steps=100_000,
                 sim_steps=1_000_000,
                 num_intervals=100,
                 seed=np.random.randint(low=1, high=2**30),
-                cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/iv_exp_from_paper/configs/config_paper_ed={en_dis}.txt"),
-                acc_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/iv_exp_from_paper/configs/acc_{k}.txt"),
-                don_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/iv_exp_from_paper/configs/don_{k}.txt"),
+                cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/iv_with_T_my_params/configs/config_paper_T={T}.txt"),
+                acc_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/iv_with_T_my_params/configs/acc_{k}.txt"),
+                don_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/iv_with_T_my_params/configs/don_{k}.txt"),
                 ele_cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/electrodes.txt"),
-                save_folder=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/iv_exp_from_paper/en_dis={en_dis}"),
-                file_name=Path(f"sim_input_idx={input_idx}_output_idx={output_idx}_geom={k}_en_dis={en_dis}"),
+                save_folder=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/iv_with_T_my_params/en_dis={en_dis}_T={T}"),
+                file_name=Path(f"sim_input_idx={input_idx}_output_idx={output_idx}_geom={k}_en_dis={en_dis}_T={T}"),
                 BINARY=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
                 SH_SCRIPT=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
                 OUT_DIR=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")

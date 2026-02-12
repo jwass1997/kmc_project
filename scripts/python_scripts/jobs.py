@@ -668,29 +668,29 @@ if __name__ == "__main__":
         SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
         OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
     )"""
-    for i in [100, 1000]:
-        slurm_single_IV(
-            numOfPoints=i,
-            inputIdx=1,
-            outputIdx=0,
-            control_indices=c_indices,
-            control_volts=[ 0.6588,  0.6920,  0.9834, -1.0970,  0.3839,  0.6892],
-            minVoltage=-1.5,
-            maxVoltage=1.5,
-            eq_steps=100_000,
-            sim_steps=10_000_000,
-            num_intervals=100,
-            seed=np.random.randint(low=1, high=2**30),
-            cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_towards_1e7/configs/config.txt"),
-            acc_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_towards_1e7/configs/vMB_gradient_towards_output.txt"),
-            don_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_towards_1e7/configs/uniform_donors_1.txt"),
-            ele_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_towards_1e7/configs/electrodes.txt"),
-            save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/"),
-            file_name=Path(f"iv_speed_kmc_test_{i}"),
-            BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
-            SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
-            OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
-        )
+    # for i in [1000]:
+    #     slurm_single_IV(
+    #         numOfPoints=i,
+    #         inputIdx=1,
+    #         outputIdx=0,
+    #         control_indices=c_indices,
+    #         control_volts=[ 0.6588,  0.6920,  0.9834, -1.0970,  0.3839,  0.6892],
+    #         minVoltage=-1.5,
+    #         maxVoltage=1.5,
+    #         eq_steps=100_000,
+    #         sim_steps=10_000_000,
+    #         num_intervals=100,
+    #         seed=np.random.randint(low=1, high=2**30),
+    #         cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_towards_1e7/configs/config.txt"),
+    #         acc_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_towards_1e7/configs/vMB_gradient_towards_output.txt"),
+    #         don_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_towards_1e7/configs/uniform_donors_1.txt"),
+    #         ele_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_towards_1e7/configs/electrodes.txt"),
+    #         save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/"),
+    #         file_name=Path(f"iv_speed_kmc_test_{i}"),
+    #         BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
+    #         SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
+    #         OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
+    #     )
 
     """slurm_single_IV(
         numOfPoints=50,
@@ -715,28 +715,33 @@ if __name__ == "__main__":
         OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
     )"""
 
-    """slurm_single_IV(
+
+    """ANNULAR"""
+    data_type = 'data_vMB_ring_1e7'
+    opt_type = 'random'
+    func_type = 'linear'
+    slurm_single_IV(
         numOfPoints=50,
-        inputIdx=1,
+        inputIdx=4,
         outputIdx=0,
         control_indices=c_indices,
-        control_volts=[ 0.29236258, 1.00751516, -0.46591512, 1.42153888, -1.40884271, -1.47832876],
+        control_volts=[0.8753402530922632, -1.0253061239863164, -1.422887499677454, 0.3632564603904136, -0.5936841118833686, -0.4706212141182309],
         minVoltage=-1.5,
         maxVoltage=1.5,
         eq_steps=100_000,
         sim_steps=1_000_000,
         num_intervals=100,
         seed=np.random.randint(low=1, high=2**30),
-        cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_away_1e7/configs/config.txt"),
-        acc_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_away_1e7/configs/vMB_gradient_away_output.txt"),
-        don_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_away_1e7/configs/uniform_donors_1.txt"),
-        ele_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_away_1e7/configs/electrodes.txt"),
-        save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/"),
-        file_name=Path(f"grad_away_1e7_parabola"),
+        cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/configs/config.txt"),
+        acc_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/configs/vMB_ring.txt"),
+        don_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/configs/uniform_donors_1.txt"),
+        ele_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/configs/electrodes.txt"),
+        save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/found_1d_functions"),
+        file_name=Path(f"opt_type={opt_type}_func_type={func_type}_data_type={data_type}"),
         BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
         SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
         OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
-    )"""
+    )
 
     """ for n in noise_levels:
         seed = np.random.randint(low=1, high=2**15)

@@ -517,3 +517,222 @@ def pred_vs_true(ax, test_input, test_target, model, bins=140, use_log=True):
     ax.set_aspect('equal', adjustable='box')
 
     return ax
+
+def plot_gate_from_currents(gate_inputs, currents, currents_sem=None, sim_currents=None, sim_sem=None):
+    y = np.asarray(currents, dtype=float).reshape(-1)
+    if len(y) != len(gate_inputs):
+        raise ValueError("`currents` length must match gate_inputs length.")
+
+    if currents_sem is not None:
+        sem = np.asarray(currents_sem, dtype=float).reshape(-1)
+        if len(sem) != len(gate_inputs):
+            raise ValueError("`currents_sem` length must match gate_inputs length.")
+    else:
+        sem = None
+
+    if sim_currents is not None:
+        y_sim = np.asarray(sim_currents, dtype=float).reshape(-1)
+        if len(y_sim) != len(gate_inputs):
+            raise ValueError("`sim_currents` length must match gate_inputs length.")
+    else:
+        y_sim = None
+
+    if sim_sem is not None:
+        sim_sem = 1.96*np.asarray(sim_sem, dtype=float).reshape(-1)
+        if len(sim_sem) != len(gate_inputs):
+            raise ValueError("`sim_sem` length must match gate_inputs length.")
+    else:
+        sim_sem = None
+
+    in_0 = [gi[0] for gi in gate_inputs]
+    in_1 = [gi[1] for gi in gate_inputs]
+
+    fig, axes = plt.subplots(3, 1, figsize=(6, 4), sharex=True)
+    fig.subplots_adjust(left=0.22, right=0.98, bottom=0.12, top=0.98, hspace=0.15)
+
+    labels = ["$V_0$", "$V_1$", "$I_{\\mathrm{out}} \\quad [nA]$"]
+    t = np.arange(len(gate_inputs) + 1)  # 0..4
+
+    def style_axis(ax, label):
+        ax.set_ylabel(label, rotation=90.0)
+        ax.grid(alpha=0.3)
+        ax.set_facecolor("whitesmoke")
+        for spine in ["top", "right"]:
+            ax.spines[spine].set_visible(False)
+
+    # ---- output (mean step) ----
+    y_out = np.r_[y, y[-1]]
+    axes[2].step(t, y_out, where="post", lw=1, label="ground truth")
+
+    # ---- shaded SEM band (mean ± sem) ----
+    if sem is not None:
+        lo = np.r_[y - sem, (y - sem)[-1]]
+        hi = np.r_[y + sem, (y + sem)[-1]]
+        axes[2].fill_between(t, lo, hi, step="post", alpha=0.25)
+
+    # optional overlay: simulated
+    if y_sim is not None:
+        y_sim_out = np.r_[y_sim, y_sim[-1]]
+        axes[2].step(t, y_sim_out, where="post", lw=2, ls="--", label="simulated")
+
+        if sim_sem is not None:
+            lo_s = np.r_[y_sim - sim_sem, (y_sim - sim_sem)[-1]]
+            hi_s = np.r_[y_sim + sim_sem, (y_sim + sim_sem)[-1]]
+            axes[2].fill_between(t, lo_s, hi_s, step="post", alpha=0.15)
+
+        axes[2].legend(frameon=False, loc="best")
+
+    style_axis(axes[2], labels[2])
+
+    # ---- inputs ----
+    y0 = np.r_[in_0, in_0[-1]]
+    axes[0].step(t, y0, where="post", lw=2, c='r')
+    style_axis(axes[0], labels[0])
+
+    y1 = np.r_[in_1, in_1[-1]]
+    axes[1].step(t, y1, where="post", lw=2, c='g')
+    style_axis(axes[1], labels[1])
+
+    centers = np.arange(len(gate_inputs)) + 0.5
+    state_labels = ["00", "01", "10", "11"][:len(gate_inputs)]
+    axes[-1].set_xticks(centers)
+    axes[-1].set_xticklabels(state_labels)
+    axes[-1].set_xlabel("Input $V_0, V_1 \\quad [V]$")
+
+    return axes
+
+
+"""def plot_gate_from_currents(gate_inputs, currents, sim_currents=None):
+
+    y = np.asarray(currents, dtype=float).reshape(-1)
+    if len(y) != len(gate_inputs):
+        raise ValueError(f"`currents` length ({len(y)}) must match gate_inputs length ({len(gate_inputs)}).")
+
+    if sim_currents is not None:
+        y_sim = np.asarray(sim_currents, dtype=float).reshape(-1)
+        if len(y_sim) != len(gate_inputs):
+            raise ValueError(f"`sim_currents` length ({len(y_sim)}) must match gate_inputs length ({len(gate_inputs)}).")
+    else:
+        y_sim = None
+
+    in_0 = [gi[0] for gi in gate_inputs]
+    in_1 = [gi[1] for gi in gate_inputs]
+
+    fig, axes = plt.subplots(3, 1, figsize=(6, 4), sharex=True)
+    fig.subplots_adjust(left=0.22, right=0.98, bottom=0.12, top=0.98, hspace=0.15)
+
+    labels = ["$V_0$", "$V_1$", "$I_{\\mathrm{out}} \\quad [nA]$"]
+
+    # time axis: 4 states -> 5 edges
+    t = np.arange(len(gate_inputs) + 1)
+
+    def style_axis(ax, label):
+        ax.set_ylabel(label, rotation=90.0)
+        ax.grid(alpha=0.3)
+        ax.set_facecolor("whitesmoke")
+        for spine in ["top", "right"]:
+            ax.spines[spine].set_visible(False)
+
+    # output (ground truth)
+    y_out = np.r_[y, y[-1]]
+    axes[2].step(t, y_out, where="post", lw=2, label="ground truth")
+    style_axis(axes[2], labels[2])
+
+    # optional overlay: simulated currents
+    if y_sim is not None:
+        y_sim_out = np.r_[y_sim, y_sim[-1]]
+        axes[2].step(t, y_sim_out, where="post", lw=2, ls="--", label="simulated")
+        axes[2].legend(frameon=False, loc="best")
+
+    # input 0
+    y0 = np.r_[in_0, in_0[-1]]
+    axes[0].step(t, y0, where="post", lw=2, c='r')
+    style_axis(axes[0], labels[0])
+
+    # input 1
+    y1 = np.r_[in_1, in_1[-1]]
+    axes[1].step(t, y1, where="post", lw=2, c='g')
+    style_axis(axes[1], labels[1])
+
+    # x-ticks at the middle of each interval, labeled by input combination
+    centers = np.arange(len(gate_inputs)) + 0.5
+    state_labels = ["00", "01", "10", "11"][:len(gate_inputs)]
+    axes[-1].set_xticks(centers)
+    axes[-1].set_xticklabels(state_labels)
+    axes[-1].set_xlabel("Input $V_0, V_1 \\quad [V]$")
+
+    # margins
+    for ax in axes:
+        ymin, ymax = ax.get_ylim()
+        margin = 0.1 * (ymax - ymin if ymax > ymin else 1.0)
+        ax.set_ylim(ymin - margin, ymax + margin)
+        #ax.set_box_aspect(1)
+
+    return axes"""
+
+def plot_gate(model, theta, control_indices, gate_inputs):
+
+    input_tensor = torch.zeros(len(gate_inputs), num_voltages)
+    control_voltages = torch.from_numpy(theta).float().expand(len(gate_inputs), -1)
+    for j, c_idx in enumerate(control_indices):
+        input_tensor[:, c_idx] = control_voltages[:, j]
+    
+    for k in range(len(gate_inputs)):
+        input_tensor[k, input_index_0] = gate_inputs[k][0]
+        input_tensor[k, input_index_1] = gate_inputs[k][1]
+    input_tensor = input_tensor.to(device)
+
+    model.eval()
+    with torch.no_grad():
+        y = (model(input_tensor).detach().cpu().squeeze().numpy()).tolist()
+    #print(y)
+    in_0 = [gate_inputs[0][0], gate_inputs[1][0], gate_inputs[2][0], gate_inputs[3][0]]
+    in_1 = [gate_inputs[0][1], gate_inputs[1][1], gate_inputs[2][1], gate_inputs[3][1]]
+    
+    fig, axes = plt.subplots(3, 1, figsize=(6, 4), sharex=True)
+    fig.subplots_adjust(left=0.22, right=0.98, bottom=0.12, top=0.98, hspace=0.15)
+
+    labels = ["$V_0$", "$V_1$", "$I_{\mathrm{out}} \quad [nA]$"]
+    
+    # time axis: 4 states -> 5 edges
+    t = np.arange(len(in_0) + 1)
+    
+    # helper: nice common style
+    def style_axis(ax, label):
+        ax.set_ylabel(label, rotation=90.0)#, ha="right", va="center")
+        ax.grid(alpha=0.3)
+        ax.set_facecolor("whitesmoke")
+        # remove top/right spines
+        for spine in ["top", "right"]:
+            ax.spines[spine].set_visible(False)
+    
+    # output
+    y_out = np.r_[y, y[-1]]
+    axes[2].step(t, y_out, where="post", lw=2)
+    style_axis(axes[2], labels[2])
+    
+    # input 0
+    y0 = np.r_[in_0, in_0[-1]]
+    axes[0].step(t, y0, where="post", lw=2, c='r')
+    style_axis(axes[0], labels[0])
+    
+    # input 1
+    y1 = np.r_[in_1, in_1[-1]]
+    axes[1].step(t, y1, where="post", lw=2, c='g')
+    style_axis(axes[1], labels[1])
+    
+    # x-ticks at the middle of each interval, labeled by input combination
+    centers = np.arange(len(y)) + 0.5
+    state_labels = ["00", "01", "10", "11"]
+    axes[-1].set_xticks(centers)
+    axes[-1].set_xticklabels(state_labels)
+    axes[-1].set_xlabel("Input $V_0, V_1 \quad [V]$")
+    
+    # small margins so steps aren't glued to edges
+    for ax in axes:
+        ymin, ymax = ax.get_ylim()
+        margin = 0.1 * (ymax - ymin if ymax > ymin else 1.0)
+        ax.set_ylim(ymin - margin, ymax + margin)
+        #ax.set_box_aspect(1)
+    
+    return axes

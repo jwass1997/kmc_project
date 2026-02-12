@@ -381,6 +381,8 @@ void singleRun(
     std::string deviceName = saveFolderPath + "/" + ID + ".npz";
     cnpy::npz_save(deviceName, "ID", &ID, {1}, "w"); 
     cnpy::npz_save(deviceName, "current", &averagedCurrent, {1}, "a");
+    cnpy::npz_save(deviceName, "sem", &sem, {1}, "a");
+    cnpy::npz_save(deviceName, "sampleStd", &sampleStd, {1}, "a");
 
     for (int i = 0; i < nAcceptors; ++i) 
     {

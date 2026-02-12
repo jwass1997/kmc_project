@@ -1,3 +1,0 @@
-/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project: /lib64/libstdc++.so.6: version `GLIBCXX_3.4.32' not found (required by /home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project)
-/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project: /lib64/libstdc++.so.6: version `CXXABI_1.3.15' not found (required by /home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project)
-/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project: /lib64/libstdc++.so.6: version `GLIBCXX_3.4.29' not found (required by /home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project)
