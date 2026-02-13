@@ -715,17 +715,41 @@ if __name__ == "__main__":
         OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
     )"""
 
-
-    """ANNULAR"""
-    data_type = 'data_vMB_ring_1e7'
-    opt_type = 'random'
-    func_type = 'linear'
-    slurm_single_IV(
+    func_type = 'Cosine'
+    in_idx = 4
+    maxl2 = 2.0
+    seed = 42
+    """uni_1e7"""
+    """ slurm_single_IV(
         numOfPoints=50,
         inputIdx=4,
         outputIdx=0,
-        control_indices=c_indices,
-        control_volts=[0.8753402530922632, -1.0253061239863164, -1.422887499677454, 0.3632564603904136, -0.5936841118833686, -0.4706212141182309],
+        control_indices=[1, 2, 3, 5, 6, 7],
+        control_volts=[-1.0219380855560303, -0.4582248032093048, -0.6068077087402344, -0.9893600940704346, -0.8508704900741577, -0.8213663697242737],
+        minVoltage=-1.5,
+        maxVoltage=1.5, 
+        eq_steps=100_000,
+        sim_steps=1_000_000,
+        num_intervals=100,
+        seed=np.random.randint(low=1, high=2**30),
+        cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/uni_1e7/configs/config.txt"),
+        acc_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/uni_1e7/configs/uniform_acceptors_0.txt"),
+        don_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/uni_1e7/configs/uniform_donors_0.txt"),
+        ele_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/uni_1e7/configs/electrodes.txt"),
+        save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data_new/1d_funcs_random"),
+        file_name=Path(f"random_func_type={func_type}_data_type=uni_1e7_maxl2={maxl2}_input_idx={in_idx-1}_seed={seed}"),
+        BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
+        SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
+        OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
+    ) """
+
+    """ANNULAR"""
+    """ slurm_single_IV(
+        numOfPoints=50,
+        inputIdx=4,
+        outputIdx=0,
+        control_indices=[1, 2, 3, 5, 6, 7],
+        control_volts=[-1.255379319190979, 0.39179202914237976, 0.008854406885802746, -0.41417431831359863, 1.2262847423553467, 0.771445631980896],
         minVoltage=-1.5,
         maxVoltage=1.5,
         eq_steps=100_000,
@@ -736,8 +760,56 @@ if __name__ == "__main__":
         acc_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/configs/vMB_ring.txt"),
         don_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/configs/uniform_donors_1.txt"),
         ele_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/data_vMB_ring_1e7/configs/electrodes.txt"),
-        save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/found_1d_functions"),
-        file_name=Path(f"opt_type={opt_type}_func_type={func_type}_data_type={data_type}"),
+        save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data_new/1d_funcs_random"),
+        file_name=Path(f"random_func_type={func_type}_data_type=data_vMB_ring_1e7_maxl2={maxl2}_input_idx={in_idx-1}_seed={seed}"),
+        BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
+        SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
+        OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
+    ) """
+
+    """GRAD TOWARDS"""
+    """ slurm_single_IV(
+        numOfPoints=50,
+        inputIdx=4,
+        outputIdx=0,
+        control_indices=[1, 2, 3, 5, 6, 7],
+        control_volts=[0.18202996253967285, 1.3527591228485107, -1.0002188682556152, -0.539883017539978, -0.5667458772659302, -0.19780707359313965],
+        minVoltage=-1.5,
+        maxVoltage=1.5,
+        eq_steps=100_000,
+        sim_steps=1_000_000,
+        num_intervals=100,
+        seed=np.random.randint(low=1, high=2**30),
+        cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_towards_1e7/configs/config.txt"),
+        acc_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_towards_1e7/configs/vMB_gradient_towards_output.txt"),
+        don_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_towards_1e7/configs/uniform_donors_1.txt"),
+        ele_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_towards_1e7/configs/electrodes.txt"),
+        save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data_new/1d_funcs_random"),
+        file_name=Path(f"random_func_type={func_type}_data_type=grad_towards_1e7_maxl2={maxl2}_input_idx={in_idx-1}_seed={seed}"),
+        BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
+        SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
+        OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
+    ) """
+
+    """GRAD AWAY"""
+    slurm_single_IV(
+        numOfPoints=50,
+        inputIdx=4,
+        outputIdx=0,
+        control_indices=[1, 2, 3, 5, 6, 7],
+        control_volts=[-0.5512767434120178, 0.8997340202331543, 0.5740776062011719, -0.05313372611999512, -1.4928081035614014, -0.40772485733032227],
+        minVoltage=-1.5,
+        maxVoltage=1.5,
+        eq_steps=100_000,
+        sim_steps=1_000_000,
+        num_intervals=100,
+        seed=np.random.randint(low=1, high=2**30),
+        cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_away_1e7/configs/config.txt"),
+        acc_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_away_1e7/configs/vMB_gradient_away_output.txt"),
+        don_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_away_1e7/configs/uniform_donors_1.txt"),
+        ele_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets/grad_away_1e7/configs/electrodes.txt"),
+        save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data_new/1d_funcs_random"),
+        file_name=Path(f"random_func_type={func_type}_data_type=grad_away_1e7_maxl2={maxl2}_input_idx={in_idx-1}_seed={seed}"),
         BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
         SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
         OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")

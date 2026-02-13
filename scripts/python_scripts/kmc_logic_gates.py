@@ -8,8 +8,8 @@ output_idx = 0
 
 num_voltages = 8
 
-GATE = 'AND'
-
+GATE = 'NAND'
+alpha = 1.0
 max_v = 0.5
 gate_inputs = [
     [0.0, 0.0],
@@ -19,7 +19,7 @@ gate_inputs = [
 ]
 
 control_indices = [1, 2, 4, 6, 7]
-control_voltages = [-0.8814225196838379, -0.8848653435707092, -0.8812631964683533, -0.05422365665435791, 0.7359204292297363]
+control_voltages = [-0.38804012537002563, -0.969171404838562, 0.4153963327407837, 0.8823429346084595, -0.9568776488304138]
 
 
 data_type='uni_1e7'
@@ -67,7 +67,7 @@ if __name__ == '__main__':
             acc_cfg=ACC_PATH,
             don_cfg=DON_PATH,
             ele_cfg=ELE_PATH,
-            save_folder=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_new/logic_gates_data/{data_type}_gate_data"),
+            save_folder=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_new/logic_gates_data/{data_type}_gate_data_alpha={alpha}"),
             file_name=Path(f"{data_type}_gate={GATE}_{pair[0]}_{pair[1]}_new_1"),
             BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
             SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/helix_single.sh"),
