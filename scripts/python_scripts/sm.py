@@ -92,9 +92,9 @@ class LearnableActivationFunc(nn.Module):
 
     def scale_cntrl(self):
 
-        #return torch.clamp(self.raw_cntrl_params, self.v_min, self.v_max)
-        vmin, vmax = self.v_min, self.v_max
-        return vmin + (vmax - vmin) * (torch.tanh(self.raw_cntrl_params) + 1.0) / 2.0
+        return torch.clamp(self.raw_cntrl_params, self.v_min, self.v_max)
+        #vmin, vmax = self.v_min, self.v_max
+        #return vmin + (vmax - vmin) * (torch.tanh(self.raw_cntrl_params) + 1.0) / 2.0
 
     def affine_input_scaling(self, x, eps=1e-8):
 

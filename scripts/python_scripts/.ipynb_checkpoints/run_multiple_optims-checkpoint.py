@@ -3,6 +3,8 @@ import torch.nn as nn
 import numpy as np
 import matplotlib.pyplot as plt
 import argparse
+import pandas as pd
+from pathlib import Path
 from bayes_opt import BayesianOptimization
 from models import CondSM
 
@@ -11,12 +13,22 @@ print(device)
 
 parser = argparse.ArgumentParser()
 
+parser.add_argument('--model', type=str)
+parser.add_argument('--num_init_points', type=int)
 parser.add_argument('--num_runs', type=int)
 parser.add_argument('--num_iters', type=int)
-parser.add_argument('--optim_type', type=str)
-parser.add_argument('--target', type=str)
-parser.add_argument('--file_id', type=str)
+parser.add_argument('--input_index', type=int)
+parser.add_argument('--func_type', type=str)
+parser.add_argument('--lam', type=float)
 args = parser.parse_args()
+
+model_dir = f'/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/{args.model}/sm_{args.model}_baseline_0_epochs=1000_dp=0.1_bn=True_hd=90_ls=5_noise=True.pth'
+state_dict = torch.load(model_dir, weights_only=False, map_location='cpu')
+
+model = CondSM(state_dict['layer_dims'], state_dict['dropout'], state_dict['batch_norm'])
+model.load_state_dict(state_dict['model_state_dict'])
+model = model.to(device)
+model.eval()
 
 def normalize_over_range(x):
     
@@ -40,35 +52,40 @@ def forward_whole_range(model, param_list, input_idx, v_min, v_max, N):
 
     return y_out
 
-f_target = args.target
+f_target = args.func_type
 
-if f_target == 'relu':
+if f_target == 'ReLU':
     def target_function(x):
     
         m = nn.ReLU()
             
         return m(x)
 
-elif f_target == 'tanh':
+elif f_target == 'Tanh':
     def target_function(x):
     
         m = nn.Tanh()
             
         return m(x)
 
-elif f_target == 'sigmoid':
+elif f_target == 'Sigmoid':
     def target_function(x):
     
         m = nn.Sigmoid()
             
         return m(x)
 
-elif f_target == 'parabola':
+elif f_target == 'Parabola':
     def target_function(x):
             
         return x ** 2
 
-elif f_target == 'cubic':
+elif f_target == 'Sine':
+    def target_function(x):
+            
+        return torch.sin(3*x)
+
+elif f_target == 'Cubic':
     def target_function(x):
             
         return x ** 3
@@ -76,12 +93,12 @@ elif f_target == 'cubic':
 elif f_target == 'rbf_gaussian':
     def target_function(x):
         
-        return -np.exp(-1*x**2)
+        return -torch.exp(-1*x**2)
 
 else:
     print('Function to optimize for not found')
 
-def mse_loss(x, y):
+def mse_loss_normalized(x, y):
 
     x = x.float()
     y = y.float()
@@ -92,16 +109,8 @@ def mse_loss(x, y):
 
     return mse
 
-state_dict = torch.load("/gpfs/bwfor/work/ws/hd_gy283-my_data/models/sm_vMB_na=200.pth", weights_only=False, map_location='cpu')
-
-model = CondSM(state_dict['layer_dims'], state_dict['dropout'], state_dict['batch_norm'])
-model.load_state_dict(state_dict['model_state_dict'])
-
 v_min = -1.5
 v_max = 1.5
-
-N = 100
-input_range = torch.linspace(v_min, v_max, N).unsqueeze(1)
 
 # --- Number of control electrodes (Normally input dim of SM minus 1) --- #
 d = model.layer_dims[0] - 1
@@ -109,31 +118,37 @@ pbounds = {
     f'x{i}': (v_min, v_max) for i in range(d) 
 }
 
-input_idx = 0
-target = target_function(input_range)
+N = 100
+input_range = torch.linspace(v_min, v_max, N, device=device).unsqueeze(1)
+input_idx = args.input_index
+lam = args.lam
+target = target_function(input_range).to(device)
 
 def f(**kwargs):
 
-    cv_list = list(kwargs.values())
-    cv_t = torch.tensor(cv_list, dtype=torch.float32).expand(N, -1)
+    cv_list = [kwargs[f'x{i}'] for i in range(d)]
+    c_volt_vec = np.array(cv_list)
+    cv_t = torch.tensor(cv_list, dtype=torch.float32, device=device).expand(N, -1)
     cv_t_l = cv_t[:, :input_idx]
     cv_t_r = cv_t[:, input_idx:]
 
     input_tensor = torch.cat([cv_t_l, input_range, cv_t_r], dim=1)
-
     model.eval()
     with torch.no_grad():
-        y_out = model(input_tensor)
+        y_out = model(input_tensor).detach()
 
-    I_mu = y_out[..., 0].unsqueeze(-1)
+    reg = float(np.sum(np.abs(c_volt_vec))) 
 
-    loss = mse_loss(I_mu, target)
-
+    loss = mse_loss_normalized(y_out, target) + lam*reg
+    
     return -loss
 
-def multiple_runs(num_runs, num_iter=10):
-    opt_param_list = []
-    target_list = []
+if __name__ == '__main__':
+    num_iters = args.num_iters
+    num_init_points = args.num_init_points
+    num_runs = args.num_runs
+    opt_param_vals = []
+    opt_targets = []
     for i in range(num_runs):
         optimizer = BayesianOptimization(
             f=f,
@@ -142,24 +157,15 @@ def multiple_runs(num_runs, num_iter=10):
             random_state=np.random.randint(0, 2**31 - 1),
         )
         optimizer.maximize(
-            init_points=10,
-            n_iter=num_iter,
+            init_points=num_init_points,
+            n_iter=num_iters,
         )
-        opt_param_list.append(np.array(list(optimizer.max['params'].values())).tolist())
-        target_list.append(float(optimizer.max['target']))
-        
-        print(f'{i+1}/{num_runs} | Params: {opt_param_list[i]}')
+        print('run done:', i)
+        opt_param_vals.append(np.array(list(optimizer.max['params'].values())))
+        opt_targets.append(optimizer.max['target'].item())  
+
+    Ts = np.vstack(opt_param_vals)
+    df = pd.DataFrame(Ts, columns=[f'x{i}' for i in range(Ts.shape[1])])
+    df['target'] = opt_targets
     
-    opt_param_arr = np.stack(opt_param_list)
-    target_arr = np.stack(target_list)
-
-    return opt_param_arr, target_arr
-
-optim_type = args.optim_type
-
-if __name__ == '__main__':
-    if optim_type == 'BO':
-        params, targets = multiple_runs(num_runs=args.num_runs, num_iter=args.num_iters)
-        np.save(f'/gpfs/bwfor/work/ws/hd_gy283-my_data/{optim_type}_{f_target}_{args.file_id}.npy', {'params': params, 'targets': targets})
-    else:
-        print('Optimization algorithm not found')
+    df.to_csv(f'bayes_opt_data_type={args.model}_input_idx={args.input_index}_func_type={args.func_type}_lambda={args.lam}.csv', index=False)
