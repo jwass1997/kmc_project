@@ -19,7 +19,11 @@ parser.add_argument('--num_runs', type=int)
 parser.add_argument('--num_iters', type=int)
 parser.add_argument('--input_index', type=int)
 parser.add_argument('--func_type', type=str)
-parser.add_argument('--lam', type=float)
+parser.add_argument('--reg_l1', action='store_true', help='enable L1 regularization')
+parser.add_argument('--lam_l1', type=float)
+parser.add_argument('--reg_l2', action='store_true', help='enable L2 regularization')
+parser.add_argument('--lam_l2', type=float)
+parser.add_argument('--c_range', type=float)
 args = parser.parse_args()
 
 model_dir = f'/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/{args.model}/sm_{args.model}_baseline_0_epochs=1000_dp=0.1_bn=True_hd=90_ls=5_noise=True.pth'
@@ -73,7 +77,7 @@ elif f_target == 'Sigmoid':
     
         m = nn.Sigmoid()
             
-        return m(x)
+        return m(4*x)
 
 elif f_target == 'Parabola':
     def target_function(x):
@@ -112,16 +116,21 @@ def mse_loss_normalized(x, y):
 v_min = -1.5
 v_max = 1.5
 
+c_min = -args.c_range
+c_max = args.c_range
+
 # --- Number of control electrodes (Normally input dim of SM minus 1) --- #
 d = model.layer_dims[0] - 1
 pbounds = {
-    f'x{i}': (v_min, v_max) for i in range(d) 
+    f'x{i}': (c_min, c_max) for i in range(d) 
 }
 
 N = 100
 input_range = torch.linspace(v_min, v_max, N, device=device).unsqueeze(1)
 input_idx = args.input_index
-lam = args.lam
+lam_l1 = args.lam_l1 if args.lam_l1 is not None else 0.0
+lam_l2 = args.lam_l2 if args.lam_l2 is not None else 0.0
+
 target = target_function(input_range).to(device)
 
 def f(**kwargs):
@@ -137,9 +146,13 @@ def f(**kwargs):
     with torch.no_grad():
         y_out = model(input_tensor).detach()
 
-    reg = float(np.sum(np.abs(c_volt_vec))) 
+    reg = 0.0
+    if args.reg_l1:
+        reg += lam_l1 * float(np.sum(np.abs(c_volt_vec))) / (d * np.abs(c_max) + 1e-12)
+    if args.reg_l2:
+        reg += lam_l2 * float(np.linalg.norm(c_volt_vec, ord=2) / (np.sqrt(d) * (abs(c_max) + 1e-12)))
 
-    loss = mse_loss_normalized(y_out, target) + lam*reg
+    loss = mse_loss_normalized(y_out, target) + reg
     
     return -loss
 
@@ -150,10 +163,11 @@ if __name__ == '__main__':
     opt_param_vals = []
     opt_targets = []
     for i in range(num_runs):
+        print("Run iteration:", i)
         optimizer = BayesianOptimization(
             f=f,
             pbounds=pbounds,
-            verbose=0,
+            verbose=1,
             random_state=np.random.randint(0, 2**31 - 1),
         )
         optimizer.maximize(
@@ -168,4 +182,4 @@ if __name__ == '__main__':
     df = pd.DataFrame(Ts, columns=[f'x{i}' for i in range(Ts.shape[1])])
     df['target'] = opt_targets
     
-    df.to_csv(f'bayes_opt_data_type={args.model}_input_idx={args.input_index}_func_type={args.func_type}_lambda={args.lam}.csv', index=False)
+    df.to_csv(f'/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/1d_funcs_BO/bayes_opt_data_type={args.model}_input_idx={args.input_index}_func_type={args.func_type}_lambda_1={args.lam_l1}__lambda_2={args.lam_l2}_c_range={args.c_range}.csv', index=False)
