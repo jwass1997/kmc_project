@@ -760,7 +760,7 @@ if __name__ == "__main__":
         OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
     ) """
 
-    func_type = 'Parabola'
+    func_type = 'ReLU'
     c_range = 1.5
     lambda_1 = 0.0
     lambda_2 = 1.0
@@ -771,7 +771,7 @@ if __name__ == "__main__":
         inputIdx=input_index,
         outputIdx=0,
         control_indices=[1, 2, 3, 5, 6, 7],
-        control_volts=[-1.5000,  0.4101,  0.2858, -0.1502, -1.5000, -0.6384],
+        control_volts=[-0.8001992391888313, 0.9040604217054182, -0.2543357142505376, -0.218731654982484, -0.1055281271328455, 0.0395764889093708],
         minVoltage=-1.5,
         maxVoltage=1.5, 
         eq_steps=100_000,
@@ -782,19 +782,19 @@ if __name__ == "__main__":
         acc_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/uni_1e7/configs/uniform_acceptors_0.txt"),
         don_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/uni_1e7/configs/uniform_donors_0.txt"),
         ele_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/uni_1e7/configs/electrodes.txt"),
-        save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/1d_funcs_BO"),
-        file_name=Path(f"bayes_opt_data_type=uni_1e7_input_idx={input_index-1}_func_type={func_type}_lambda_1={lambda_1}_lambda_2={lambda_2}_c_range={c_range}"),
+        save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/1d_funcs_BO_mse"),
+        file_name=Path(f"bo_mse_data_type=uni_1e7_input_idx={input_index-1}_func_type={func_type}_lambda_1={lambda_1}_lambda_2={lambda_2}_c_range={c_range}"),
         BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
         SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
         OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
     )"""
 
-    """slurm_single_IV(
+    """ slurm_single_IV(
         numOfPoints=50,
         inputIdx=4,
         outputIdx=0,
         control_indices=[1, 2, 3, 5, 6, 7],
-        control_volts=[-0.0836,  0.9974, -0.0784, -0.0870,  1.3175, -0.4786],
+        control_volts=[1.114399526237024, -1.5, 1.5, 0.1641502246829385, 1.5, 0.7333563925568791],
         minVoltage=-1.5,
         maxVoltage=1.5,
         eq_steps=100_000,
@@ -805,19 +805,19 @@ if __name__ == "__main__":
         acc_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/data_vMB_ring_1e7/configs/vMB_ring.txt"),
         don_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/data_vMB_ring_1e7/configs/uniform_donors_1.txt"),
         ele_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/data_vMB_ring_1e7/configs/electrodes.txt"),
-        save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/1d_funcs_BO"),
-        file_name=Path(f"bayes_opt_data_type=data_vMB_ring_1e7_input_idx={input_index-1}_func_type={func_type}_lambda_1={lambda_1}_lambda_2={lambda_2}_c_range={c_range}"),
+        save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/1d_funcs_BO_mse"),
+        file_name=Path(f"bo_mse_data_type=data_vMB_ring_1e7_input_idx={input_index-1}_func_type={func_type}_lambda_1={lambda_1}_lambda_2={lambda_2}_c_range={c_range}"),
         BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
         SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
         OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
-    )"""
+    ) """
 
-    """slurm_single_IV(
+    """ slurm_single_IV(
         numOfPoints=50,
         inputIdx=4,
         outputIdx=0,
         control_indices=[1, 2, 3, 5, 6, 7],
-        control_volts=[ 0.2800, -0.6910, -1.4224, -1.2536,  0.9652, -0.1150],
+        control_volts=[-0.0937798530355585, -0.574496230736149, -0.8510334746027562, -0.5535486201550883, 1.462991385149562, 0.343069103385019],
         minVoltage=-1.5,
         maxVoltage=1.5,
         eq_steps=100_000,
@@ -828,20 +828,20 @@ if __name__ == "__main__":
         acc_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/grad_towards_1e7/configs/vMB_gradient_towards_output.txt"),
         don_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/grad_towards_1e7/configs/uniform_donors_1.txt"),
         ele_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/grad_towards_1e7/configs/electrodes.txt"),
-        save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/1d_funcs_BO"),
-        file_name=Path(f"bayes_opt_data_type=grad_towards_1e7_input_idx={input_index-1}_func_type={func_type}_lambda_1={lambda_1}_lambda_2={lambda_2}_c_range={c_range}"),
+        save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/1d_funcs_BO_mse"),
+        file_name=Path(f"bo_mse_data_type=grad_towards_1e7_input_idx={input_index-1}_func_type={func_type}_lambda_1={lambda_1}_lambda_2={lambda_2}_c_range={c_range}"),
         BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
         SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
         OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
-    )"""
+    ) """
 
 
-    """slurm_single_IV(
+    """ slurm_single_IV(
         numOfPoints=50,
         inputIdx=4,
         outputIdx=0,
         control_indices=[1, 2, 3, 5, 6, 7],
-        control_volts=[ 1.3495, -0.3470, -0.8692, -0.7407, -0.2617,  1.5000],
+        control_volts=[1.5, -0.2350576151551892, -0.0352468294126675, -1.5, -1.1282102403379073, -1.5],
         minVoltage=-1.5,
         maxVoltage=1.5,
         eq_steps=100_000,
@@ -852,12 +852,12 @@ if __name__ == "__main__":
         acc_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/grad_away_1e7/configs/vMB_gradient_away_output.txt"),
         don_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/grad_away_1e7/configs/uniform_donors_1.txt"),
         ele_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/grad_away_1e7/configs/electrodes.txt"),
-        save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/1d_funcs_BO"),
-        file_name=Path(f"bayes_opt_data_type=grad_away_1e7_input_idx={input_index-1}_func_type={func_type}_lambda_1={lambda_1}_lambda_2={lambda_2}_c_range={c_range}"),
+        save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/1d_funcs_BO_mse"),
+        file_name=Path(f"bo_mse_data_type=grad_away_1e7_input_idx={input_index-1}_func_type={func_type}_lambda_1={lambda_1}_lambda_2={lambda_2}_c_range={c_range}"),
         BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
         SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
         OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
-    )"""
+    ) """
 
 
     func_type = 'Sigmoid'
@@ -1065,7 +1065,7 @@ if __name__ == "__main__":
         inputIdx=input_idx,
         outputIdx=0,
         control_indices=[1, 2, 3, 5, 6, 7],
-        control_volts=[ 0.0374,  0.1672, -0.3732, -0.5112,  0.0915,  0.1687],
+        control_volts=[ 0.2722,  1.4711,  0.2253,  1.5000,  0.9710, -1.3250],
         minVoltage=-1.5,
         maxVoltage=1.5,
         eq_steps=100_000,
@@ -1077,7 +1077,7 @@ if __name__ == "__main__":
         don_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/data_vMB_ring_1e7/configs/uniform_donors_1.txt"),
         ele_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/data_vMB_ring_1e7/configs/electrodes.txt"),
         save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/1d_funcs_GD"),
-        file_name=Path(f"gd_data_type=data_vMB_ring_1e7_func_type={func_type}_input_idx={input_idx-1}"),
+        file_name=Path(f"gd_adjoint_data_type=data_vMB_ring_1e7_func_type={func_type}_input_idx={input_idx-1}"),
         BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
         SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
         OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
