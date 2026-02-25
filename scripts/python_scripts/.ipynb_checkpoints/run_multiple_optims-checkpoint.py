@@ -94,6 +94,21 @@ elif f_target == 'Cubic':
             
         return x ** 3
 
+elif f_target == 'Cosine':
+    def target_function(x):
+            
+        return torch.cos(3*x)
+
+elif f_target == 'Linear':
+    def target_function(x):
+            
+        return x
+
+elif f_target == 'Gaussian':
+    def target_function(x):
+            
+        return torch.exp(-x**2 / 2.0)
+
 elif f_target == 'rbf_gaussian':
     def target_function(x):
         

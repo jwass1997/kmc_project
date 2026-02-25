@@ -8,8 +8,8 @@ from pathlib import Path
 from jobs import slurm_single_IV
 
 if __name__ == '__main__':
-    data_type = 'data_vMB_ring_1e7'
-    func_type = 'Parabola'
+    data_type = 'grad_towards_1e7'
+    func_type = 'Sine'
     input_idx = 4
     maxl2 = 2.0
     seed = 42
@@ -115,11 +115,6 @@ if __name__ == '__main__':
             f'/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/1d_funcs_random_mse/'
             f'topK_random_affine_data_type={data_type}_func={func_type}_cmin=-1.5_cmax=1.5_seed={seed}_maxl2={maxl2}_input_idx=3_K=100.txt'
         )
-
-        x_cols = [c for c in df.columns if c.startswith("x")]
-        topk = df.nlargest(top_K_num, "target")              # highest target = best
-        topk_x = topk[x_cols].to_numpy().tolist()
-        opk_x = topk.loc[:, x_cols].values.tolist()
 
         for k in range(top_K_num):
             slurm_single_IV(

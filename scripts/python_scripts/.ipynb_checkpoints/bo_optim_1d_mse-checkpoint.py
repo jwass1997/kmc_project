@@ -52,8 +52,12 @@ elif f_target == 'Sine':
     def target_function(x): return torch.sin(3 * x)
 elif f_target == 'Cubic':
     def target_function(x): return x ** 3
-elif f_target == 'rbf_gaussian':
-    def target_function(x): return -torch.exp(-1 * x**2)
+elif f_target == 'Cosine':
+    def target_function(x): return torch.cos(3*x)
+elif f_target == 'Linear':
+    def target_function(x): return x
+elif f_target == 'Gaussian':
+    def target_function(x): return torch.exp(-x**2 / 2.0)
 else:
     raise ValueError('Function to optimize for not found')
 
