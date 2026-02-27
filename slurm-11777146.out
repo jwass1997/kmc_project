@@ -1,7 +1,0 @@
-usage: run_multiple_optims.py [-h] [--model MODEL]
-                              [--num_init_points NUM_INIT_POINTS]
-                              [--num_runs NUM_RUNS] [--num_iters NUM_ITERS]
-                              [--input_index INPUT_INDEX]
-                              [--func_type FUNC_TYPE] [--lam LAM]
-run_multiple_optims.py: error: unrecognized arguments: --input_idx 3
-cpu

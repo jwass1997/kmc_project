@@ -284,9 +284,7 @@ void singleRun(
     {
         throw std::invalid_argument("[singleRun]: No save folder specified !");
     }
-
-    auto start = std::chrono::high_resolution_clock::now();
-
+    auto start_full = std::chrono::high_resolution_clock::now();
     Configuration config(
         cfg, 
         acceptorCfg, 
@@ -299,8 +297,12 @@ void singleRun(
     kmc.simulate(state, eqSteps, false, false);
     state.resetEventCounter();
     state.stateTime = 0.0;
-
+    auto start_fem = std::chrono::high_resolution_clock::now();
     state.updateBoundaries(voltages);
+
+    auto end_fem = std::chrono::high_resolution_clock::now();
+    auto elapsed_time_fem = std::chrono::duration_cast<std::chrono::seconds>(end_fem - start_fem);
+    std::cout << elapsed_time_fem.count() << std::endl;
 
     double averagedCurrent = 0.0;
     double totalTime = 0.0;
@@ -356,10 +358,14 @@ void singleRun(
     }    
 
     averagedCurrent /= totalTime;
-
+    std::cout << averagedCurrent << "\n";
     double weightedVar = (wSum > 0.0) ? (M2w / wSum) : 0.0;
     double sampleStd = std::sqrt(weightedVar);
     double sem = (wSum > 0.0) ? (sampleStd * std::sqrt(w2Sum) / wSum) : 0.0;
+
+    auto end_full = std::chrono::high_resolution_clock::now();
+    auto elapsed_time_full = std::chrono::duration_cast<std::chrono::seconds>(end_full - start_full);
+    std::cout << elapsed_time_full.count() << std::endl;
 
     int nAcceptors = state.nAcceptors;
     int nElectrodes = state.nElectrodes;
@@ -406,10 +412,6 @@ void singleRun(
     }
 
     double total_time = state.stateTime;
-
-    //auto end = std::chrono::high_resolution_clock::now();
-    //auto elapsed_time = std::chrono::duration_cast<std::chrono::seconds>(end - start);
-    //std::cout << elapsed_time.count() << std::endl;
 
     cnpy::npz_save(deviceName, "acc_xy", flattenedAcceptorCoordinates.data(), shapeFlattenedAcceptorCoordinates, "a");
     cnpy::npz_save(deviceName, "don_xy", flattenedDonorCoordinates.data(), shapeFlattenedDonorCoordinates, "a");

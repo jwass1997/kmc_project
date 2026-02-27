@@ -1038,23 +1038,25 @@ if __name__ == "__main__":
             OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
         )"""
 
-    """for steps in [100_000, 1_000_000, 10_000_000]:
+    for steps in [1_000_000]:
         slurm_single_device(
             control_indices=[0, 1, 2, 3, 4, 5, 6, 7],
             control_volts = volts,#np.random.uniform(low=-1.5, high=1.5, size=8).tolist(),
             eq_steps=100_000,
+            output_idx=0,
+            num_intervals=100,
             sim_steps=f'{steps}',
             seed=np.random.randint(low=1, high=2**30),
             cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/config.txt"),
             acc_cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/configs/radial_distribution.txt"),
             don_cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/donors_0.txt"),
             ele_cfg=Path(f"/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/electrodes.txt"),
-            save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data/final_datasets"),
-            file_name=Path(f"steps_{steps}"),
+            save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets"),
+            file_name=Path(f"steps_{steps}_1"),
             BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
             SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/helix_single.sh"),
             OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
-        )"""
+        )
     func_type = 'Parabola'
     input_idx = 4
     """slurm_single_IV(
