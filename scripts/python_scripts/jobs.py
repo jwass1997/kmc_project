@@ -1038,7 +1038,7 @@ if __name__ == "__main__":
             OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
         )"""
 
-    for steps in [1_000_000]:
+    for steps in [10_000_000]:
         slurm_single_device(
             control_indices=[0, 1, 2, 3, 4, 5, 6, 7],
             control_volts = volts,#np.random.uniform(low=-1.5, high=1.5, size=8).tolist(),

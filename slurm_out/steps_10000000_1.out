@@ -1,0 +1,7 @@
+/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project singleRun --outputIdx=0 --eqSteps=100000 --simSteps=10000000 --numIntervals=100 --seed=409339262 --cfg=/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/config.txt --accCfg=/home/hd/hd_hd/hd_gy283/kmc_project/configs/radial_distribution.txt --donCfg=/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/donors_0.txt --eleCfg=/home/hd/hd_hd/hd_gy283/kmc_project/configs/std_configs/electrodes.txt --saveFolder=/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets --fileName=steps_10000000_1 --c_v=0=0.0 --c_v=1=-1.0 --c_v=2=0.2 --c_v=3=1.1 --c_v=4=-0.5 --c_v=5=-1 --c_v=6=0.5 --c_v=7=0.7
+38
+38
+-1.53662e-20
+278
+-1.4747e-20
+277
