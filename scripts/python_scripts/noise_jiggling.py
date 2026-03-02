@@ -63,7 +63,7 @@ def add_noise_resample_in_disk(xy: np.ndarray, sigma: float, R: float, seed: int
 if __name__ == '__main__':
 
     data_type = 'data_vMB_ring_1e7'
-    func_type = 'Parabola'
+    func_type = 'Sigmoid'
     maxl2 = 2.0
     seed = 42
     input_idx = 4
@@ -85,7 +85,7 @@ if __name__ == '__main__':
         for sig in noise_strengths:
             save_path = Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/{data_type}/configs/jiggled_configs/sigma={sig}")
             save_path.mkdir(exist_ok=True, parents=True)
-            for j in range(num_noise_samples):
+            for j in range(num_noise_samples, 20):
                 dopants_noisy = add_noise_project_to_disk(
                     ref_dopants, 
                     sigma=sig,
@@ -128,7 +128,7 @@ if __name__ == '__main__':
         for sig in noise_strengths:
             save_path = Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/{data_type}/configs/jiggled_configs/sigma={sig}")
             save_path.mkdir(exist_ok=True, parents=True)
-            for j in range(num_noise_samples):
+            for j in range(num_noise_samples, 20):
                 dopants_noisy = add_noise_project_to_disk(
                     ref_dopants, 
                     sigma=sig, 
@@ -171,7 +171,7 @@ if __name__ == '__main__':
         for sig in noise_strengths:
             save_path = Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/{data_type}/configs/jiggled_configs/sigma={sig}")
             save_path.mkdir(exist_ok=True, parents=True)
-            for j in range(num_noise_samples, 20):
+            for j in range(num_noise_samples):
                 dopants_noisy = add_noise_project_to_disk(
                     ref_dopants, 
                     sigma=sig, 
@@ -223,7 +223,7 @@ if __name__ == '__main__':
                     )
                 current_dopant_path = save_path / f"sig={sig}_jiggled_{j}.txt"
                 np.savetxt(current_dopant_path, dopants_noisy)
-                for k in range(top_K_num):
+                for k in range(top_K_num, 10):
                     job_seed = 10_000_000 + 1_000*noise_strengths.index(sig) + 10*j + k
                     slurm_single_IV(
                         numOfPoints=50,

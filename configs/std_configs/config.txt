@@ -1,4 +1,4 @@
-nAcceptors 200
+nAcceptors 500
 nDonors 3
 nElectrodes 8
 radius 150.0

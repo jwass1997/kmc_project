@@ -301,8 +301,8 @@ void singleRun(
     state.updateBoundaries(voltages);
 
     auto end_fem = std::chrono::high_resolution_clock::now();
-    auto elapsed_time_fem = std::chrono::duration_cast<std::chrono::seconds>(end_fem - start_fem);
-    std::cout << elapsed_time_fem.count() << std::endl;
+    auto elapsed_time_fem = std::chrono::duration_cast<std::chrono::milliseconds>(end_fem - start_fem);
+    std::cout << elapsed_time_fem.count() / 1000.0 << std::endl;
 
     double averagedCurrent = 0.0;
     double totalTime = 0.0;
@@ -317,7 +317,7 @@ void singleRun(
     std::vector<long long> totalEventCounts(state.numOfSites * state.numOfSites, 0);
     while (intervalCount < num_intervals) 
     {
-
+        std::cout << intervalCount << "\n";
         double startClock = state.stateTime;
         kmc.simulate(state, intervalSteps, false, true);
         double endClock = state.stateTime; 
@@ -364,8 +364,8 @@ void singleRun(
     double sem = (wSum > 0.0) ? (sampleStd * std::sqrt(w2Sum) / wSum) : 0.0;
 
     auto end_full = std::chrono::high_resolution_clock::now();
-    auto elapsed_time_full = std::chrono::duration_cast<std::chrono::seconds>(end_full - start_full);
-    std::cout << elapsed_time_full.count() << std::endl;
+    auto elapsed_time_full = std::chrono::duration_cast<std::chrono::milliseconds>(end_full - start_full);
+    std::cout << elapsed_time_full.count() / 1000.0 << std::endl;
 
     int nAcceptors = state.nAcceptors;
     int nElectrodes = state.nElectrodes;

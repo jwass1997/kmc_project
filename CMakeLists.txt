@@ -60,6 +60,7 @@ target_include_directories(kmc_project PRIVATE
 
 target_compile_options(kmc_project PRIVATE 
     -Ofast
+    -march=native
     ${OpenMP_CXX_FLAGS}
 )
 

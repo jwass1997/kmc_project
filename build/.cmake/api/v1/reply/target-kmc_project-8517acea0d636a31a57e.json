@@ -36,7 +36,7 @@
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 66,
+				"line" : 67,
 				"parent" : 0
 			},
 			{
@@ -80,6 +80,10 @@
 				{
 					"backtrace" : 6,
 					"fragment" : "-Ofast"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-march=native"
 				},
 				{
 					"backtrace" : 6,

@@ -8,8 +8,8 @@ from pathlib import Path
 from jobs import slurm_single_IV
 
 if __name__ == '__main__':
-    data_type = 'grad_towards_1e7'
-    func_type = 'Sine'
+    data_type = 'data_vMB_ring_1e7'
+    func_type = 'Sigmoid'
     input_idx = 4
     maxl2 = 2.0
     seed = 42
