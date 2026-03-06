@@ -1059,26 +1059,50 @@ if __name__ == "__main__":
         )"""
     func_type = 'Parabola'
     input_idx = 4
-    for n in [100, 200, 500]:
+    """ for n in [100, 200, 500]:
+        for k in range(5):
+            slurm_single_IV(
+                numOfPoints=n,
+                inputIdx=input_idx,
+                outputIdx=0,
+                control_indices=[1, 2, 3, 5, 6, 7],
+                control_volts=[ 0.2722,  1.4711,  0.2253,  1.5000,  0.9710, -1.3250],
+                minVoltage=-1.5,
+                maxVoltage=1.5,
+                eq_steps=100_000,
+                sim_steps=10_000_000,
+                num_intervals=100,
+                seed=np.random.randint(low=1, high=2**30),
+                cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/data_vMB_ring_1e7/configs/config.txt"),
+                acc_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/data_vMB_ring_1e7/configs/vMB_ring.txt"),
+                don_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/data_vMB_ring_1e7/configs/uniform_donors_1.txt"),
+                ele_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/data_vMB_ring_1e7/configs/electrodes.txt"),
+                save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/1d_funcs_GD"),
+                file_name=Path(f"speed_test_{n}_{k}"),
+                BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
+                SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
+                OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
+            ) """
+    for sig in [2, 5, 10]:
         slurm_single_IV(
             numOfPoints=50,
-            inputIdx=input_idx,
+            inputIdx=4,
             outputIdx=0,
             control_indices=[1, 2, 3, 5, 6, 7],
-            control_volts=[ 0.2722,  1.4711,  0.2253,  1.5000,  0.9710, -1.3250],
+            control_volts=[-4.22707409e-01, -8.44256163e-01,  1.28508961e+00, -2.61768162e-01,  -5.02341352e-02,  1.17730558e+00],
             minVoltage=-1.5,
             maxVoltage=1.5,
             eq_steps=100_000,
-            sim_steps=10_000_000,
-            num_intervals=n,
+            sim_steps=1_000_000,
+            num_intervals=100,
             seed=np.random.randint(low=1, high=2**30),
             cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/data_vMB_ring_1e7/configs/config.txt"),
-            acc_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/data_vMB_ring_1e7/configs/vMB_ring.txt"),
+            acc_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/data_vMB_ring_1e7/configs/jiggled_configs/sigma={sig}/sig={sig}_jiggled_0.txt"),
             don_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/data_vMB_ring_1e7/configs/uniform_donors_1.txt"),
             ele_cfg=Path(f"/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/final_datasets/data_vMB_ring_1e7/configs/electrodes.txt"),
-            save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/1d_funcs_GD"),
-            file_name=Path(f"speed_test_{n}"),
+            save_folder=Path("/gpfs/bwfor/work/ws/hd_gy283-my_data_recover/"),
+            file_name=Path(f"vMB_robustness_{sig}_jiggled=0"),
             BINARY=Path("/home/hd/hd_hd/hd_gy283/kmc_project/build/kmc_project"),
             SH_SCRIPT=Path("/home/hd/hd_hd/hd_gy283/kmc_project/scripts/slurm/single_curve.sh"),
             OUT_DIR=Path("/home/hd/hd_hd/hd_gy283/kmc_project/slurm_out")
-        )
+            )
